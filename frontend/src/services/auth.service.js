@@ -1,23 +1,17 @@
-const backend_url = "";
+import axios from 'axios';
+
+const backend_url = import.meta.env.VITE_API_URL;
+//const backend_url = process.env.REACT_APP_API_URL;
+
 export const login = async (userCredentials) => {
   console.log("AUTH SERVICE : LOGIN");
   try {
-    // const response = await fetch('https://your-backend-url.com/api/login', {
-    //   method: 'GET', // Note: Using GET for login with credentials in query params is not secure. Use POST instead.
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   // Pass the username and password as query parameters (not recommended, better use POST)
-    //   // credentials: 'include' can be used to include cookies if needed
-    //   body: JSON.stringify({ username, password }),
-    // });
+    const response = await axios.post(`${backend_url}/User/login`, userCredentials);
 
-    // if (!response.ok) {
-    //   throw new Error('Network response was not ok');
-    // }
-
-    // const data = await response.json();
-    // return data;
+    console.log(response.data);
+    return response.data;
+    //const data = await response.json();
+    //return data;
   } catch (error) {
     console.error('Erreur :', error);
     throw error;
