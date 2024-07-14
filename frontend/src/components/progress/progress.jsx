@@ -1,7 +1,7 @@
 import Dashboard from "../dashboard/dashboard";
-import "./bill.css";
+import "./progress.css";
 
-const Bill = () => {
+const Progress = () => {
     return (<>
         <div className="flex">
             <div className="dash-div">
@@ -9,10 +9,10 @@ const Bill = () => {
             </div>
 
             <div>
-                Bill Page
+                Progress Page
             </div>
         </div>
     </>)
 }
 
-export default Bill;
+export default Progress;

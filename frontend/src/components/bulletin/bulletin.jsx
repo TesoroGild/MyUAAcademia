@@ -1,18 +1,25 @@
 import Dashboard from "../dashboard/dashboard";
-import "./bill.css";
+import "./bulletin.css";
+import React from 'react';
+import { useState } from 'react';
 
-const Bill = () => {
+function Bulletin () {
+    //States
+    
+    //Functions
+
+    //Return
     return (<>
         <div className="flex">
             <div className="dash-div">
                 <Dashboard/>
             </div>
-
+            
             <div>
-                Bill Page
+                Bulettin
             </div>
         </div>
     </>)
 }
 
-export default Bill;
+export default Bulletin;

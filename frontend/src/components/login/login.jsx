@@ -1,9 +1,10 @@
 import "./login.css";
 import React from 'react';
 import { useState } from 'react';
-import { login } from '../../services/auth.service'
+import { login } from '../../services/auth.service';
+import { useNavigate } from 'react-router-dom';
 
-function Login () {
+function Login ({setUserCo}) {
     //States
     const [loginForm, setLoginForm] = useState({
         permanentCode: "",
@@ -28,7 +29,9 @@ function Login () {
     const isPermanentCodeValid = (code) => {
         const regex = /^[A-Z]{4}\d{8}$/;
         return regex.test(code);
-      };
+    }
+
+    const navigate = useNavigate()
 
     const onLogin = async (event) => {
         event.preventDefault();
@@ -41,7 +44,12 @@ function Login () {
           const userConnected = await login(userCredentials);
 
           if (userConnected !== null && userConnected !== undefined) {
-              console.log("L'utilisateur est connecte");
+            setUserCo((prevUserCo) => ({
+                ...prevUserCo,
+                ...userConnected
+            }));
+            console.log("L'utilisateur est connecte");
+            navigate('/home');
           } else {           
             setPermanentCodeFocused(true);
             setPasswordFocused(true);
@@ -52,6 +60,7 @@ function Login () {
         }
     }
 
+    //Return
     return (<>
         <div>
             <div></div>

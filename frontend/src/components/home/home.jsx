@@ -1,9 +1,16 @@
+import Dashboard from "../dashboard/dashboard";
 import "./home.css";
 
 const Home = () => {
     return (<>
-        <div>
-            Home Page
+        <div className="flex">
+            <div className="dash-div">
+                <Dashboard/>
+            </div>
+            
+            <div>
+                News
+            </div>
         </div>
     </>)
 }

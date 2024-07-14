@@ -1,9 +1,12 @@
-//import "./home.css";
+import Dashboard from "../dashboard/dashboard";
 
 const Programs = () => {
     return (<>
         <div>
-            Program Page
+            <Dashboard/>
+            <div>
+                Program Page
+            </div>
         </div>
     </>)
 }
