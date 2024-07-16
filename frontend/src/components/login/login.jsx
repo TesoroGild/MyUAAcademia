@@ -31,7 +31,7 @@ function Login ({setUserCo}) {
         return regex.test(code);
     }
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const onLogin = async (event) => {
         event.preventDefault();
