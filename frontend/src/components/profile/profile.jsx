@@ -1,9 +1,9 @@
 "use client";
 
 //React
-import { Alert, Avatar, Card, Button, Checkbox, Label, Modal, TextInput, Toast } from "flowbite-react";
+import { Alert, Avatar, Card, Button, Checkbox, Label, Modal, TextInput, Toast, Tooltip } from "flowbite-react";
 import { useRef, useState, useEffect } from "react";
-import { HiExclamation, HiOutlinePencilAlt } from "react-icons/hi";
+import { HiExclamation, HiOutlinePencilAlt, HiOutlineQuestionMarkCircle  } from "react-icons/hi";
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,7 +23,7 @@ const Profile = ({userCo, setUserCo}) => {
     const [showAlert, setShowAlert] = useState(false);
 
     const [profileToDisplay, setProfileToDisplay] = useState({
-        firsName: "",
+        firstName: "",
         lastName: "",
         permanentCode: "",
         department: "",
@@ -38,9 +38,7 @@ const Profile = ({userCo, setUserCo}) => {
     });
 
     const [profileModForm, setProfileModForm] = useState({
-        firstName: "",
-        lastName: "",
-        sexe: "",
+        permanentCode: "",
         gender: "",
         phoneNumber: "",
         nas: "",
@@ -57,17 +55,6 @@ const Profile = ({userCo, setUserCo}) => {
                 ...prevProfDisplay,
                 ...userCo
             }));
-
-
-            setProfileModForm({
-                firstName: userCo.firstName || "",
-                lastName: userCo.lastName || "",
-                sexe: userCo.sexe || "",
-                gender: userCo.gender || "",
-                phoneNumber: userCo.phoneNumber || "",
-                nas: userCo.nas || "",
-                pwd: ""
-            });
         }
       }, [userCo]);
 
@@ -84,10 +71,10 @@ const Profile = ({userCo, setUserCo}) => {
     const handleSelectChange = (selectedOption, actionMeta) => {
         const { name } = actionMeta;
         setProfileModForm((prevForm) => ({
-          ...prevForm,
-          [name]: selectedOption.value,
+            ...prevForm,
+            [name]: selectedOption.value,
         }));
-      };
+    };
 
     const firstNameInputRef = useRef("");
     const lastNameInputRef = useRef("");
@@ -96,13 +83,6 @@ const Profile = ({userCo, setUserCo}) => {
     const phoneNumberInputRef = useRef("");
     const nasInputRef = useRef("");
     const pwdInputRef = useRef("");
-
-    const sexeOptions = [
-        { value: '...', label: '...' },
-        { value: 'male', label: 'Masculin' },
-        { value: 'female', label: 'Féminin' },
-        { value: 'n/a', label: 'Ne pas répondre' }
-      ];
 
       const genderOptions = [
         { value: '...', label: '...' },
@@ -114,13 +94,23 @@ const Profile = ({userCo, setUserCo}) => {
       ];
 
     //Functions
+    const initUpdForm = () => {
+        setProfileModForm({
+            gender: userCo.gender || "",
+            phoneNumber: userCo.phoneNumber || "",
+            nas: userCo.nas || "",
+            pwd: ""
+        });
+
+        setOpenModal(true);
+    }
+
     const updateProfile = async (event) => {
         event.preventDefault();
+        console.log(profileModForm)
         try {
             const profileToModify = {
-                firstName: profileModForm.firstName,
-                lastName: profileModForm.lastName,
-                sexe: profileModForm.sexe,
+                permanentCode: profileToDisplay.permanentCode,
                 gender: profileModForm.gender,
                 phoneNumber: profileModForm.phoneNumber,
                 nas: profileModForm.nas,
@@ -131,6 +121,10 @@ const Profile = ({userCo, setUserCo}) => {
 
             if (profileModified !== null && profileModified !== undefined) {
                 setOpenModal(false);
+                setUserCo((prevUserCo) => ({
+                    ...prevUserCo,
+                    ...profileModified
+                }));
                 setProfileToDisplay((prevProf) => ({
                     ...prevProf,
                     ...profileModified
@@ -158,90 +152,70 @@ const Profile = ({userCo, setUserCo}) => {
                     {/* Picture + Name (down) + permanentcode */}
                     <div className="left-div">
                         <Avatar img={logo} bordered size="xl"/>
-                        {profileToDisplay.firsName} {profileToDisplay.lastName}
+                        {profileToDisplay.firstName} {profileToDisplay.lastName}
+                        <hr />
                         {profileToDisplay.permanentCode}
+                        <hr />
                         {/* Pencil pour boutton modifier */}
-                        <Button onClick={() => setOpenModal(true)}><HiOutlinePencilAlt className="mr-2 h-5 w-5" />Modifier votre profil</Button>
+                        <Button className="mt-2" onClick={initUpdForm}><HiOutlinePencilAlt className="mr-2 h-5 w-5" />Modifier votre profil</Button>
                         <Modal show={openModal} size="md" popup onClose={() => setOpenModal(false)} initialFocus={firstNameInputRef}>
                             <Modal.Header />
                             <Modal.Body>
                             <form onSubmit={updateProfile}>
-                            <div className="space-y-6">
-                                <h3 className="text-xl font-medium text-gray-900 dark:text-white">Effectuez vos modification</h3>
-                                <div>
-                                    <div className="mb-2 block">
-                                        <Label htmlFor="firstName" value="Prénom" />
+                                <div className="space-y-6">
+                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white">Effectuez vos modification</h3>
+                                    <div>
+                                        <div className="mb-2 block">
+                                            <Label htmlFor="gender" value="Genre" />
+                                        </div>
+                                        <Select
+                                            className="basic-single"
+                                            classNamePrefix="select"
+                                            defaultValue={genderOptions[0]}
+                                            isClearable={true}
+                                            isSearchable={true}
+                                            name="gender"
+                                            options={genderOptions}
+                                            onChange={handleSelectChange}
+                                        />
                                     </div>
-                                    <TextInput id="firstName" name="firstName" ref={firstNameInputRef} required
-                                        onChange={handleModifyChange}
-                                    />
-                                </div>
-                                <div>
-                                    <div className="mb-2 block">
-                                        <Label htmlFor="lastName" value="Nom" />
+                                    <div>
+                                        <div className="mb-2 block">
+                                            <Label htmlFor="phoneNumber" value="Numéro" />
+                                        </div>
+                                        <TextInput id="phoneNumber" name="phoneNumber" 
+                                            ref={phoneNumberInputRef}
+                                            value={profileModForm.phoneNumber} 
+                                            onChange={handleModifyChange}
+                                            required
+                                        />
                                     </div>
-                                    <TextInput id="lastName" name="lastName" ref={lastNameInputRef} required 
-                                        onChange={handleModifyChange}
-                                    />
-                                </div>
-                                <div>
-                                    <div className="mb-2 block">
-                                        <Label htmlFor="sexe" value="Sexe" />
+                                    <div>
+                                        <div className="mb-2 block">
+                                            <Label htmlFor="nas" value="NAS" />
+                                        </div>
+                                        <TextInput id="nas" name="nas" 
+                                            ref={nasInputRef} 
+                                            value={profileModForm.nas}  
+                                            onChange={handleModifyChange}
+                                            required
+                                        />
                                     </div>
-                                    <Select
-                                        className="basic-single"
-                                        classNamePrefix="select"
-                                        defaultValue={sexeOptions[0]}
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        name="sexe"
-                                        options={sexeOptions}
-                                        onChange={handleSelectChange}
-                                    />
-                                </div>
-                                <div>
-                                    <div className="mb-2 block">
-                                        <Label htmlFor="gender" value="Genre" />
+                                    <div>
+                                        <div className="mb-2 flex">
+                                            <Label htmlFor="pwd" value="Mot de passe  " />
+                                            <Tooltip content="Garder ce champ vide si vous ne désirez pas changer votre mot de passe actuel!">
+                                                <HiOutlineQuestionMarkCircle  />
+                                            </Tooltip>
+                                        </div>
+                                        <TextInput id="pwd" name="pwd" type="password" 
+                                            onChange={handleModifyChange}
+                                        />
                                     </div>
-                                    <Select
-                                        className="basic-single"
-                                        classNamePrefix="select"
-                                        defaultValue={genderOptions[0]}
-                                        isClearable={true}
-                                        isSearchable={true}
-                                        name="gender"
-                                        options={genderOptions}
-                                        onChange={handleSelectChange}
-                                    />
-                                </div>
-                                <div>
-                                    <div className="mb-2 block">
-                                        <Label htmlFor="phoneNumber" value="Numéro" />
+                                    <div className="w-full">
+                                        <Button type="submit">Modifier</Button>
                                     </div>
-                                    <TextInput id="phoneNumber" name="phoneNumber" ref={phoneNumberInputRef} required 
-                                        onChange={handleModifyChange} 
-                                    />
                                 </div>
-                                <div>
-                                    <div className="mb-2 block">
-                                        <Label htmlFor="nas" value="NAS" />
-                                    </div>
-                                    <TextInput id="nas" name="nas" ref={nasInputRef} required 
-                                        onChange={handleModifyChange} 
-                                    />
-                                </div>
-                                <div>
-                                    <div className="mb-2 block">
-                                        <Label htmlFor="pwd" value="Mot de passe" />
-                                    </div>
-                                    <TextInput id="pwd" name="pwd" type="password" required 
-                                        onChange={handleModifyChange} 
-                                    />
-                                </div>
-                                <div className="w-full">
-                                    <Button type="submit">Modifier</Button>
-                                </div>
-                            </div>
                             </form>
                             </Modal.Body>
                             { showAlert && (

@@ -3,6 +3,7 @@
 
 import "./dashboard.css";
 
+import { Link, Route, Routes } from 'react-router-dom';
 import { Sidebar } from "flowbite-react";
 import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser } from "react-icons/hi";
 
@@ -13,23 +14,23 @@ const Dashboard = () => {
         <Sidebar.ItemGroup>
           <div className="flex">
             <Sidebar.Item href="home" icon={HiChartPie}/>
-            <a href="home">
+            <Link to="/home">
               <div className="dashboard-name">Important</div>
-            </a>
+            </Link>
           </div>
           
           <div className="flex">
             <Sidebar.Item href="profile" icon={HiUser}/>
-            <a href="profile">
+            <Link to="/profile">
               <div className="dashboard-name">Profil</div>
-            </a> 
+            </Link> 
           </div>
 
           <div className="flex">
             <Sidebar.Item href="bill" icon={HiArrowSmRight}/>
-            <a href="bill">
+            <Link to="/bill">
               <div className="dashboard-name">Factures</div>
-            </a>
+            </Link>
           </div>
 
           <div className="flex">
@@ -47,16 +48,16 @@ const Dashboard = () => {
           
           <div className="flex">
             <Sidebar.Item href="progress" icon={HiInbox}/>
-            <a href="progress">
+            <Link to="/progress">
               <div className="dashboard-name">Cheminement</div>
-            </a>
+            </Link>
           </div>
           
           <div className="flex">
             <Sidebar.Item href="bulletin" icon={HiShoppingBag}/>
-            <a href="bulletin">
+            <Link to="/bulletin">
               <div className="dashboard-name">Bullettin</div>
-            </a>
+            </Link>
           </div>
           
         </Sidebar.ItemGroup>

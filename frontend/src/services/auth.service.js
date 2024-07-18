@@ -6,7 +6,7 @@ export const login = async (userCredentials) => {
   console.log("AUTH SERVICE : LOGIN");
   try {
     const response = await axios.post(`${backend_url}/User/login`, userCredentials);
-    return response.data;
+    return response.data.user;
   } catch (error) {
     console.error('Erreur :', error);
     throw error;
