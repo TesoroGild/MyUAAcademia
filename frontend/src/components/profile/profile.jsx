@@ -61,11 +61,6 @@ const Profile = ({userCo, setUserCo}) => {
     const handleModifyChange = (event) => {
         setProfileModForm({ ...profileModForm, [event.target.name]: event.target.value });
         console.log(profileModForm);
-        // const { name, value } = e.target;
-        // setModif((prevModif) => ({
-        //     ...prevModif,
-        //     [name]: value,
-        // }));
     };
 
     const handleSelectChange = (selectedOption, actionMeta) => {

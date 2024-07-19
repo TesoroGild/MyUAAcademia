@@ -43,7 +43,7 @@ const App = () => {
         <Header userCo = {userCo}/>
         <Routes>
           <Route path="/" element={<Login setUserCo = {setUserCo}/>} />
-          <Route path="/bill" element={<Bill />} />
+          <Route path="/bill" element={<Bill userPermanentCode = {userCo.permanentCode}/>} />
           <Route path="/bulletin" element={<Bulletin />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/home" element={<Home />} />
