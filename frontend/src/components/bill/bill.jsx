@@ -3,11 +3,19 @@ import "./bill.css";
 
 //React
 import { Button, Table } from "flowbite-react"
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
+//Services
 import { getStudentBillsS } from '../../services/bill.service';
 import { getStudentCoursesS } from '../../services/course.service';
+
+//Date format
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+
+//Icons
+import { HiClipboardList } from "react-icons/hi";
 
 const Bill = ({userPermanentCode}) => {
     //States
@@ -17,6 +25,7 @@ const Bill = ({userPermanentCode}) => {
     const [displaySessions2, setDisplaySessions2] = useState(false);
     const [displaySessions3, setDisplaySessions3] = useState(false);
     const [displayBill, setDisplayBill] = useState(false);
+    const [displayBills, setDisplayBills] = useState(false);
     const [billToDisplay, setBillToDisplay] = useState({
         dateOfIssue: "",
         deadLine: "",
@@ -26,6 +35,7 @@ const Bill = ({userPermanentCode}) => {
     });
     const [studentBills, setStudentBills] = useState([]);
     const [studentCourses, setStudentCourses] = useState([]);
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
     //Functions
     const navigate = useNavigate();
@@ -56,7 +66,6 @@ const Bill = ({userPermanentCode}) => {
 
         const courses = await getStudentCoursesS(requestParams);
         setStudentCourses(courses);
-        console.log(courses);
     }
 
     const updateBillToDisplay = (year, session) => {
@@ -82,6 +91,45 @@ const Bill = ({userPermanentCode}) => {
         setDisplayBill(true);
     }
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return format(date, "dd MMMM yyyy 'à' HH'h'mm'mn'", { locale: fr });
+    };
+
+    const displayAllBills = () => {
+        setDisplayBills(!displayBills);
+        setDisplaySessions1(false);
+        setDisplaySessions2(false);
+        setDisplaySessions3(false);
+        setDisplayBill(false);
+    }
+
+    const display1 = () => {
+        setDisplaySessions1(!displaySessions1);
+        setDisplaySessions2(false);
+        setDisplaySessions3(false);
+        setDisplayBill(false);
+    }
+
+    const display2 = () => {
+        setDisplaySessions2(!displaySessions2);
+        setDisplaySessions1(false);
+        setDisplaySessions3(false);
+        setDisplayBill(false);
+    }
+
+    const display3 = () => {
+        setDisplaySessions3(!displaySessions3);
+        setDisplaySessions1(false);
+        setDisplaySessions2(false);
+        setDisplayBill(false);
+    }
+
+    const handleRowClick = (index, year, session) => {
+        setSelectedRowIndex(index);
+        displayBillCourses(year, session);
+    };
+
     //Return
     return (<>
         <div className="flex">
@@ -95,10 +143,10 @@ const Bill = ({userPermanentCode}) => {
                 Quand on clique, ca affiche les factures
                 Il a le choix de payer ses factures et si tout est paye, la touche est grisee*/}
                 <div>
-                    <Button onClick={() => setDisplaySessions1(!displaySessions1)}>{currentYear}</Button>
+                    <Button onClick={() => display1()}>{currentYear}</Button>
                         { displaySessions1 && (
                             <div>
-                                <div className="flex w-full">
+                                <div className="flex w-full pb-2">
                                     <div className="w-1/3 text-center">
                                         <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
                                             onClick={() => displayBillCourses(currentYear.toString(), "Hiver")}
@@ -115,7 +163,7 @@ const Bill = ({userPermanentCode}) => {
                                         >Automne</button>
                                     </div>
                                 </div>
-                                {/** studentBills.length  === 0*/}
+                                
                                 <div>
                                     { displayBill && (
                                         billToDisplay.dateOfIssue  == "" ? (
@@ -123,7 +171,7 @@ const Bill = ({userPermanentCode}) => {
                                             ) : (
                                             <div>
                                                 <div className="border-2 border-sky-500">
-                                                    <div>La facture a été émise le {billToDisplay.dateOfIssue}</div>
+                                                    <div>La facture a été émise le {formatDate(billToDisplay.dateOfIssue)}</div>
                                                     <div>Frais des cours</div>
                                                     <div className="overflow-x-auto">
                                                         <Table>
@@ -133,25 +181,15 @@ const Bill = ({userPermanentCode}) => {
                                                                 <Table.HeadCell>Détails</Table.HeadCell>
                                                             </Table.Head>
                                                             <Table.Body className="divide-y">
-                                                                { studentCourses.length  === 0 ? (
-                                                                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                { studentCourses.map((course, index) => (
+                                                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                            Aucun cours!
+                                                                            {course.courseName}
                                                                         </Table.Cell>
-                                                                        <Table.Cell>0$</Table.Cell>
+                                                                        <Table.Cell>{course.price}$</Table.Cell>
                                                                         <Table.Cell></Table.Cell>
                                                                     </Table.Row>
-                                                                ) : (
-                                                                    studentCourses.map((course, index) => (
-                                                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                                {course.courseName}
-                                                                            </Table.Cell>
-                                                                            <Table.Cell>{course.price}$</Table.Cell>
-                                                                            <Table.Cell></Table.Cell>
-                                                                        </Table.Row>
-                                                                    ))
-                                                                )}
+                                                                ))}
                                                                 <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                                                     <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                                                     Total
@@ -213,7 +251,7 @@ const Bill = ({userPermanentCode}) => {
                                                     </div>
                                                 </div>
                                                 <div className="border-2 border-red-500 mt-2 bg-red-200">
-                                                    <h2>PAIEMENT DU AVANT LE {billToDisplay.deadLine}.</h2>
+                                                    <h2>PAIEMENT DU AVANT LE {formatDate(billToDisplay.deadLine)}.</h2>
                                                     <p>Des frais de 52$ seront ajoutés aux frais des prochaines sessions si le paiement est reçu après cette date.</p>
                                                 </div>
                                             </div>
@@ -223,33 +261,363 @@ const Bill = ({userPermanentCode}) => {
                             </div>    
                         )}
                     <hr />
-                    <Button onClick={() => setDisplaySessions2(!displaySessions2)}>{currentYear-1}</Button>
+                    <Button onClick={() => display2()}>{currentYear-1}</Button>
                         { displaySessions2 && (
-                            studentBills.dateOfIssue == "" ? (
-                                <div>
-                                    Aucune facture
+                            <div>
+                                <div className="flex w-full  pb-2">
+                                    <div className="w-1/3 text-center">
+                                        <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
+                                            onClick={() => displayBillCourses((currentYear-1).toString(), "Hiver")}
+                                        >Hiver</button>
+                                    </div>
+                                    <div className="w-1/3 text-center">
+                                        <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
+                                            onClick={() => displayBillCourses((currentYear-1).toString(), "Été")}
+                                        >Été</button>
+                                    </div>
+                                    <div className="w-1/3 text-center">
+                                        <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
+                                            onClick={() => displayBillCourses((currentYear-1).toString(), "Automne")}
+                                        >Automne</button>
+                                    </div>
                                 </div>
-                            ) : (
+                                
                                 <div>
-                                    Factures
+                                    { displayBill && (
+                                        billToDisplay.dateOfIssue  == "" ? (
+                                            <div className="border-2 border-sky-500">Aucune facture</div>
+                                            ) : (
+                                            <div>
+                                                <div className="border-2 border-sky-500">
+                                                    <div>La facture a été émise le {formatDate(billToDisplay.dateOfIssue)}</div>
+                                                    <div>Frais des cours</div>
+                                                    <div className="overflow-x-auto">
+                                                        <Table>
+                                                            <Table.Head>
+                                                                <Table.HeadCell>Cours</Table.HeadCell>
+                                                                <Table.HeadCell>Prix</Table.HeadCell>
+                                                                <Table.HeadCell>Détails</Table.HeadCell>
+                                                            </Table.Head>
+                                                            <Table.Body className="divide-y">
+                                                                { studentCourses.map((course, index) => (
+                                                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                            {course.courseName}
+                                                                        </Table.Cell>
+                                                                        <Table.Cell>{course.price}$</Table.Cell>
+                                                                        <Table.Cell></Table.Cell>
+                                                                    </Table.Row>
+                                                                ))}
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Total
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>{billToDisplay.amount}$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                            </Table.Body>
+                                                        </Table>
+                                                    </div>
+                                                </div>
+                                                <div className="border-2 border-sky-500 mt-2">
+                                                    <div>Frais généraux</div>
+                                                    <div className="overflow-x-auto">
+                                                    <Table>
+                                                            <Table.Head>
+                                                                <Table.HeadCell>Cours</Table.HeadCell>
+                                                                <Table.HeadCell>Prix</Table.HeadCell>
+                                                                <Table.HeadCell>Détails</Table.HeadCell>
+                                                            </Table.Head>
+                                                            <Table.Body className="divide-y">
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Frais généraux
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Frais d'administration sportive
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Assurance dentaires
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Frais d'assurances
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Total
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                            </Table.Body>
+                                                        </Table>
+                                                    </div>
+                                                </div>
+                                                <div className="border-2 border-red-500 mt-2 bg-red-200">
+                                                    <h2>PAIEMENT DU AVANT LE {formatDate(billToDisplay.deadLine)}.</h2>
+                                                    <p>Des frais de 52$ seront ajoutés aux frais des prochaines sessions si le paiement est reçu après cette date.</p>
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
                                 </div>
-                            )
+                            </div>  
                         )}
-                        <hr />
-                    <Button onClick={() => setDisplaySessions3(!displaySessions3)}>{currentYear-2}</Button>
+                    <hr />
+                    <Button onClick={() => display3()}>{currentYear-2}</Button>
                     { displaySessions3 && (
-                        studentBills.dateOfIssues == "" ? (
-                            <div>
-                                Aucune facture
-                            </div>
-                        ) : (
-                            <div>
-                                Factures
-                            </div>
-                        )
+                        <div>
+                            <div className="flex w-full  pb-2">
+                                    <div className="w-1/3 text-center">
+                                        <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
+                                            onClick={() => displayBillCourses((currentYear-2).toString(), "Hiver")}
+                                        >Hiver</button>
+                                    </div>
+                                    <div className="w-1/3 text-center">
+                                        <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
+                                            onClick={() => displayBillCourses((currentYear-2).toString(), "Été")}
+                                        >Été</button>
+                                    </div>
+                                    <div className="w-1/3 text-center">
+                                        <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
+                                            onClick={() => displayBillCourses((currentYear-2).toString(), "Automne")}
+                                        >Automne</button>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    { displayBill && (
+                                        billToDisplay.dateOfIssue  == "" ? (
+                                            <div className="border-2 border-sky-500">Aucune facture</div>
+                                            ) : (
+                                            <div>
+                                                <div className="border-2 border-sky-500">
+                                                    <div>La facture a été émise le {formatDate(billToDisplay.dateOfIssue)}</div>
+                                                    <div>Frais des cours</div>
+                                                    <div className="overflow-x-auto">
+                                                        <Table>
+                                                            <Table.Head>
+                                                                <Table.HeadCell>Cours</Table.HeadCell>
+                                                                <Table.HeadCell>Prix</Table.HeadCell>
+                                                                <Table.HeadCell>Détails</Table.HeadCell>
+                                                            </Table.Head>
+                                                            <Table.Body className="divide-y">
+                                                                { studentCourses.map((course, index) => (
+                                                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                            {course.courseName}
+                                                                        </Table.Cell>
+                                                                        <Table.Cell>{course.price}$</Table.Cell>
+                                                                        <Table.Cell></Table.Cell>
+                                                                    </Table.Row>
+                                                                ))}
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Total
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>{billToDisplay.amount}$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                            </Table.Body>
+                                                        </Table>
+                                                    </div>
+                                                </div>
+                                                <div className="border-2 border-sky-500 mt-2">
+                                                    <div>Frais généraux</div>
+                                                    <div className="overflow-x-auto">
+                                                    <Table>
+                                                            <Table.Head>
+                                                                <Table.HeadCell>Cours</Table.HeadCell>
+                                                                <Table.HeadCell>Prix</Table.HeadCell>
+                                                                <Table.HeadCell>Détails</Table.HeadCell>
+                                                            </Table.Head>
+                                                            <Table.Body className="divide-y">
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Frais généraux
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Frais d'administration sportive
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Assurance dentaires
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Frais d'assurances
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Total
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                            </Table.Body>
+                                                        </Table>
+                                                    </div>
+                                                </div>
+                                                <div className="border-2 border-red-500 mt-2 bg-red-200">
+                                                    <h2>PAIEMENT DU AVANT LE {formatDate(billToDisplay.deadLine)}.</h2>
+                                                    <p>Des frais de 52$ seront ajoutés aux frais des prochaines sessions si le paiement est reçu après cette date.</p>
+                                                </div>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                        </div>
                     )}
                 </div>
-                <div>Message</div>
+                <div>
+                    <Button gradientDuoTone="purpleToBlue" className="w-full rounded-none mt-2"
+                        onClick={() => displayAllBills()}
+                    >
+                        Afficher toutes mes factures
+                        <HiClipboardList className="mr-2 h-5 w-5" />
+                    </Button>
+                </div>
+                <div>
+                    { displayBills && (
+                        <Table>
+                            <Table.Head>
+                                <Table.HeadCell>Factures</Table.HeadCell>
+                                <Table.HeadCell>Date</Table.HeadCell>
+                            </Table.Head>
+                            <Table.Body className="divide-y">
+                                { studentBills.map((bill, index) => (
+                                    <React.Fragment key={index}>
+                                    <Table.Row onClick={() => handleRowClick(index, bill.yearStudy, bill.sessionStudy)} 
+                                        key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                            {bill.sessionStudy} {bill.yearStudy}
+                                        </Table.Cell>
+                                        <Table.Cell>{formatDate(bill.dateOfIssue)}</Table.Cell>
+                                    </Table.Row>
+                                    { selectedRowIndex == index && displayBill && billToDisplay.dateOfIssue != "" && (
+                                            <div>
+                                                <div className="border-2 border-sky-500 mt-2">
+                                                    <div>Frais des cours</div>
+                                                    <div className="overflow-x-auto">
+                                                        <Table>
+                                                            <Table.Head>
+                                                                <Table.HeadCell>Cours</Table.HeadCell>
+                                                                <Table.HeadCell>Prix</Table.HeadCell>
+                                                                <Table.HeadCell>Détails</Table.HeadCell>
+                                                            </Table.Head>
+                                                            <Table.Body className="divide-y">
+                                                                { studentCourses.map((course, index) => (
+                                                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                            {course.courseName}
+                                                                        </Table.Cell>
+                                                                        <Table.Cell>{course.price}$</Table.Cell>
+                                                                        <Table.Cell></Table.Cell>
+                                                                    </Table.Row>
+                                                                ))}
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Total
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>{billToDisplay.amount}$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                            </Table.Body>
+                                                        </Table>
+                                                    </div>
+                                                </div>
+                                                <div className="border-2 border-sky-500 mt-2">
+                                                    <div>Frais généraux</div>
+                                                    <div className="overflow-x-auto">
+                                                    <Table>
+                                                            <Table.Head>
+                                                                <Table.HeadCell>Cours</Table.HeadCell>
+                                                                <Table.HeadCell>Prix</Table.HeadCell>
+                                                                <Table.HeadCell>Détails</Table.HeadCell>
+                                                            </Table.Head>
+                                                            <Table.Body className="divide-y">
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Frais généraux
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Frais d'administration sportive
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Assurance dentaires
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Frais d'assurances
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                    Total
+                                                                    </Table.Cell>
+                                                                    <Table.Cell>10 000$</Table.Cell>
+                                                                    <Table.Cell></Table.Cell>
+                                                                </Table.Row>
+                                                            </Table.Body>
+                                                        </Table>
+                                                    </div>
+                                                </div>
+                                                <div className="border-2 border-red-500 my-2 bg-red-200">
+                                                    <h2>PAIEMENT DU AVANT LE {formatDate(billToDisplay.deadLine)}.</h2>
+                                                    <p>Des frais de 52$ seront ajoutés aux frais des prochaines sessions si le paiement est reçu après cette date.</p>
+                                                </div>
+                                            </div>
+                                    )}
+                                    </React.Fragment>
+                                ))}
+                            </Table.Body>
+                        </Table>
+                    )}
+                </div>
+                <div className="border-2 border-sky-500 mt-2 bg-sky-200">
+                    JE NE SAIS PAS QUEL MESSAGE AFFICHER!
+                </div>
             </div>
         </div>
     </>)
