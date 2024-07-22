@@ -13,6 +13,7 @@ import Contact from './components/contact/contact'
 import Home from './components/home/home'
 import Login from './components/login/login'
 import Notfound from './components/not-found/notfound'
+import Payment from './components/payment/payment'
 import Profile from './components/profile/profile'
 import Programs from './components/programs/programs'
 import Progress from './components/progress/progress'
@@ -38,6 +39,14 @@ const App = () => {
     nas: ""
   });
 
+  const [bill, setBill] = useState({
+    dateOfIssue: "",
+    deadLine: "",
+    dateOfPaiement: "",
+    sessionStudy: "",
+    yearStudy: ""
+});
+
   return (
       <div>
         <Header userCo = {userCo}/>
@@ -49,6 +58,7 @@ const App = () => {
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login setUserCo = {setUserCo}/>} />
           <Route path="/notfound" element={<Notfound />} />
+          <Route path="/payment" element={<Payment bill = {bill} />}/>
           <Route path="/profile" element={<Profile userCo = {userCo} setUserCo = {setUserCo} />} />
           <Route path="/programs" element={<Programs />} />
           <Route path="/progress" element={<Progress />} />

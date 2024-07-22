@@ -5,6 +5,7 @@ import "./bill.css";
 import { Button, Table } from "flowbite-react"
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { HiClipboardList, HiOutlineCash } from "react-icons/hi";
 
 //Services
 import { getStudentBillsS } from '../../services/bill.service';
@@ -13,9 +14,6 @@ import { getStudentCoursesS } from '../../services/course.service';
 //Date format
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-
-//Icons
-import { HiClipboardList } from "react-icons/hi";
 
 const Bill = ({userPermanentCode}) => {
     //States
@@ -130,6 +128,10 @@ const Bill = ({userPermanentCode}) => {
         displayBillCourses(year, session);
     };
 
+    const goToPaymentPage = () => {
+        navigate('/payment', { state: { billToDisplay } });
+    }
+
     //Return
     return (<>
         <div className="flex">
@@ -138,10 +140,7 @@ const Bill = ({userPermanentCode}) => {
             </div>
 
             <div className="w-full">
-                {/*Mettre les 3 dernieres annees
-                Boutton voir toutes les factures
-                Quand on clique, ca affiche les factures
-                Il a le choix de payer ses factures et si tout est paye, la touche est grisee*/}
+                <div>FACTURES ET SOLDES</div>
                 <div>
                     <Button onClick={() => display1()}>{currentYear}</Button>
                         { displaySessions1 && (
@@ -250,7 +249,15 @@ const Bill = ({userPermanentCode}) => {
                                                         </Table>
                                                     </div>
                                                 </div>
-                                                <div className="border-2 border-red-500 mt-2 bg-red-200">
+                                                <div>
+                                                    <Button className="mt-2" gradientMonochrome="info" onClick={() => goToPaymentPage()}>
+                                                        Payer cette facture&nbsp;
+                                                        <HiOutlineCash className="mr-2 h-5 w-5" />
+                                                    </Button>
+                                                </div>
+                                                {/*Couleur verte et message votre solde est de 0*/}
+                                                {/*Couleur jaune avec message reste a payer ...*/}
+                                                <div className="border-2 border-red-500 my-2 bg-red-200">
                                                     <h2>PAIEMENT DU AVANT LE {formatDate(billToDisplay.deadLine)}.</h2>
                                                     <p>Des frais de 52$ seront ajoutés aux frais des prochaines sessions si le paiement est reçu après cette date.</p>
                                                 </div>
