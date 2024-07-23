@@ -36,7 +36,8 @@ const App = () => {
     lvlDegree: "",
     phoneNumber: "",
     birthDay: "",
-    nas: ""
+    nas: "",
+    program: ""
   });
 
   const [bill, setBill] = useState({
@@ -53,7 +54,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Login setUserCo = {setUserCo}/>} />
           <Route path="/bill" element={<Bill userPermanentCode = {userCo.permanentCode}/>} />
-          <Route path="/bulletin" element={<Bulletin />} />
+          <Route path="/bulletin" element={<Bulletin userCo = {userCo}/>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login setUserCo = {setUserCo}/>} />
