@@ -17,6 +17,7 @@ function Bulletin ({userCo}) {
     const [bulletinCourses, setBulletinCourses] = useState([]);
     const [average, setAverage] = useState(0);
     const [totalCredit, setTotalCredit] = useState(0);
+    const lignes = [];
     
     //Functions
     useEffect(() => {
@@ -25,28 +26,99 @@ function Bulletin ({userCo}) {
 
     const getStudentBulletin = async (permanentCode) => {
         const getResponse = await getStudentBulletinS(permanentCode);
+        calculateTotalCredits(getResponse.bulletins);
         var responseOrdered = await orderBy(getResponse.bulletins);
         setBulletinCourses(responseOrdered);
         setAverage(getResponse.average);
-        console.log(getResponse);
+
+        //console.log(getResponse);
     }
 
     const orderBy = (list) => {
-        return (list.sort((a, b) => b.yearCourse - a.yearCourse));
+        var list1 = (list.sort((a, b) => a.yearCourse - b.yearCourse));
+
+        
+
+        let sessionCourante = null;
+        let rowSpan = 0;
+        let rowSpans = [];
+        let index = 0;
+        list1.forEach((element) => {
+            if (element.sessionCourse !== sessionCourante) {
+                sessionCourante = element.sessionCourse;
+                rowSpan = 1;
+            } else rowSpan++;
+            rowSpans[index] = rowSpan;
+            index++;
+            // lignes.push(
+            //     <tr key={element.sessionCourse}>
+            //         {rowSpan === 1 ? (
+            //             <td>{element.sessionCourse} {element.yearCourse}</td>
+            //         ) : rowSpan == 0 ? (null
+            //         ) : (
+            //             <td rowSpan={rowSpan}>{element.sessionCourse} {element.yearCourse}</td>
+            //         )}
+            //         <td>{element.sigle}</td>
+            //         <td>{element.fullName}</td>
+            //         <td>3</td>
+            //         <td>{element.grade}</td>
+            //         <td>{element.mention}</td>
+            //         <td></td>
+            //     </tr>
+            // );
+        });
+        
+        let id = 0;
+        for (var i = 0; i < rowSpans.length-1; i++) {
+            if (rowSpans[i] != rowSpans[i+1]) {
+                for (var j = i+1; j < rowSpans.length; j++) {
+                    if (rowSpans[j] == 1) {
+                        id = j;
+                        rowSpans[i] = rowSpans[j-1];
+                        j = rowSpans.length;
+                    }
+                }
+
+                for (var k = i+1; k < id; k++) rowSpans[k] = 0;
+                i = id-1;
+            }
+        }
+
+        index = 0;
+        list1.forEach((element) => {
+            lignes.push(
+                <tr key={element.sigle}>
+                    {rowSpans[index] === 1 ? (
+                        <td>{element.sessionCourse} {element.yearCourse}</td>
+                    ) : rowSpans[index] == 0 ? (
+                        null
+                    ) : (
+                        <td rowSpan={rowSpans[index]}>{element.sessionCourse} {element.yearCourse}</td>
+                    )}
+                    <td>{element.sigle}</td>
+                    <td>{element.fullName}</td>
+                    <td>3</td>
+                    <td>{element.grade}</td>
+                    <td>{element.mention}</td>
+                    <td></td>
+                </tr>
+            );
+            index++;
+        })
+        return lignes;
     }
 
     const cumulativeAverage = () => {
         return (average * 5 / 100);
     }
 
-    const totalCredits = () => {
-        //var cred = 0;
-        //vrai
-        // for (var i = 0; i < bulletinCourses.length; i++) {
-        //     cred += bulletinCourses[i].credits;
-        // }
-        //return cred;
-        return (3 * bulletinCourses.length);
+    const calculateTotalCredits = (schoolReports) => {
+        console.log(schoolReports);
+        var cred = 0;
+        for (var i = 0; i < schoolReports.length; i++) {
+            cred += schoolReports[i].credits;
+        }
+        setTotalCredit(cred);
     }
 
     //Return
@@ -117,19 +189,7 @@ function Bulletin ({userCo}) {
                                 <Table.HeadCell>Détails</Table.HeadCell>
                             </Table.Head>
                             <Table.Body className="divide-y">
-                                { bulletinCourses.map((bulletin, index) => (
-                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            {bulletin.sessionCourse} {bulletin.yearCourse}
-                                        </Table.Cell>
-                                        <Table.Cell>{bulletin.sigle}</Table.Cell>
-                                        <Table.Cell>{bulletin.fullName}</Table.Cell>
-                                        <Table.Cell>3</Table.Cell>
-                                        <Table.Cell>{bulletin.grade}</Table.Cell>
-                                        <Table.Cell>{bulletin.mention}</Table.Cell>
-                                        <Table.Cell></Table.Cell>
-                                    </Table.Row>
-                                ))}
+                                {bulletinCourses}
                             </Table.Body>
                         </Table>
                     </div>
@@ -139,7 +199,7 @@ function Bulletin ({userCo}) {
                     <div className="mr-4">
                         <div>Crédits réussis</div>
                         <div className="border-t-2 border-sky-500 mt-2 bg-sky-200"></div>
-                        <div className="flex justify-center">{totalCredits()}</div>
+                        <div className="flex justify-center">{totalCredit}</div>
                         <div className="border-t-2 border-sky-500 mt-2 bg-sky-200 mb-2"></div>
                     </div>
                     <div>
