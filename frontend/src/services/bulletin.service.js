@@ -9,7 +9,7 @@ export const create = async (billToCreate) => {
 export const getStudentBulletinS = async (permanentCode) => {
     console.log("BULLETIN SERVICE : GET");
     try {
-        const response = await axios.get(`${backend_url}/Bulletin/bulletins/${permanentCode}`);
+        const response = await axios.get(`${backend_url}/Bulletin/bulletin/${permanentCode}`);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);

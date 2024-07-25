@@ -15,16 +15,38 @@ function Bulletin ({userCo}) {
     //States
     const [openModal, setOpenModal] = useState(false);
     const [bulletinCourses, setBulletinCourses] = useState([]);
+    const [average, setAverage] = useState(0);
+    const [totalCredit, setTotalCredit] = useState(0);
     
     //Functions
     useEffect(() => {
-        if (userCo.userPermanentCode != "") getStudentBulletin(userCo.userPermanentCode);
+        if (userCo.permanentCode != "") getStudentBulletin(userCo.permanentCode);
     }, []);
 
-    const getStudentBulletin = async (userPermanentCode) => {
-        const getResponse = await getStudentBulletinS(userPermanentCode);
-        setBulletinCourses(getResponse);
+    const getStudentBulletin = async (permanentCode) => {
+        const getResponse = await getStudentBulletinS(permanentCode);
+        var responseOrdered = await orderBy(getResponse.bulletins);
+        setBulletinCourses(responseOrdered);
+        setAverage(getResponse.average);
         console.log(getResponse);
+    }
+
+    const orderBy = (list) => {
+        return (list.sort((a, b) => b.yearCourse - a.yearCourse));
+    }
+
+    const cumulativeAverage = () => {
+        return (average * 5 / 100);
+    }
+
+    const totalCredits = () => {
+        //var cred = 0;
+        //vrai
+        // for (var i = 0; i < bulletinCourses.length; i++) {
+        //     cred += bulletinCourses[i].credits;
+        // }
+        //return cred;
+        return (3 * bulletinCourses.length);
     }
 
     //Return
@@ -91,20 +113,20 @@ function Bulletin ({userCo}) {
                                 <Table.HeadCell>TITRE</Table.HeadCell>
                                 <Table.HeadCell>CRÉDITS</Table.HeadCell>
                                 <Table.HeadCell>NOTE</Table.HeadCell>
-                                <Table.HeadCell>DÉTAILS</Table.HeadCell>
+                                <Table.HeadCell>MENTION</Table.HeadCell>
                                 <Table.HeadCell>Détails</Table.HeadCell>
                             </Table.Head>
                             <Table.Body className="divide-y">
                                 { bulletinCourses.map((bulletin, index) => (
                                     <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            {bulletin.a}
+                                            {bulletin.sessionCourse} {bulletin.yearCourse}
                                         </Table.Cell>
-                                        <Table.Cell>{bulletin.b}</Table.Cell>
-                                        <Table.Cell>{bulletin.c}</Table.Cell>
-                                        <Table.Cell>{bulletin.d}</Table.Cell>
-                                        <Table.Cell>{bulletin.e}</Table.Cell>
-                                        <Table.Cell>{bulletin.f}</Table.Cell>
+                                        <Table.Cell>{bulletin.sigle}</Table.Cell>
+                                        <Table.Cell>{bulletin.fullName}</Table.Cell>
+                                        <Table.Cell>3</Table.Cell>
+                                        <Table.Cell>{bulletin.grade}</Table.Cell>
+                                        <Table.Cell>{bulletin.mention}</Table.Cell>
                                         <Table.Cell></Table.Cell>
                                     </Table.Row>
                                 ))}
@@ -117,13 +139,13 @@ function Bulletin ({userCo}) {
                     <div className="mr-4">
                         <div>Crédits réussis</div>
                         <div className="border-t-2 border-sky-500 mt-2 bg-sky-200"></div>
-                        <div className="flex justify-center">60</div>
+                        <div className="flex justify-center">{totalCredits()}</div>
                         <div className="border-t-2 border-sky-500 mt-2 bg-sky-200 mb-2"></div>
                     </div>
                     <div>
                         <div>Moyenne cumulative</div>
                         <div className="border-t-2 border-sky-500 mt-2 bg-sky-200"></div>
-                        <div className="flex justify-center">4.0/5.0</div>
+                        <div className="flex justify-center">{cumulativeAverage()}/5.0</div>
                         <div className="border-t-2 border-sky-500 mt-2 bg-sky-200 mb-2"></div>
                     </div>
                 </div>
