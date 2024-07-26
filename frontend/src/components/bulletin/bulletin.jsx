@@ -30,14 +30,10 @@ function Bulletin ({userCo}) {
         var responseOrdered = await orderBy(getResponse.bulletins);
         setBulletinCourses(responseOrdered);
         setAverage(getResponse.average);
-
-        //console.log(getResponse);
     }
 
     const orderBy = (list) => {
         var list1 = (list.sort((a, b) => a.yearCourse - b.yearCourse));
-
-        
 
         let sessionCourante = null;
         let rowSpan = 0;
@@ -50,22 +46,6 @@ function Bulletin ({userCo}) {
             } else rowSpan++;
             rowSpans[index] = rowSpan;
             index++;
-            // lignes.push(
-            //     <tr key={element.sessionCourse}>
-            //         {rowSpan === 1 ? (
-            //             <td>{element.sessionCourse} {element.yearCourse}</td>
-            //         ) : rowSpan == 0 ? (null
-            //         ) : (
-            //             <td rowSpan={rowSpan}>{element.sessionCourse} {element.yearCourse}</td>
-            //         )}
-            //         <td>{element.sigle}</td>
-            //         <td>{element.fullName}</td>
-            //         <td>3</td>
-            //         <td>{element.grade}</td>
-            //         <td>{element.mention}</td>
-            //         <td></td>
-            //     </tr>
-            // );
         });
         
         let id = 0;

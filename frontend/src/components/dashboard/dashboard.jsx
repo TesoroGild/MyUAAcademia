@@ -38,10 +38,14 @@ const Dashboard = () => {
             <div className="dashboard-name">Cours</div>
             <Sidebar.Collapse>
               <div className="flex">
-                <div className="dashboard-name">Inscription</div>
+                <Link to="/subscribe">
+                  <div className="dashboard-name">Inscription</div>
+                </Link>
               </div>
               <div className="flex">
-                <div className="dashboard-name">Calendrier</div>
+                <Link to="/calendar">
+                  <div className="dashboard-name">Calendrier</div>
+                </Link>
               </div>
             </Sidebar.Collapse>
           </div>
