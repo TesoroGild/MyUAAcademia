@@ -66,7 +66,7 @@ const App = () => {
           <Route path="/profile" element={<Profile userCo = {userCo} setUserCo = {setUserCo} />} />
           <Route path="/programs" element={<Programs />} />
           <Route path="/progress" element={<Progress />} />
-          <Route path="/subscribe" element={<Subscribe />} />
+          <Route path="/subscribe" element={<Subscribe permanentCode = {userCo.permanentCode}/>} />
         </Routes>
       </div>
   )
