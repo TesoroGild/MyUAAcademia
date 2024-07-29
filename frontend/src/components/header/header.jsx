@@ -49,7 +49,7 @@ function Header({userCo}) {
             </Link>
           </Dropdown.Item>
           <Dropdown.Item>
-            <Link to="/programs" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">
+            <Link to="/planning" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">
                 <div className="inline-flex items-center">
                     Nos divers programmes
                 </div>

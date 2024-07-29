@@ -1,0 +1,26 @@
+/* Toast.css */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: -300px; /* hidden outside the screen initially */
+    width: 250px;
+    background-color: #333;
+    color: white;
+    padding: 16px;
+    border-radius: 4px;
+    transition: right 0.5s ease-in-out;
+}
+
+.toast-container.show {
+    right: 20px; /* visible inside the screen */
+}
+
+.toast-container.hide {
+    right: -300px; /* back to hidden outside the screen */
+}
+
+.toast-close {
+    cursor: pointer;
+    float: right;
+    font-size: 20px;
+}

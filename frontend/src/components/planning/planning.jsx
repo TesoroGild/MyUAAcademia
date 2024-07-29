@@ -1,10 +1,8 @@
-import "./home.css";
-
 //React
 import Dashboard from "../dashboard/dashboard";
-import Header from "../header/header";
+import Header from '../header/header'
 
-const Home = ({userCo}) => {
+const Planning = () => {
     return (<>
         <div>
             <div>
@@ -17,11 +15,11 @@ const Home = ({userCo}) => {
                 </div>
                 
                 <div>
-                    News
+                    Planning
                 </div>
             </div>
         </div>
     </>)
 }
 
-export default Home;
+export default Planning;

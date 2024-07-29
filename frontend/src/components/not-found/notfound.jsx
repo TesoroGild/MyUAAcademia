@@ -1,13 +1,20 @@
 import "./notfound.css";
 
-const Notfound = () => {
-    return (
-        <>
+//React
+import Header from "../header/header";
+
+const Notfound = ({userCo}) => {
+    return (<>
         <div>
-            404 Page
+            <div>
+                <Header userCo = {userCo} />
+            </div>
+
+            <div>
+                404 Page
+            </div>
         </div>
-        </>
-    )
+    </>)
 }
 
 export default Notfound;
