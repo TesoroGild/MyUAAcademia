@@ -57,7 +57,7 @@ const Profile = ({userCo, setUserCo}) => {
                 ...userCo
             }));
         }
-      }, [userCo]);
+    }, [userCo]);
 
     const handleModifyChange = (event) => {
         setProfileModForm({ ...profileModForm, [event.target.name]: event.target.value });

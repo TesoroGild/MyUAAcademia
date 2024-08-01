@@ -3,6 +3,17 @@ import axios from 'axios';
 const backend_url = import.meta.env.VITE_API_URL;
 
 //Create
+export const createCourseS = async (course) => {
+    console.log("COURSE SERVICE : CREATE COURSE");
+    try {
+        const response = await axios.post(`${backend_url}/Course/courses`, course);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
 export const register = async (userCourses) => {
     console.log("COURSE SERVICE : REGISTER");
     try {
@@ -58,6 +69,6 @@ export const getStudentCoursesS = async (requestParams) => {
     }
 }
 
-export const changeCourse = async () => {
+export const updateCourses = async () => {
     
 }
