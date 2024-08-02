@@ -1,15 +1,24 @@
-import Dashboard from "../dashboard/dashboard";
 import "./progress.css";
 
-const Progress = () => {
+//Reusable
+import Dashboard from "../dashboard/dashboard";
+import Header from '../header/header'
+
+const Progress = ({userCo}) => {
     return (<>
-        <div className="flex">
-            <div className="dash-div">
-                <Dashboard/>
+        <div>
+            <div>
+                <Header userCo = {userCo}/>
             </div>
 
-            <div>
-                Progress Page
+            <div className="flex">
+                <div className="dash-div">
+                    <Dashboard/>
+                </div>
+
+                <div>
+                    Progress Page
+                </div>
             </div>
         </div>
     </>)

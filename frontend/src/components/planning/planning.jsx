@@ -2,7 +2,7 @@
 import Dashboard from "../dashboard/dashboard";
 import Header from '../header/header'
 
-const Planning = () => {
+const Planning = ({userCo}) => {
     return (<>
         <div>
             <div>

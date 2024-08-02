@@ -2,7 +2,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Table, TextInput, Toast, Tooltip } from "flowbite-react"
-import { HiCurrencyDollar, HiInformationCircle } from "react-icons/hi";
+import { HiCurrencyDollar, HiExclamation, HiInformationCircle } from "react-icons/hi";
 
 //Components
 import AdminDashboard from "../../dashboard/admindashboard";
@@ -11,7 +11,7 @@ import AdminHeader from "../../header/adminheader";
 //Services
 import { createCourseS, getCoursesS } from "../../../services/course.service";
 
-const Class = ({userCo}) => {
+const Class = ({employeeCo}) => {
     //States
     const [sigleFocused, setSigleFocused] = useState(false);
     const [nameFocused, setNameFocused] = useState(false);
@@ -21,6 +21,7 @@ const Class = ({userCo}) => {
     const [summerFocused, setSummerFocused] = useState(false);
     const [winteFocused, setWinteFocused] = useState(false);
     const [displayCourseExists, setDisplayCourseExists] = useState(false);
+    const [displayForms, setDisplayForms] = useState(false);
     const [courseForm, setCourseForm] = useState({
         sigle: "",
         fullName: "",
@@ -81,20 +82,24 @@ const Class = ({userCo}) => {
                     price: courseForm.price,
                     autumn: courseForm.autumn,
                     summer: courseForm.summer,
-                    winter: courseForm.winter
+                    winter: courseForm.winter,
+                    credits: courseForm.credits,
+                    employeeCode: employeeCo.code
                 }
     
                 const courseCreated = await createCourseS(courseToCreate);
     
                 if (courseCreated !== null && courseCreated !== undefined) {
-                    const newList = await getCourses();
-                    setCourseList(newList);
+                    //const newList = await getCourses();
+                    //console.log(newList)
+                    //setCourseList(newList);
+                    setCourseList([...courseList, courseToCreate]);
                     console.log("Cours ajouté");
                   } else {           
                     setPermanentCodeFocused(true);
                     setPasswordFocused(true);
                   }
-                  setLoginForm({ permanentCode: "", pwd: "" });
+                  setCourseForm({ sigle: "", fullName: "", price: "", credits: "", autumn: "", summer: "", winter: "" });
             } catch (error) {
                 console.log(error);
             }
@@ -168,16 +173,24 @@ const Class = ({userCo}) => {
         console.log(courseForm);
     };
 
+    const displayMultipleFormCourses = () => {
+        setDisplayForms(true);
+    }
+
+    const hiddenMultipleFormCourses = () => {
+        setDisplayForms(false);
+    }
+
     //Return
     return (<>
         <div className="flex">
             <div className="dash-div">
-                <AdminDashboard/>
+                <AdminDashboard employeeCo = {employeeCo}/>
             </div>
                 
             <div className="w-full">
                 <div>
-                    <AdminHeader userCo = {userCo}/>
+                    <AdminHeader/>
                 </div>
 
                 <div>
@@ -232,9 +245,9 @@ const Class = ({userCo}) => {
                                 </div>
                             </div>
                             <div className="w-full flex p-4">
-                                <label htmlFor="name" className="w-1/3">Intitulé :</label>
+                                <label htmlFor="fullName" className="w-1/3">Intitulé :</label>
                                 <div className="w-1/3">
-                                    <input type="text" id="name" name="name"
+                                    <input type="text" id="fullName" name="fullName"
                                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                         onChange={handleCourseChange} required
                                         onBlur={handleNameFocus}
@@ -402,27 +415,6 @@ const Class = ({userCo}) => {
                                 </div>
                             </div>
 
-                            <div className="w-full flex p-4">
-                                <label className="w-1/3" htmlFor="pwd">Mot de passe :</label>
-                                <div className="w-1/3">
-                                    <input type="pwd" id="pwd" name="pwd" placeholder="Password" 
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        onChange={handleCourseChange} required
-                                        onBlur={handleNameFocus}
-                                        focused={nameFocused.toString()}
-                                    />
-                                    <span className="text-xs font-light text-red-500 empty-p-error">
-                                        Veuillez saisir le mot de passe.
-                                    </span>
-                                </div>
-                                <p className="w-1/3">Explication password</p>
-                            </div>
-                            {/*disabled={!isPermanentCodeValid(loginForm.permanentCode) || !loginForm.pwd}*/}
-                            <button type="submit"
-                                disabled={!courseForm.sigle || !courseForm.fullName || !courseForm.price || !courseForm.credits || !courseForm.winter || !courseForm.summer || !courseForm.autumn}
-                                className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                                Ajouter
-                            </button>
                             { displayCourseExists && (
                                 <Toast>
                                     <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
@@ -431,6 +423,22 @@ const Class = ({userCo}) => {
                                     <div className="ml-3 text-sm font-normal">Ce sigle de cours existe déjà.</div>
                                     <Toast.Toggle />
                                 </Toast>
+                            )}
+
+                            {/*disabled={!isPermanentCodeValid(loginForm.permanentCode) || !loginForm.pwd}*/}
+                            <button type="submit"
+                                disabled={!courseForm.sigle || !courseForm.fullName || !courseForm.price || !courseForm.credits || !courseForm.winter || !courseForm.summer || !courseForm.autumn}
+                                className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
+                                Ajouter
+                            </button>
+                            <button onClick={() => displayMultipleFormCourses()}
+                                className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
+                                Ajouter plusieurs cours
+                            </button>
+                            {displayForms && (
+                                <div>
+                                    plusieurs cours a ajouter
+                                </div>
                             )}
                         </form>
                     </div>

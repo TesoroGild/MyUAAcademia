@@ -4,16 +4,16 @@ import "./home.css";
 import AdminDashboard from "../dashboard/admindashboard";
 import AdminHeader from "../header/adminheader";
 
-const AdminHome = ({userCo}) => {
+const AdminHome = ({employeeCo}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
-                <AdminDashboard/>
+                <AdminDashboard employeeCo = {employeeCo}/>
             </div>
                 
             <div className="w-full">
                 <div>
-                    <AdminHeader userCo = {userCo}/>
+                    <AdminHeader/>
                 </div>
 
                 <div>

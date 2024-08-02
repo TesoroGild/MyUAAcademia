@@ -17,7 +17,7 @@ import { getStudentCoursesS } from '../../services/course.service';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const Bill = ({ userCo, userPermanentCode}) => {
+const Bill = ({userCo, userPermanentCode}) => {
     //States
     const [isLoading, setIsLoading] = useState(false);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());

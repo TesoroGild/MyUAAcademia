@@ -4,14 +4,56 @@
 import "./dashboard.css";
 
 import { Link, Route, Routes } from 'react-router-dom';
-import { Sidebar } from "flowbite-react";
+import { Avatar, Dropdown, Card, Sidebar } from "flowbite-react";
 import { HiAcademicCap, HiArrowSmRight, HiChartPie, HiChatAlt2, HiInbox, HiOutlineClipboardList, HiShoppingBag, HiTable, HiUser } from "react-icons/hi";
 
-const AdminDashboard = () => {
+//Images
+import Admin from '../../assets/img/Admin.jpg';
+
+const AdminDashboard = ({employeeCo}) => {
+  //Return
   return (
     <Sidebar aria-label="Sidebar with multi-level dropdown example" className="w-66">
       <Sidebar.Items>
         <Sidebar.ItemGroup>
+          <div>
+            <Card className="max-w-sm">
+                <div className="flex justify-end px-4 pt-4">
+                  <Dropdown inline label="">
+                    <Dropdown.Item>
+                      <a
+                        href="#"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
+                      >
+                        Edit
+                      </a>
+                    </Dropdown.Item>
+                    <Dropdown.Item>
+                      <a
+                        href="#"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
+                      >
+                        Export Data
+                      </a>
+                    </Dropdown.Item>
+                    <Dropdown.Item>
+                      <a
+                        href="#"
+                        className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
+                      >
+                        Delete
+                      </a>
+                    </Dropdown.Item>
+                  </Dropdown>
+                </div>
+                <div className="flex flex-col items-center pb-10">
+                <Avatar img={Admin} bordered size="xl"/>
+                  <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">{employeeCo.firstName} {employeeCo.lastName}</h5>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">{employeeCo.job}</span>
+                </div>
+              </Card>
+          </div>
+
           <div className="flex">
             <Sidebar.Item href="adminhome" icon={HiChartPie}/>
             <Link to="/adminhome">

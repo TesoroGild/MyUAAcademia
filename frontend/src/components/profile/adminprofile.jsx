@@ -16,7 +16,7 @@ import AdminHeader from "../header/adminheader";
 import AdminDashboard from "../dashboard/admindashboard";
 import "./profile.css";
 
-const AdminProfile = ({userCo, setUserCo}) => {
+const AdminProfile = ({employeeCo, setemployeeCo}) => {
 
     //States
     const [openModal, setOpenModal] = useState(false);
@@ -50,13 +50,13 @@ const AdminProfile = ({userCo, setUserCo}) => {
     const navigate = useNavigate();
     
     useEffect(() => {
-        if (userCo) {
+        if (employeeCo) {
             setProfileToDisplay((prevProfDisplay) => ({
                 ...prevProfDisplay,
-                ...userCo
+                ...employeeCo
             }));
         }
-      }, [userCo]);
+      }, [employeeCo]);
 
     const handleModifyChange = (event) => {
         setProfileModForm({ ...profileModForm, [event.target.name]: event.target.value });
@@ -91,9 +91,9 @@ const AdminProfile = ({userCo, setUserCo}) => {
     //Functions
     const initUpdForm = () => {
         setProfileModForm({
-            gender: userCo.gender || "",
-            phoneNumber: userCo.phoneNumber || "",
-            nas: userCo.nas || "",
+            gender: employeeCo.gender || "",
+            phoneNumber: employeeCo.phoneNumber || "",
+            nas: employeeCo.nas || "",
             pwd: ""
         });
 
@@ -116,8 +116,8 @@ const AdminProfile = ({userCo, setUserCo}) => {
 
             if (profileModified !== null && profileModified !== undefined) {
                 setOpenModal(false);
-                setUserCo((prevUserCo) => ({
-                    ...prevUserCo,
+                setemployeeCo((prevemployeeCo) => ({
+                    ...prevemployeeCo,
                     ...profileModified
                 }));
                 setProfileToDisplay((prevProf) => ({
@@ -138,12 +138,12 @@ const AdminProfile = ({userCo, setUserCo}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
-                <AdminDashboard/>
+                <AdminDashboard employeeCo = {employeeCo} />
             </div>
             
             <div className="w-full">
                 <div>
-                    <AdminHeader userCo = {userCo} />
+                    <AdminHeader />
                 </div>
                 
                 <div className="page-div">

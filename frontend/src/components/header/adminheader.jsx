@@ -9,7 +9,7 @@ import { Avatar, Dropdown, Navbar } from "flowbite-react";
 import logo from '../../assets/img/UA_Logo.png';
 import logo2 from '../../assets/img/UA_Logo2.jpg';
 
-function AdminHeader({userCo}) {
+function AdminHeader() {
   //States
     
   //Functions

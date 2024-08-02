@@ -4,6 +4,7 @@ const backend_url = import.meta.env.VITE_API_URL;
 
 //Create
 export const createCourseS = async (course) => {
+    console.log(course)
     console.log("COURSE SERVICE : CREATE COURSE");
     try {
         const response = await axios.post(`${backend_url}/Course/courses`, course);

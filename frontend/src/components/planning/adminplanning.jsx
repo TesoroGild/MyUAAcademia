@@ -2,7 +2,7 @@
 import AdminDashboard from "../dashboard/admindashboard";
 import AdminHeader from "../header/adminheader";
 
-const AdminPlanning = ({userCo}) => {
+const AdminPlanning = ({employeeCo}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
@@ -11,7 +11,7 @@ const AdminPlanning = ({userCo}) => {
                 
             <div className="w-full">
                 <div>
-                    <AdminHeader userCo = {userCo}/>
+                    <AdminHeader employeeCo = {employeeCo}/>
                 </div>
 
                 <div>

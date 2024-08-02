@@ -6,12 +6,12 @@ const Course = ({userCo}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
-                <AdminDashboard/>
+                <AdminDashboard employeeCo = {employeeCo} />
             </div>
                 
             <div className="w-full">
                 <div>
-                    <AdminHeader userCo = {userCo}/>
+                    <AdminHeader/>
                 </div>
 
                 <div>

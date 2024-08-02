@@ -3,9 +3,6 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
-//Reusable component
-import Header from './components/header/header'
-
 //Routes
 //Student components
 import Bill from './components/bill/bill'
@@ -40,7 +37,6 @@ import { BrowserRouter as Router, Route, Routes, Link, createBrowserRouter } fro
 const App = () => {
   
   const [userCo, setUserCo] = useState({
-    id: "",
     firstName: "",
     lastName: "",
     permanentCode: "",
@@ -57,6 +53,22 @@ const App = () => {
     program: ""
   });
 
+  const [employeeCo, setEmployeeCo] = useState({
+    firstName: "",
+    lastName: "",
+    code: "",
+    sexe: "",
+    gender: "",
+    email: "",
+    userRole: "",
+    department: "",
+    faculty: "",
+    job: "",
+    phoneNumber: "",
+    birthDay: "",
+    nas: ""
+  });
+
   const [bill, setBill] = useState({
     dateOfIssue: "",
     deadLine: "",
@@ -69,28 +81,28 @@ const App = () => {
       <div>
         <Routes>
           {/*Student routes*/}
-          <Route path="/" element={<Login setUserCo = {setUserCo}/>} />
+          <Route path="/" element={<Login setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
           <Route path="/bill" element={<Bill userCo= {userCo} userPermanentCode = {userCo.permanentCode}/>} />
           <Route path="/bulletin" element={<Bulletin userCo = {userCo}/>} />
           <Route path="/calendar" element={<Calendar userCo= {userCo}/>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/home" element={<Home userCo = {userCo} />} />
-          <Route path="/login" element={<Login setUserCo = {setUserCo}/>} />
+          <Route path="/login" element={<Login setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
           <Route path="/notfound" element={<Notfound />} />
           <Route path="/payment" element={<Payment bill = {bill} />}/>
           <Route path="/profile" element={<Profile userCo = {userCo} setUserCo = {setUserCo} />} />
-          <Route path="/planning" element={<Planning />} />
-          <Route path="/progress" element={<Progress />} />
+          <Route path="/planning" element={<Planning userCo = {userCo} />} />
+          <Route path="/progress" element={<Progress userCo = {userCo} />} />
           <Route path="/subscribe" element={<Subscribe userCo = {userCo}/>} />
 
           {/*Admin routes*/}
-          <Route path='/adminhome' element={<AdminHome userCo = {userCo} />} />
-          <Route path='/adminprofile' element={<AdminProfile userCo = {userCo} setUserCo = {setUserCo} />} />
+          <Route path='/adminhome' element={<AdminHome employeeCo = {employeeCo} />} />
+          <Route path='/adminprofile' element={<AdminProfile employeeCo = {employeeCo} setEmployeeCo = {setEmployeeCo} />} />
           <Route path="/adminplanning" element={<AdminPlanning />} />
           <Route path="/message" element={<Message />} />
           <Route path='/program' element={<Program />} />
-            <Route path='/program/class' element={<Class />} />
-            <Route path='/program/classroom' element={<Classroom />} />
+            <Route path='/program/class' element={<Class employeeCo = {employeeCo} />} />
+            <Route path='/program/classroom' element={<Classroom employeeCo= {employeeCo}  />} />
           <Route path='/student' element={<Student />} />
             <Route path='/student/course' element={<Course />} />
             <Route path='/student/create' element={<Create />} />
