@@ -11,6 +11,9 @@ import AdminHeader from "../../header/adminheader";
 //Services
 import { createCourseS, getCoursesS } from "../../../services/course.service";
 
+//Icons
+import { HiX } from "react-icons/hi";
+
 const Class = ({employeeCo}) => {
     //States
     const [sigleFocused, setSigleFocused] = useState(false);
