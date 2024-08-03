@@ -99,8 +99,9 @@ const Class = ({employeeCo}) => {
                     setCourseList([...courseList, courseToCreate]);
                     console.log("Cours ajouté");
                   } else {           
-                    setPermanentCodeFocused(true);
-                    setPasswordFocused(true);
+                    setSigleFocused(true);
+                    setNameFocused(true);
+                    setPriceFocused(true);
                   }
                   setCourseForm({ sigle: "", fullName: "", price: "", credits: "", autumn: "", summer: "", winter: "" });
             } catch (error) {
@@ -428,7 +429,6 @@ const Class = ({employeeCo}) => {
                                 </Toast>
                             )}
 
-                            {/*disabled={!isPermanentCodeValid(loginForm.permanentCode) || !loginForm.pwd}*/}
                             <button type="submit"
                                 disabled={!courseForm.sigle || !courseForm.fullName || !courseForm.price || !courseForm.credits || !courseForm.winter || !courseForm.summer || !courseForm.autumn}
                                 className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
