@@ -98,16 +98,16 @@ const App = () => {
           {/*Admin routes*/}
           <Route path='/adminhome' element={<AdminHome employeeCo = {employeeCo} />} />
           <Route path='/adminprofile' element={<AdminProfile employeeCo = {employeeCo} setEmployeeCo = {setEmployeeCo} />} />
-          <Route path="/adminplanning" element={<AdminPlanning />} />
-          <Route path="/message" element={<Message />} />
-          <Route path='/program' element={<Program />} />
+          <Route path="/adminplanning" element={<AdminPlanning employeeCo = {employeeCo} />} />
+          <Route path="/message" element={<Message employeeCo = {employeeCo} />} />
+          <Route path='/program' element={<Program employeeCo = {employeeCo} />} />
             <Route path='/program/class' element={<Class employeeCo = {employeeCo} />} />
             <Route path='/program/classroom' element={<Classroom employeeCo= {employeeCo}  />} />
-          <Route path='/student' element={<Student />} />
-            <Route path='/student/course' element={<Course />} />
-            <Route path='/student/create' element={<Create />} />
-            <Route path='/student/files' element={<Files />} />
-            <Route path='/student/Inscription' element={<Inscription />} />
+          <Route path='/student' element={<Student employeeCo = {employeeCo} />} />
+            <Route path='/student/course' element={<Course employeeCo = {employeeCo} />} />
+            <Route path='/student/create' element={<Create employeeCo = {employeeCo} />} />
+            <Route path='/student/files' element={<Files employeeCo = {employeeCo} />} />
+            <Route path='/student/Inscription' element={<Inscription employeeCo = {employeeCo} />} />
             
         </Routes>
       </div>

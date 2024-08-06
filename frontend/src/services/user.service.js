@@ -1,0 +1,56 @@
+import axios from 'axios';
+
+const backend_url = import.meta.env.VITE_API_URL;
+
+/********************************/
+/*         USERS LVL 1          */
+/********************************/
+
+//################################
+//          STUDENTS
+//################################
+
+//Create
+export const createStudentS = async (studentToCreate) => {
+  console.log("USER SERVICE : CREATE STUDENTS");
+  try {
+    const response = await axios.post(`${backend_url}/User/students`, studentToCreate);
+    return response.data.user;
+  } catch (error) {
+    console.error('Erreur :', error);
+    throw error;
+  }
+}
+
+//Read
+export const getStudentsS = async () => {
+    console.log("USER SERVICE : GET STUDENTS");
+    try {
+        const response = await axios.get(`${backend_url}/User/students`);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
+//Update
+
+//Delete
+
+//################################
+//          PROFESSORS
+//################################
+
+
+/********************************/
+/*         USERS LVL 2          */
+/********************************/
+
+//Create
+
+//Read
+
+//Update
+
+//Delete

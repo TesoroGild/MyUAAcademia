@@ -253,7 +253,7 @@ const Classroom = ({employeeCo}) => {
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                             {classroom.classeName}
                                         </Table.Cell>
-                                        <Table.Cell>{classroom.capacity}$</Table.Cell>
+                                        <Table.Cell>{classroom.capacity} places</Table.Cell>
                                         <Table.Cell>{classroom.typeOfClasse}</Table.Cell>
                                     </Table.Row>
                                 ))}

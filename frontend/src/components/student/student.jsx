@@ -1,6 +1,10 @@
-//React
+//Reusable
 import AdminDashboard from "../dashboard/admindashboard";
 import AdminHeader from "../header/adminheader";
+
+//React
+import React, { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 const Student = ({employeeCo}) => {
     return (<>
@@ -15,7 +19,25 @@ const Student = ({employeeCo}) => {
                 </div>
 
                 <div>
-                    Students list
+                    <div className="flex">
+                        <div>
+                            creer etudiant
+                        </div>
+
+                        <div>
+                            inscrire a un programme
+                            </div>
+                    </div>
+                    
+                    <div className="flex">
+                        <div>
+                            inscrire a un cours
+                        </div>
+
+                        <div>
+                            liste
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
