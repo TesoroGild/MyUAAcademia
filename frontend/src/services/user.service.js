@@ -15,7 +15,7 @@ export const createStudentS = async (studentToCreate) => {
   console.log("USER SERVICE : CREATE STUDENTS");
   try {
     const response = await axios.post(`${backend_url}/User/students`, studentToCreate);
-    return response.data.user;
+    return response.data;
   } catch (error) {
     console.error('Erreur :', error);
     throw error;
@@ -23,6 +23,17 @@ export const createStudentS = async (studentToCreate) => {
 }
 
 //Read
+export const getStudentS = async (permanentCode) => {
+    console.log("USER SERVICE : GET STUDENT");
+    try {
+        const response = await axios.get(`${backend_url}/User/students/${permanentCode}`);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
 export const getStudentsS = async () => {
     console.log("USER SERVICE : GET STUDENTS");
     try {

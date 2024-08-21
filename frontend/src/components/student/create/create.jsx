@@ -7,9 +7,15 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import { Tooltip } from "flowbite-react"
+//import { Datepicker } from "flowbite-react"
+
+//Modules
+//import Datepicker from "react-datepicker";
+import Datepicker from "flowbite-datepicker/Datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 //Icons
-import { HiInformationCircle } from "react-icons/hi";
+import { HiCalendar, HiInformationCircle } from "react-icons/hi";
 
 //Services
 import { createStudentS } from "../../../services/user.service";
@@ -22,30 +28,40 @@ const Create = ({employeeCo}) => {
         lastName: "",
         sexe: "",
         gender: "",
-        email: "",
         userRole: "",
         phoneNumber: "",
-        birthDay: "",
-        nas: "",
-        program: ""
+        department: "",
+        faculty: "",
+        lvlDegree: ""
     });
     const [firstNameFocused, setFirstNameFocused] = useState(false);
     const [lastNameFocused, setLastNameFocused] = useState(false);
     const [sexeFocused, setSexeFocused] = useState(false);
     const [genderFocused, setGenderFocused] = useState(false);
-    const [emailFocused, setEmailFocused] = useState(false);
     const [userRoleFocused, setUserRoleFocused] = useState(false);
     const [phoneNumberFocused, setPhoneNumberFocused] = useState(false);
-    const [birthDayFocused, setBirthDayFocused] = useState(false);
     const [nasFocused, setNasFocused] = useState(false);
     const [programFocused, setProgramFocused] = useState(false);
     const [programs, setPrograms] = useState([]);
+    const [programSelected, setProgramSelected] = useState({
+        department: "",
+        faculty: "",
+        lvlDegree: ""
+    });
     const [formattedNumber, setFormattedNumber] = useState('');
     const [formattedNas, setFormattedNas] = useState('');
+    const [birthday, setBirthday] = useState(null);
 
     //Function
+    const navigate = useNavigate();
+
     useEffect(() => {
         getPrograms();
+
+        const datepickerEl = document?.getElementById("datepickerId");
+        new Datepicker(datepickerEl, {
+            autohide: true
+        });
     }, []);
 
     const handleFirstNameFocus = (event) => {
@@ -64,20 +80,12 @@ const Create = ({employeeCo}) => {
         setGenderFocused(true);
     }
 
-    const handleEmailFocus = (event) => {
-        setEmailFocused(true);
-    }
-
     const handleUserRoleFocus = (event) => {
         setUserRoleFocused(true);
     }
 
     const handlePhoneNumberFocus = (event) => {
         setPhoneNumberFocused(true);
-    }
-
-    const handleBirthDayFocus = (event) => {
-        setBirthDayFocused(true);
     }
 
     const handleNasFocus = (event) => {
@@ -92,13 +100,25 @@ const Create = ({employeeCo}) => {
         setStudentForm({ ...studentForm, [event.target.name]: event.target.value });
     }
 
+    const handleProgramChange = (event) => {
+        const prog = event.target.value;
+        
+        for (let index = 0; index < programs.length; index++) {
+            if (programs[index].title == prog) {
+                programSelected.department = programs[index].department;
+                programSelected.faculty = programs[index].faculty;
+                programSelected.lvlDegree = programs[index].grade;
+                break;
+            }
+        }
+    }
+
     const handleSexeChange = (event) => {
         const { name, value } = event.target;
         setStudentForm((prevStudentForm) => ({
             ...prevStudentForm,
             [name]: value,
         }));
-        console.log(studentForm);
     };
 
     const handleGenderChange = (event) => {
@@ -116,7 +136,49 @@ const Create = ({employeeCo}) => {
             [name]: value,
         }));
     };
-    
+
+    const handlePhoneChange = (event) => {
+        formatPhoneNumber(event.target.name, event.target.value);
+    };
+
+    const formatPhoneNumber = (name, value) => {
+        const cleaned = ('' + value).replace(/\D/g, '');
+        const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
+        if (match) {
+            const formatted = (!match[2] ? match[1] : '(' + match[1] + ') ' + match[2]) + (match[3] ? '-' + match[3] : '');
+            setFormattedNumber(formatted);
+        }
+        setStudentForm({ ...studentForm, [name]: cleaned });
+    };
+      
+    const handleNasChange = (event) => {
+        formatNas(event.target.name, event.target.value);
+    }
+
+    const formatNas = (name, value) => {
+        const val = value.replace(/\D/g, ''); // Supprimer tous les caractères non numériques
+        if (val.length <= 9) {
+            setFormattedNas(val);
+        }
+    };
+
+    const handleDateChange = (event) => {
+        setBirthday(event.target.value);
+    }
+
+    const isFormValid = () => {
+        return studentForm.firstName && studentForm.lastName && studentForm.sexe && studentForm.gender 
+            && studentForm.userRole && birthday != null && birthday != undefined && formattedNas != "" && studentForm.program;
+    };
+
+    const resetStudentForm = () => {
+        document.getElementById("create-student").reset();
+        setFormattedNumber("");
+        setFormattedNas("");
+        // setBirthday(null);
+        // setProgramSelected({department: "", faculty: "", lvlDegree: ""});   
+    }
+        
     const createStudentDirectory = async (event) => {
         event.preventDefault();
 
@@ -126,19 +188,34 @@ const Create = ({employeeCo}) => {
                 lastName: studentForm.lastName,
                 sexe: studentForm.sexe,
                 gender: studentForm.gender,
-                email: studentForm.email,
                 userRole: studentForm.userRole,
                 phoneNumber: formattedNumber,
-                birthDay: studentForm.birthDay,
+                birthDay: birthday,
                 nas: formattedNas,
-                program: studentForm.program,
-                employeeCode: employeeCo.Code
+                department: programSelected.department,
+                faculty: programSelected.faculty,
+                lvlDegree: programSelected.lvlDegree,
+                employeeCode: employeeCo.code
             }
 
-            console.log(studentToCreate);
-            console.log(studentForm);
+            const createdStudent = await createStudentS(studentToCreate);
 
-            //const createdStudent = await createStudentS(studentToCreate);
+            if (createdStudent !== null && createdStudent !== undefined) {
+                const permanentcode = createdStudent.permanentCode;
+                console.log("Etudiant ajouté");
+                navigate(`/students/${permanentcode}`);
+                resetStudentForm();
+            } else {
+                setFirstNameFocused(true);
+                setLastNameFocused(true);
+                setSexeFocused(true);
+                setGenderFocused(true);
+                setUserRoleFocused(true);
+                setPhoneNumberFocused(true);
+                setNasFocused(true);
+                setProgramFocused(true);
+            }
+            //resetStudentForm();
         } catch (error) {
             console.log(error);
         }
@@ -153,58 +230,6 @@ const Create = ({employeeCo}) => {
         }
     }
 
-    const handleSelectChange = (e) => {
-        // const { name } = actionMeta;
-        // setProfileModForm((prevForm) => ({
-        //     ...prevForm,
-        //     [name]: selectedOption.value,
-        // }));
-        // console.log(studentForm);
-        const value = e.target.value.replace(/\D/g, ''); // Supprimer tous les caractères non numériques
-        if (value.length <= 9) {
-            setStudentForm({ ...studentForm, [e.target.name]: value });
-        }
-    };
-
-    const handlePhoneChange = (event) => {
-        formatPhoneNumber(event.target.name, event.target.value);
-    };
-
-    const formatPhoneNumber = (name, value) => {
-        const cleaned = ('' + value).replace(/\D/g, '');
-        const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
-        if (match) {
-            const formatted = (!match[2] ? match[1] : '(' + match[1] + ') ' + match[2]) + (match[3] ? '-' + match[3] : '');
-            setFormattedNumber(formatted);
-        }
-        //setRawValue(cleaned);
-        setStudentForm({ ...studentForm, [name]: cleaned });
-    };
-      
-    const handleNasChange = (event) => {
-        formatNas(event.target.name, event.target.value);
-    }
-
-    const formatNas = (name, value) => {
-        const val = value.replace(/\D/g, ''); // Supprimer tous les caractères non numériques
-        if (val.length <= 9) {
-            setFormattedNas(val);
-            setStudentForm({ ...studentForm, [name]: val });
-            //setNasNumber(value);
-        }
-        // const cleaned = ('' + value).replace(/\D/g, '');
-        // const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/);
-        // if (match) {
-        //     const formatted = (!match[2] ? match[1] : '(' + match[1] + ') ' + match[2]) + (match[3] ? '-' + match[3] : '');
-        //     setNasNumber(formatted);
-        // }
-        //setRawValue(cleaned);
-    };
-
-    const isFormValid = () => {
-        return form.firstName && form.lastName && form.nas.length === 9 && form.phoneNumber;
-      };
-
     //Retrun
     return (<>
         <div className="flex">
@@ -218,7 +243,7 @@ const Create = ({employeeCo}) => {
                 </div>
 
                 <div>
-                    <form onSubmit={createStudentDirectory}>
+                    <form id="create-student" onSubmit={createStudentDirectory}>
                         <div className="w-full flex p-4">
                             <label htmlFor="firstName" className="w-1/3">Prénom :</label>
                             <div className="w-1/3">
@@ -305,7 +330,7 @@ const Create = ({employeeCo}) => {
                                         type="radio"
                                         name="gender"
                                         value="Agender"
-                                        checked={studentForm.credits === "Agender"}
+                                        checked={studentForm.gender === "Agender"}
                                         onChange={handleGenderChange}
                                     />&nbsp;
                                     <label htmlFor="1">Agender</label>&nbsp;&nbsp;&nbsp;
@@ -314,16 +339,16 @@ const Create = ({employeeCo}) => {
                                         type="radio"
                                         name="gender"
                                         value="Cisegender"
-                                        checked={studentForm.credits === "Cisegender"}
+                                        checked={studentForm.gender === "Cisegender"}
                                         onChange={handleGenderChange}
                                     />&nbsp;
                                     <label htmlFor="2">Cisegender</label>&nbsp;&nbsp;&nbsp;
 
                                     <input
                                         type="radio"
-                                        name="genre"
+                                        name="gender"
                                         value="Genderfluid"
-                                        checked={studentForm.credits === "Genderfluid"}
+                                        checked={studentForm.gender === "Genderfluid"}
                                         onChange={handleGenderChange}
                                     />&nbsp;
                                     <label htmlFor="3">Genderfluid</label>&nbsp;&nbsp;&nbsp;
@@ -332,7 +357,7 @@ const Create = ({employeeCo}) => {
                                         type="radio"
                                         name="gender"
                                         value="Non-binary"
-                                        checked={studentForm.credits === "Non-binary"}
+                                        checked={studentForm.gender === "Non-binary"}
                                         onChange={handleGenderChange}
                                     />&nbsp;
                                     <label htmlFor="45">Non-binary</label>
@@ -343,7 +368,7 @@ const Create = ({employeeCo}) => {
                                         type="radio"
                                         name="gender"
                                         value="Transgender"
-                                        checked={studentForm.credits === "Transgender"}
+                                        checked={studentForm.gender === "Transgender"}
                                         onChange={handleGenderChange}
                                     />&nbsp;
                                     <label htmlFor="45">Transgender</label>
@@ -357,20 +382,19 @@ const Create = ({employeeCo}) => {
                             </div>
                         </div>
 
-                        birthDay: "",
-
                         <div className="w-full flex p-4">
-                            <label htmlFor="email" className="w-1/3">Email :</label>
+                            <label htmlFor="birthDate" className="w-1/3">Date de naissance :</label>
                             <div className="w-1/3">
-                                <input type="mail" id="email" name="email"
-                                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    onChange={handleStudentChange} required placeholder="john@doe.com"
-                                    onBlur={handleEmailFocus}
-                                    focused={emailFocused.toString()}
+                                <input
+                                    datepicker="true"
+                                    datepicker-autohide="false"
+                                    type="text"
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                                    placeholder="Select date"
+                                    onBlur={handleDateChange}
+                                    id="datepickerId"
                                 />
-                                <span className="text-xs font-light text-red-500 format-error">
-                                    Format invalid!
-                                </span>
+                                <HiCalendar/>
                             </div>
                             <div>
                                 <Tooltip content="Infos">
@@ -384,7 +408,7 @@ const Create = ({employeeCo}) => {
                             <div className="w-1/3">
                                 <input type="text" id="phoneNumber" value={formattedNumber}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    onChange={handlePhoneChange} required
+                                    onChange={handlePhoneChange}
                                     onBlur={handlePhoneNumberFocus}
                                     focused={phoneNumberFocused.toString()}
                                     maxLength="14"
@@ -453,7 +477,7 @@ const Create = ({employeeCo}) => {
                             <label htmlFor="program" className="w-1/3">Programme :</label>
                             <div className="w-1/3">
                                 <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    id="program" name="program" onChange={handleStudentChange}
+                                    id="program" name="program" onChange={handleProgramChange}
                                 >
                                     <option value="">Sélectionnez un programme</option>
                                     {programs.map((element, index) => (

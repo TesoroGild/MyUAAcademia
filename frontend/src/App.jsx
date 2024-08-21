@@ -26,13 +26,14 @@ import Class from './components/program/class/class.jsx'
 import Classroom from './components/program/classroom/classroom.jsx'
 import Course from './components/student/course/course.jsx'
 import Create from './components/student/create/create.jsx'
+import Details from './components/student/details/details.jsx'
 import Files from './components/student/files/files.jsx'
 import Inscription from './components/student/inscription/inscription.jsx'
 import Message from './components/message/message.jsx'
 import Program from './components/program/program.jsx'
 import Student from './components/student/student'
 
-import { BrowserRouter as Router, Route, Routes, Link, createBrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 
 const App = () => {
   
@@ -88,7 +89,6 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/home" element={<Home userCo = {userCo} />} />
           <Route path="/login" element={<Login setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
-          <Route path="/notfound" element={<Notfound />} />
           <Route path="/payment" element={<Payment bill = {bill} />}/>
           <Route path="/profile" element={<Profile userCo = {userCo} setUserCo = {setUserCo} />} />
           <Route path="/planning" element={<Planning userCo = {userCo} />} />
@@ -104,11 +104,14 @@ const App = () => {
             <Route path='/program/class' element={<Class employeeCo = {employeeCo} />} />
             <Route path='/program/classroom' element={<Classroom employeeCo= {employeeCo}  />} />
           <Route path='/student' element={<Student employeeCo = {employeeCo} />} />
+            <Route path="/students/:permanentcode" element={<Details employeeCo = {employeeCo} />} />
             <Route path='/student/course' element={<Course employeeCo = {employeeCo} />} />
             <Route path='/student/create' element={<Create employeeCo = {employeeCo} />} />
             <Route path='/student/files' element={<Files employeeCo = {employeeCo} />} />
-            <Route path='/student/Inscription' element={<Inscription employeeCo = {employeeCo} />} />
-            
+            <Route path='/student/Inscription' element={<Inscription employeeCo = {employeeCo} />} /> 
+
+            <Route path="/notfound" element={<Notfound />} /> 
+            <Route path="*" element={<Navigate replace to="/notfound" />} />
         </Routes>
       </div>
   )
