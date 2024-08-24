@@ -20,6 +20,30 @@ export const createCourseS = async (course) => {
     }
 }
 
+//Register several students for a course
+export const courseRegistrationS = async (requestParams) => {
+    console.log("COURSE SERVICE : CREATE COURSE-REGISTRATIONS");
+    try {
+        const response = await axios.post(`${backend_url}/UserCourse/register-student-for-a-courses`, requestParams);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
+//Register several courses for a students
+export const coursesRegistrationS = async (requestParams) => {
+    console.log("COURSE SERVICE : CREATE COURSES-REGISTRATION");
+    try {
+        const response = await axios.post(`${backend_url}/UserCourse/register-courses-for-a-student`, requestParams);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
 export const register = async (userCourses) => {
     console.log("COURSE SERVICE : REGISTER");
     try {
@@ -42,21 +66,22 @@ export const getAvailableCoursesS = async (availableCourses) => {
         throw error;
     }
 }
-// export const getAvailableCoursesS = async (availableCourses) => {
-//     console.log("COURSE SERVICE : GET COURSES AVAILABLE");
-//     try {
-//         const response = await axios.post(`${backend_url}/Course/courses/sessions`, availableCourses);
-//         return response.data;
-//     } catch (error) {
-//         console.error('Erreur :', error);
-//         throw error;
-//     }
-// }
 
 export const getCoursesS = async () => {
     console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
         const response = await axios.get(`${backend_url}/Course/courses`);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
+export const getProgramCoursesS = async (programTitle) => {
+    console.log("COURSE SERVICE : GET COURSES AVAILABLE");
+    try {
+        const response = await axios.get(`${backend_url}/Course/courses/program/${programTitle}`);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);

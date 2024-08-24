@@ -10,6 +10,7 @@ import AdminHeader from "../../header/adminheader";
 
 //Services
 import { createCourseS, getCoursesS } from "../../../services/course.service";
+import { getProgramsS } from "../../../services/program.service";
 
 //Icons
 import { HiX } from "react-icons/hi";
@@ -35,13 +36,15 @@ const Class = ({employeeCo}) => {
         winter: ""
     });
     const [courseList, setCourseList] = useState([]);
-    const [coursesListToAdd, setCoursesListToAdd] = useState([]);
+    const [programs, setPrograms] = useState([]);
+    const [programTitle, setProgramTitle] = useState("");
 
     //Functions
     const navigate = useNavigate();
 
     useEffect(() => {
         getCourses();
+        getPrograms();
     }, []);
 
     const handleSigleFocus = (event) => {
@@ -141,6 +144,15 @@ const Class = ({employeeCo}) => {
         }
     }
 
+    const getPrograms = async () => {
+        try {
+            const programs = await getProgramsS();
+            setPrograms(programs);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const handleCreditsChange = (event) => {
         const { name, value } = event.target;
         setCourseForm((prevCourseForm) => ({
@@ -227,8 +239,32 @@ const Class = ({employeeCo}) => {
                         </Table>
                     </div>
 
-                    <div>
+                    <div className="border-2 border-red-500 mt-4">
+                        <div>
+                            CRÉER UN NOUVEAU COURS
+                        </div>
                         <form onSubmit={createCourse}>
+                            <div className="w-full flex p-4">
+                                <label htmlFor="sigle" className="w-1/3 text-red-600">Programme : (TODO) ca marche pas now, revoir ca after</label>
+                                <div className="w-1/3">
+                                    <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                        id="program" name="program" onChange={(e) => setProgramTitle(e.target.value)}
+                                    >
+                                        <option value="">Sélectionnez un programme</option>
+                                        {programs.map((element, index) => (
+                                            <option key={index} value={element.title}>
+                                                {element.grade} : {element.programName}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <Tooltip content="Infos">
+                                        <HiInformationCircle className="h-4 w-4" />
+                                    </Tooltip>
+                                </div>
+                            </div>
+
                             <div className="w-full flex p-4">
                                 <label htmlFor="sigle" className="w-1/3">Sigle :</label>
                                 <div className="w-1/3">

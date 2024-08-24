@@ -18,9 +18,9 @@ const Inscription = ({employeeCo}) => {
     //States
     const [programs, setPrograms] = useState([]);
     const [students, setStudents] = useState([]);
-    const [displayCreate, setDisplayCreate] = useState(false);
-    const [displayModify, setDisplayModify] = useState(false);
-    const [displayDelete, setDisplayDelete] = useState(false);
+    const [displayInscriptionCreate, setDisplayInscriptionCreate] = useState(false);
+    const [displayInscriptionModify, setDisplayInscriptionModify] = useState(false);
+    const [displayInscriptionDelete, setDisplayInscriptionDelete] = useState(false);
     const [showProgramAdd, setShowProgramAdd] = useState(false);
     const [programForm, setProgramForm] = useState({
         title: "",
@@ -63,7 +63,7 @@ const Inscription = ({employeeCo}) => {
         }
     }
 
-    const registerStudents = async (event) => {
+    const registerStudentsProgram = async (event) => {
         event.preventDefault();
 
         try {
@@ -119,7 +119,7 @@ const Inscription = ({employeeCo}) => {
         }
     }
 
-    const addStudent = (pc) => {
+    const addStudentProgram = (pc) => {
         setStudentsPermanentCode([...studentsPermanentCode, pc]);
     }
     
@@ -134,22 +134,22 @@ const Inscription = ({employeeCo}) => {
         setFilteredStudents(filteredList);
     }
 
-    const display1 = () => {
-        setDisplayCreate(!displayCreate);
-        setDisplayModify(false);
-        setDisplayDelete(false);
+    const displayInscription1 = () => {
+        setDisplayInscriptionCreate(!displayInscriptionCreate);
+        setDisplayInscriptionModify(false);
+        setDisplayInscriptionDelete(false);
     }
 
-    const display2 = () => {
-        setDisplayModify(!displayModify);
-        setDisplayCreate(false);
-        setDisplayDelete(false);
+    const displayInscription2 = () => {
+        setDisplayInscriptionModify(!displayInscriptionModify);
+        setDisplayInscriptionCreate(false);
+        setDisplayInscriptionDelete(false);
     }
 
-    const display3 = () => {
-        setDisplayDelete(!displayDelete);
-        setDisplayCreate(false);
-        setDisplayModify(false);
+    const displayInscription3 = () => {
+        setDisplayInscriptionDelete(!displayInscriptionDelete);
+        setDisplayInscriptionCreate(false);
+        setDisplayInscriptionModify(false);
     }
 
     const handleProgramChange = (event) => {
@@ -203,26 +203,26 @@ const Inscription = ({employeeCo}) => {
                         <div>
                             <div className="flex">
                                 <div className="w-1/3">
-                                    <Button onClick={() => display1()}>
+                                    <Button onClick={() => displayInscription1()}>
                                         Nouveau
                                     </Button>
                                 </div>
 
                                 <div className="w-1/3">
-                                    <Button onClick={() => display2()}>
+                                    <Button onClick={() => displayInscription2()}>
                                         Modifier
                                     </Button>
                                 </div>
 
                                 <div>
-                                    <Button onClick={() => display3()}>
+                                    <Button onClick={() => displayInscription3()}>
                                         Supprimer
                                     </Button>
                                 </div>
                             </div>
                         </div>
 
-                        { displayCreate && (
+                        { displayInscriptionCreate && (
                             <div>
                                 <form onSubmit={createProgram}>
                                     <div className="w-full flex p-4">
@@ -359,13 +359,13 @@ const Inscription = ({employeeCo}) => {
                             </div>
                         )}
 
-                        { displayModify && (
+                        { displayInscriptionModify && (
                             <div>
                                 Modifier.
                             </div>
                         )}
 
-                        { displayDelete && (
+                        { displayInscriptionDelete && (
                             <div>
                                 Delete.
                             </div>
@@ -378,7 +378,7 @@ const Inscription = ({employeeCo}) => {
                         </div>
 
                         <div>
-                            <form onSubmit={registerStudents}>
+                            <form onSubmit={registerStudentsProgram}>
                                 <div>
                                     <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                         id="program" name="program" onChange={(e) => setProgramTitle(e.target.value)}
@@ -413,7 +413,7 @@ const Inscription = ({employeeCo}) => {
                                                 <Table.Body className="divide-y">
                                                     { filteredStudents.map(student => 
                                                         <Table.Row key={student.permanentCode} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200"
-                                                            onClick={() => addStudent(student.permanentCode)}>
+                                                            onClick={() => addStudentProgram(student.permanentCode)}>
                                                             <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                                                 {student.permanentCode}
                                                             </Table.Cell>
@@ -459,10 +459,6 @@ const Inscription = ({employeeCo}) => {
                                 </button>
                             </form>
                         </div>
-                    </div>
-                    
-                    <div>
-                        tableau des etudiants avec un boutton inscription
                     </div>
                 </div>
             </div>
