@@ -90,29 +90,31 @@ const Class = ({employeeCo}) => {
                     summer: courseForm.summer,
                     winter: courseForm.winter,
                     credits: courseForm.credits,
-                    employeeCode: employeeCo.code
+                    employeeCode: employeeCo.code,
+                    programTitle: programTitle
                 }
     
                 const courseCreated = await createCourseS(courseToCreate);
     
                 if (courseCreated !== null && courseCreated !== undefined) {
-                    //const newList = await getCourses();
-                    //console.log(newList)
-                    //setCourseList(newList);
-                    setCourseList([...courseList, courseToCreate]);
-                    console.log("Cours ajouté");
+                    await getCourses();
+                    await resetForm();
                   } else {           
                     setSigleFocused(true);
                     setNameFocused(true);
                     setPriceFocused(true);
                   }
-                  setCourseForm({ sigle: "", fullName: "", price: "", credits: "", autumn: "", summer: "", winter: "" });
-            } catch (error) {
+                } catch (error) {
                 console.log(error);
             }
         } else {
             handleCourseExistError();
         }
+    }
+
+    const resetForm = async () => {
+        setProgramTitle("");
+        setCourseForm({ sigle: "", fullName: "", price: "", credits: "", autumn: "", summer: "", winter: "" });
     }
 
     const handleCourseExistError = () => {
@@ -159,7 +161,6 @@ const Class = ({employeeCo}) => {
             ...prevCourseForm,
             [name]: value,
         }));
-        console.log(courseForm);
     };
 
     const handleWinterChange = (event) => {
@@ -168,7 +169,6 @@ const Class = ({employeeCo}) => {
             ...prevCourseForm,
             [name]: value,
         }));
-        console.log(courseForm);
     };
 
     const handleSummerChange = (event) => {
@@ -177,7 +177,6 @@ const Class = ({employeeCo}) => {
             ...prevCourseForm,
             [name]: value,
         }));
-        console.log(courseForm);
     };
 
     const handleAutumnChange = (event) => {
@@ -186,7 +185,6 @@ const Class = ({employeeCo}) => {
             ...prevCourseForm,
             [name]: value,
         }));
-        console.log(courseForm);
     };
 
     const displayMultipleFormCourses = () => {
@@ -222,19 +220,27 @@ const Class = ({employeeCo}) => {
                                 <Table.HeadCell>Automne</Table.HeadCell>
                             </Table.Head>
                             <Table.Body className="divide-y">
-                                { courseList.map((course, index) => (
-                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            {course.sigle}
+                                { courseList && courseList.length > 0 ? (
+                                    courseList.map((course, index) => (
+                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                {course.sigle}
+                                            </Table.Cell>
+                                            <Table.Cell>{course.fullName}</Table.Cell>
+                                            <Table.Cell>{course.price}$</Table.Cell>
+                                            <Table.Cell>{course.credits}</Table.Cell>
+                                            <Table.Cell>{course.winter}</Table.Cell>
+                                            <Table.Cell>{course.summer}</Table.Cell>
+                                            <Table.Cell>{course.autumn}</Table.Cell>
+                                        </Table.Row>
+                                    ))
+                                ) : (
+                                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white col-span-7">
+                                            Aucun cours!
                                         </Table.Cell>
-                                        <Table.Cell>{course.fullName}</Table.Cell>
-                                        <Table.Cell>{course.price}$</Table.Cell>
-                                        <Table.Cell>{course.credits}</Table.Cell>
-                                        <Table.Cell>{course.winter}</Table.Cell>
-                                        <Table.Cell>{course.summer}</Table.Cell>
-                                        <Table.Cell>{course.autumn}</Table.Cell>
                                     </Table.Row>
-                                ))}
+                                )}
                             </Table.Body>
                         </Table>
                     </div>
@@ -245,7 +251,7 @@ const Class = ({employeeCo}) => {
                         </div>
                         <form onSubmit={createCourse}>
                             <div className="w-full flex p-4">
-                                <label htmlFor="sigle" className="w-1/3 text-red-600">Programme : (TODO) ca marche pas now, revoir ca after</label>
+                                <label htmlFor="program" className="w-1/3">Programme :</label>
                                 <div className="w-1/3">
                                     <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                         id="program" name="program" onChange={(e) => setProgramTitle(e.target.value)}

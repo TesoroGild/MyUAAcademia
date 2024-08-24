@@ -24,7 +24,7 @@ export const createCourseS = async (course) => {
 export const courseRegistrationS = async (requestParams) => {
     console.log("COURSE SERVICE : CREATE COURSE-REGISTRATIONS");
     try {
-        const response = await axios.post(`${backend_url}/UserCourse/register-student-for-a-courses`, requestParams);
+        const response = await axios.post(`${backend_url}/UserCourse/register-students-to-a-course`, requestParams);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
@@ -71,6 +71,17 @@ export const getCoursesS = async () => {
     console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
         const response = await axios.get(`${backend_url}/Course/courses`);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
+export const getCoursesBySessionYearS = async (sessionYearProgram) => {
+    console.log("COURSE SERVICE : GET COURSES BY SESSION YEAR");
+    try {
+        const response = await axios.post(`${backend_url}/Course/courses/session-year-program`, sessionYearProgram);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
