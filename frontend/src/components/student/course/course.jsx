@@ -11,7 +11,7 @@ import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm  } from "r
 
 //Services
 import { getStudentsS } from "../../../services/user.service";
-import { courseRegistrationS, coursesRegistrationS, createClassroomS, getClassroomsS, getCoursesBySessionYearS, getProgramCoursesS } from "../../../services/course.service";
+import { courseRegistrationS, coursesRegistrationS, createClasseCourseS, createClassroomS, getClassroomsS, getClassesCoursesBySessionYearS, getCoursesBySessionYearS, getProgramCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
 const Course = ({employeeCo}) => {
@@ -20,10 +20,13 @@ const Course = ({employeeCo}) => {
     const [programs, setPrograms] = useState([]);
     const [courses, setCourses] = useState([]);
     const [classrooms, setClassrooms] = useState([]);
+    const [classCourses, setClassCourses] = useState([]);
     const [searchStudent, setSearchStudent] = useState("");
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [courseSigle, setCourseSigle] = useState("");
+    const [classesCoursesId, setClassesCoursesId] = useState("");
     const [programTitle, seProgramTitle] = useState("");
+    //const [titleProgram, setTitleProgram] = useState("");
     const [studentsPermanentCode, setStudentsPermanentCode] = useState([]);
     const [displayStudentsRegistration, setDisplayStudentsRegistration] = useState(false);
     const [displayCoursesRegistration, setDisplayCoursesRegistration] = useState(false);
@@ -34,13 +37,11 @@ const Course = ({employeeCo}) => {
         jours: "",
         startTime: "",
         endTime: "",
-        sessionCourse: "",
         yearCourse: ""
     });
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [yearCourse, setYearCourse] = useState(0);
+    const [session, setSession] = useState("");
     const [sessionCourse, setSessionCourse] = useState("");
-
 
     //Functions
     useEffect(() => {
@@ -79,10 +80,11 @@ const Course = ({employeeCo}) => {
 
     const getCoursesBySessionYear = async (progTitle) => {
         seProgramTitle(progTitle);
+        
         try {
             const sessionYearProgram = {
                 programTitle: progTitle,
-                sessionCourse: sessionCourse
+                sessionCourse: session
             }
             
             const courses = await getCoursesBySessionYearS(sessionYearProgram);
@@ -92,11 +94,46 @@ const Course = ({employeeCo}) => {
         }
     };
 
+    const getClassesCoursesBySession = async (titleProg) => {
+        try {
+            const sessionProgram = {
+                sessionCourse: sessionCourse,
+                programTitle: titleProg
+            }
+
+            const classesCourses = await getClassesCoursesBySessionYearS(sessionProgram);
+            await updateClassCourses(classesCourses);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const updateClassCourses = async (cc) => {
+        setClassCourses(cc);
+    }
+
     const createClasseCourse = async (event) => {
         event.preventDefault();
 
         try {
+            const classeCourse = {
+                classeName: classeCourseForm.classeName,
+                sessionCourse: session,
+                courseSigle: classeCourseForm.courseSigle,
+                jours: classeCourseForm.jours,
+                startTime: classeCourseForm.startTime,
+                endTime: classeCourseForm.endTime,
+                yearCourse: classeCourseForm.yearCourse,
+                employeeCode: employeeCo.code
+            }
 
+            const classeCourseCreated = await createClasseCourseS(classeCourse);
+
+            if (classeCourseCreated != null && classeCourseCreated != undefined) {
+                console.log("Classe Course Created");
+            } else {
+                console.log("Errooooooooooor");
+            }
         } catch (error) {
             console.log(error);
         }
@@ -107,7 +144,7 @@ const Course = ({employeeCo}) => {
 
         try {
             const registrationToCreate = {
-                cCourseIds: courseSigle,
+                cCourseIds: classesCoursesId,
                 permanentCodes: studentsPermanentCode
             }
 console.log(registrationToCreate);
@@ -182,29 +219,159 @@ console.log(registrationToCreate);
 
                         <div>
                             <form onSubmit={createClasseCourse}>
-                                <div>
-
+                                <div className="w-full flex p-4">
+                                    <label htmlFor="yearCourse" className="w-1/3">Année :</label>
+                                    <div className="w-1/3">
+                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            id="yearCourse" name="yearCourse" onChange={(e) => handleClasseCourseChange(e)}
+                                        >
+                                            <option value="">Sélectionnez une année...</option>
+                                            <option key={currentYear} value={currentYear}>{currentYear}</option>
+                                            <option key={currentYear+1} value={currentYear+1}>{currentYear+1}</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Tooltip content="Infos">
+                                            <HiInformationCircle className="h-4 w-4" />
+                                        </Tooltip>
+                                    </div>
                                 </div>
 
-                                <div>
-
+                                <div className="w-full flex p-4">
+                                    <label htmlFor="session" className="w-1/3">Session :</label>
+                                    <div className="w-1/3">
+                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            id="session" name="session" onChange={(e) => setSession(e.target.value)}
+                                        >
+                                            <option value="">Sélectionnez une session...</option>
+                                            <option key="Hiver" value="Hiver">Hiver</option>
+                                            <option key="Été" value="Été">Été</option>
+                                            <option key="Automne" value="Automne">Automne</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <p className="text-red-500">Sélectionnez toujours la session avant de choisir un programme</p>
+                                    </div>
                                 </div>
 
-                                <div>
-
+                                <div className="w-full flex p-4">
+                                    <label htmlFor="title" className="w-1/3">Programme :</label>
+                                    <div className="w-1/3">
+                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            id="title" name="title" onChange={(e) => getCoursesBySessionYear(e.target.value)}
+                                        >
+                                            <option value="">Sélectionnez un programme...</option>
+                                            {programs.map((element, index) => (
+                                                <option key={index} value={element.title}>
+                                                    {element.title} : {element.programName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Tooltip content="Infos">
+                                            <HiInformationCircle className="h-4 w-4" />
+                                        </Tooltip>
+                                    </div>
                                 </div>
 
-                                <div>
-
+                                <div className="w-full flex p-4">
+                                    <label htmlFor="classeName" className="w-1/3">Salle de classe :</label>
+                                    <div className="w-1/3">
+                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            id="classeName" name="classeName" onChange={(e) => handleClasseCourseChange(e)}
+                                        >
+                                            <option value="">Sélectionnez une classe...</option>
+                                            {classrooms.map((element, index) => (
+                                                <option key={index} value={element.classeName}>
+                                                    {element.classeName} : {element.typeOfClasse} : {element.capacity} places
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Tooltip content="Infos">
+                                            <HiInformationCircle className="h-4 w-4" />
+                                        </Tooltip>
+                                    </div>
                                 </div>
 
-                                <div>
-
+                                <div className="w-full flex p-4">
+                                <label htmlFor="courseSigle" className="w-1/3">Cours :</label>
+                                    <div className="w-1/3">
+                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            id="courseSigle" name="courseSigle" onChange={(e) => handleClasseCourseChange(e)}
+                                        >
+                                            <option value="">Sélectionnez un cours...</option>
+                                            {courses.map((element, index) => (
+                                                <option key={index} value={element.sigle}>
+                                                    {element.sigle} : {element.fullName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Tooltip content="Infos">
+                                            <HiInformationCircle className="h-4 w-4" />
+                                        </Tooltip>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    
+                                <div className="w-full flex p-4">
+                                    <label htmlFor="jours" className="w-1/3">Jour :</label>
+                                    <div className="w-1/3">
+                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            id="jours" name="jours" onChange={(e) => handleClasseCourseChange(e)}
+                                        >
+                                            <option value="">Sélectionnez un jour...</option>
+                                            <option key="Lundi" value="Lundi">Lundi</option>
+                                            <option key="Mardi" value="Mardi">Mardi</option>
+                                            <option key="Mercredi" value="Mercredi">Mercredi</option>
+                                            <option key="Jeudi" value="Jeudi">Jeudi</option>
+                                            <option key="Vendredi" value="Vendredi">Vendredi</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Tooltip content="Infos">
+                                            <HiInformationCircle className="h-4 w-4" />
+                                        </Tooltip>
+                                    </div>
                                 </div>
+
+                                <div className="w-full flex p-4">
+                                    <div className="w-1/2 mr-2 p-2">
+                                        <label htmlFor="startTime" className="w-1/2">Heure de début :</label>
+                                        <div className="">
+                                            <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                id="startTime" name="startTime" onChange={(e) => handleClasseCourseChange(e)}
+                                            >
+                                                <option value="">00h00</option>
+                                                <option key="09h30" value="09h30">09h30</option>
+                                                <option key="13h30" value="13h30">13h30</option>
+                                                <option key="18h00" value="18h00">18h00</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="w-1/2 ml-2 p-2">
+                                        <label htmlFor="endTime" className="w-1/2">Heure de fin :</label>
+                                        <div>
+                                            <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                id="endTime" name="endTime" onChange={(e) => handleClasseCourseChange(e)}
+                                            >
+                                                <option value="">00h00</option>
+                                                <option key="12h30" value="12h30">12h30</option>
+                                                <option key="16h30" value="16h30">16h30</option>
+                                                <option key="21h00" value="21h00">21h00</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" disabled={!classeCourseForm.classeName || !classeCourseForm.courseSigle || !classeCourseForm.jours || !classeCourseForm.startTime || !classeCourseForm.endTime || !classeCourseForm.yearCourse || !sessionCourse }
+                                    className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
+                                    Inscription
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -240,77 +407,55 @@ console.log(registrationToCreate);
                             <div className="mt-4">
                                 <div>FORMULAIRE D'INSCRIPTION DES ÉTUDIANTS À UN COURS</div>
                                 <form onSubmit={registerStudentsCourse}>
-                                    <div>
-                                        <div className="w-full flex p-4">
-                                            <label htmlFor="yearCourse" className="w-1/3">Année :</label>
-                                            <div className="w-1/3">
-                                                <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                    id="yearCourse" name="yearCourse" onChange={(e) => setYearCourse(e.target.value)}
-                                                >
-                                                    <option value="">Sélectionnez une année...</option>
-                                                    <option key={currentYear} value={currentYear}>{currentYear}</option>
-                                                    <option key={currentYear+1} value={currentYear+1}>{currentYear+1}</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <Tooltip content="Infos">
-                                                    <HiInformationCircle className="h-4 w-4" />
-                                                </Tooltip>
-                                            </div>
+                                    <div className="w-full flex p-4">
+                                        <label htmlFor="sessionCourse" className="w-1/3">Session :</label>
+                                        <div className="w-1/3">
+                                            <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                id="sessionCourse" name="sessionCourse" onChange={(e) => setSessionCourse(e.target.value)}
+                                            >
+                                                <option value="">Sélectionnez une session...</option>
+                                                <option key="Hiver" value="Hiver">Hiver</option>
+                                                <option key="Été" value="Été">Été</option>
+                                                <option key="Automne" value="Automne">Automne</option>
+                                            </select>
                                         </div>
-
-                                        <div className="w-full flex p-4">
-                                            <label htmlFor="sessionCourse" className="w-1/3">Session :</label>
-                                            <div className="w-1/3">
-                                                <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                    id="sessionCourse" name="sessionCourse" onChange={(e) => setSessionCourse(e.target.value)}
-                                                >
-                                                    <option value="">Sélectionnez une session...</option>
-                                                    <option key="Hiver" value="Hiver">Hiver</option>
-                                                    <option key="Été" value="Été">Été</option>
-                                                    <option key="Automne" value="Automne">Automne</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <Tooltip content="Infos">
-                                                    <HiInformationCircle className="h-4 w-4" />
-                                                </Tooltip>
-                                            </div>
+                                        <div>
+                                            <p className="text-red-500">Sélectionnez toujours la session avant de choisir un programme</p>
                                         </div>
+                                    </div>
 
-                                        <div className="w-full flex p-4">
-                                            <label htmlFor="title" className="w-1/3">Programme :</label>
-                                            <div className="w-1/3">
-                                                <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                    id="title" name="title" onChange={(e) => getCoursesBySessionYear(e.target.value)}
-                                                >
-                                                    <option value="">Sélectionnez un programme...</option>
-                                                    {programs.map((element, index) => (
-                                                        <option key={index} value={element.title}>
-                                                            {element.title} : {element.programName} places
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <Tooltip content="Infos">
-                                                    <HiInformationCircle className="h-4 w-4" />
-                                                </Tooltip>
-                                            </div>
+                                    <div className="w-full flex p-4">
+                                        <label htmlFor="titleCourse" className="w-1/3">Programme :</label>
+                                        <div className="w-1/3">
+                                            <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                                id="titleCourse" name="titleCourse" onChange={(e) => getClassesCoursesBySession(e.target.value)}
+                                            >
+                                                <option value="">Sélectionnez un programme...</option>
+                                                {programs.map((element, index) => (
+                                                    <option key={index} value={element.title}>
+                                                        {element.title} : {element.programName}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <Tooltip content="Infos">
+                                                <HiInformationCircle className="h-4 w-4" />
+                                            </Tooltip>
                                         </div>
                                     </div>
 
                                     <div className="w-full flex p-4">
                                         <div className="w-1/2 flex border-2 border-sky-500 mr-2 p-2">
-                                            <label htmlFor="sigle" className="w-1/2">Cours au programme :</label>
-                                            <div>
+                                            <label htmlFor="sigle" className="w-1/3">Cours au programme :</label>
+                                            <div className="w-2/3">
                                                 <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                    id="courseSigle" name="courseSigle" onChange={(e) => setCourseSigle(e.target.value)}
+                                                    id="courseSigle" name="courseSigle" onChange={(e) => setClassesCoursesId(e.target.value)}
                                                 >
                                                     <option value="">Sélectionnez un cours...</option>
-                                                    {courses.map((element, index) => (
-                                                        <option key={index} value={element.sigle}>
-                                                            {element.sigle} : {element.fullName}
+                                                    {classCourses.map((element, index) => (
+                                                        <option key={index} value={element.id}>
+                                                            Cours: {element.courseSigle}; Salle: {element.classeName}; {element.jours} de {element.startTime} à {element.endTime}
                                                         </option>
                                                     ))}
                                                 </select>
@@ -391,9 +536,9 @@ console.log(registrationToCreate);
                                         </div>
                                     </div>
 
-                                    <button type="submit" disabled={ !programTitle != "" || !courseSigle != "" || !studentsPermanentCode.length > 0 }
+                                    <button type="submit" disabled={ !classesCoursesId || !studentsPermanentCode.length > 0 }
                                         className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                                        Inscrire
+                                        Ajouter cours
                                     </button>
                                 </form>
                             </div>
