@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Table, TextInput, Toast, Tooltip } from "flowbite-react"
 
 //Icons
-import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm  } from "react-icons/hi";
+import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
 
 //Services
 import { getStudentsS } from "../../../services/user.service";
@@ -24,11 +24,9 @@ const Course = ({employeeCo}) => {
     const [searchStudent, setSearchStudent] = useState("");
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [courseSigle, setCourseSigle] = useState("");
-    const [classesCoursesId, setClassesCoursesId] = useState("");
+    const [classesCoursesIds, setClassesCoursesIds] = useState([]);
     const [programTitle, seProgramTitle] = useState("");
-    //const [titleProgram, setTitleProgram] = useState("");
-    const [studentsPermanentCode, setStudentsPermanentCode] = useState([]);
-    const [displayStudentsRegistration, setDisplayStudentsRegistration] = useState(false);
+    const [studentsPermanentCodes, setStudentsPermanentCodes] = useState([]);
     const [displayCoursesRegistration, setDisplayCoursesRegistration] = useState(false);
     const [showCourseAdd, setShowCourseAdd] = useState(false);
     const [classeCourseForm, setClasseCourseForm] = useState({
@@ -144,23 +142,24 @@ const Course = ({employeeCo}) => {
 
         try {
             const registrationToCreate = {
-                cCourseIds: classesCoursesId,
-                permanentCodes: studentsPermanentCode
+                cCourseIds: classesCoursesIds,
+                permanentCodes: studentsPermanentCodes
             }
-console.log(registrationToCreate);
-            //const registrationResponse = await courseRegistrationS(registrationToCreate);
 
-            // if (registrationResponse) {
-            //     setStudentsPermanentCode([]);
-            //     seProgramTitle("");
-            //     setCourseSigle("");
-            //     setShowCourseAdd(true);
-            //     setTimeout(() => {
-            //         setShowCourseAdd(false);
-            //     }, 5000);
-            // } else {
-            //     console.log("Erreur");
-            // }
+            const registrationResponse = await courseRegistrationS(registrationToCreate);
+
+            if (registrationResponse) {
+                setStudentsPermanentCodes([]);
+                setClassesCoursesIds([]);
+                seProgramTitle("");
+                setCourseSigle("");
+                setShowCourseAdd(true);
+                setTimeout(() => {
+                    setShowCourseAdd(false);
+                }, 5000);
+            } else {
+                console.log("Erreur");
+            }
         } catch (error) {
             console.log(error);
         }
@@ -186,17 +185,19 @@ console.log(registrationToCreate);
     }
 
     const addStudentCourse = (pc) => {
-        setStudentsPermanentCode([...studentsPermanentCode, pc]);
+        setStudentsPermanentCodes([...studentsPermanentCodes, pc]);
     }
 
-    const display1 = () => {
-        setDisplayStudentsRegistration(!displayStudentsRegistration);
-        setDisplayCoursesRegistration(false);
+    const removeStudentCourse = (pc) => {
+        setStudentsPermanentCodes(studentsPermanentCodes.filter((student) => student !== pc));
     }
 
-    const display2 = () => {
-        setDisplayCoursesRegistration(!displayCoursesRegistration);
-        setDisplayStudentsRegistration(false);
+    const addProgramCourse = (id) => {
+        setClassesCoursesIds([...classesCoursesIds, id]);
+    }
+
+    const removeCourseId = (id) => {
+        setClassesCoursesIds(classesCoursesIds.filter((courseId) => courseId !== id));
     }
 
     //Return
@@ -370,7 +371,7 @@ console.log(registrationToCreate);
                                 
                                 <button type="submit" disabled={!classeCourseForm.classeName || !classeCourseForm.courseSigle || !classeCourseForm.jours || !classeCourseForm.startTime || !classeCourseForm.endTime || !classeCourseForm.yearCourse || !sessionCourse }
                                     className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                                    Inscription
+                                    Ajouter séance de cours
                                 </button>
                             </form>
                         </div>
@@ -381,20 +382,17 @@ console.log(registrationToCreate);
                             GESTION DES INSCRIPTIONS
                         </div>
 
-                        <div className="flex">
-                            <div className="w-1/2">
-                                <Button onClick={() => display1()}>Ajouter plusieurs étudiants à un cours</Button>
+                        <div className="border-2 border-red-500 mt-2 bg-red-200 mx-2 flex">
+                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center text-orange-500 dark:text-orange-200">
+                                <HiExclamation className="h-5 w-5" />
                             </div>
-
-                            <div>
-                                <Button onClick={() => display2()}>Inscrire un étudiant à des cours</Button>
-                            </div>
+                            POUR AJOUTER PLUSIEURS COURS OU PLUSIEURS ÉTUDIANTS SIMULTANÉMENT, CHOISISSEZ EN PLUSIEURS
                         </div>
 
                         { showCourseAdd && (
                             <div>
                                 <Toast>
-                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
+                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-700 dark:text-green-200">
                                         <HiCheck className="h-5 w-5" />
                                     </div>
                                     <div className="ml-3 text-sm font-normal">Cours ajouté.</div>
@@ -402,147 +400,179 @@ console.log(registrationToCreate);
                                 </Toast>
                             </div>
                         )}
-
-                        { displayStudentsRegistration && (
-                            <div className="mt-4">
-                                <div>FORMULAIRE D'INSCRIPTION DES ÉTUDIANTS À UN COURS</div>
-                                <form onSubmit={registerStudentsCourse}>
-                                    <div className="w-full flex p-4">
-                                        <label htmlFor="sessionCourse" className="w-1/3">Session :</label>
-                                        <div className="w-1/3">
-                                            <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                id="sessionCourse" name="sessionCourse" onChange={(e) => setSessionCourse(e.target.value)}
-                                            >
-                                                <option value="">Sélectionnez une session...</option>
-                                                <option key="Hiver" value="Hiver">Hiver</option>
-                                                <option key="Été" value="Été">Été</option>
-                                                <option key="Automne" value="Automne">Automne</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <p className="text-red-500">Sélectionnez toujours la session avant de choisir un programme</p>
-                                        </div>
+                        
+                        <div className="mt-4">
+                            <form onSubmit={registerStudentsCourse}>
+                                <div className="w-full flex p-4">
+                                    <label htmlFor="sessionCourse" className="w-1/3">Session :</label>
+                                    <div className="w-1/3">
+                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            id="sessionCourse" name="sessionCourse" onChange={(e) => setSessionCourse(e.target.value)}
+                                        >
+                                            <option value="">Sélectionnez une session...</option>
+                                            <option key="Hiver" value="Hiver">Hiver</option>
+                                            <option key="Été" value="Été">Été</option>
+                                            <option key="Automne" value="Automne">Automne</option>
+                                        </select>
                                     </div>
+                                    <div>
+                                        <p className="text-red-500">Sélectionnez toujours la session avant de choisir un programme</p>
+                                    </div>
+                                </div>
 
-                                    <div className="w-full flex p-4">
-                                        <label htmlFor="titleCourse" className="w-1/3">Programme :</label>
-                                        <div className="w-1/3">
+                                <div className="w-full flex p-4">
+                                    <label htmlFor="titleCourse" className="w-1/3">Programme :</label>
+                                    <div className="w-1/3">
+                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            id="titleCourse" name="titleCourse" onChange={(e) => getClassesCoursesBySession(e.target.value)}
+                                        >
+                                            <option value="">Sélectionnez un programme...</option>
+                                            {programs.map((element, index) => (
+                                                <option key={index} value={element.title}>
+                                                    {element.title} : {element.programName}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <Tooltip content="Infos">
+                                            <HiInformationCircle className="h-4 w-4" />
+                                        </Tooltip>
+                                    </div>
+                                </div>
+
+                                <div className="w-full flex p-4">
+                                    <div className="w-1/2 flex border-2 border-sky-500 mr-2 p-2">
+                                        <label htmlFor="sigle" className="w-1/3">Cours au programme :</label>
+                                        <div className="w-2/3">
                                             <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                id="titleCourse" name="titleCourse" onChange={(e) => getClassesCoursesBySession(e.target.value)}
+                                                id="courseSigle" name="courseSigle" onChange={(e) => addProgramCourse(e.target.value)}
                                             >
-                                                <option value="">Sélectionnez un programme...</option>
-                                                {programs.map((element, index) => (
-                                                    <option key={index} value={element.title}>
-                                                        {element.title} : {element.programName}
+                                                <option value="">Sélectionnez un cours...</option>
+                                                {classCourses.map((element, index) => (
+                                                    <option key={index} value={element.id}>
+                                                        ({element.id}) Cours: {element.courseSigle}; Salle: {element.classeName}; {element.jours} de {element.startTime} à {element.endTime}
                                                     </option>
                                                 ))}
                                             </select>
                                         </div>
+                                    </div>
+
+                                    <div className="w-1/2 border-2 border-sky-500 ml-2 p-2">
+                                        <label htmlFor="sigle" className="w-1/2">Cours (hors programme) :</label>
+                                    </div>
+                                </div>
+
+                                <div className="w-full flex p-4">
+                                    <label htmlFor="sigle" className="w-1/3">Rechercher un étudiant :</label>
+                                    <div className="w-1/3">
+                                        <input className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            type="text"
+                                            value={searchStudent}
+                                            onChange={handleCodeChange}
+                                            placeholder="Code permanent" />
+                                    </div>
+                                    <div>
+                                        <Tooltip content="Infos">
+                                            <HiInformationCircle className="h-4 w-4" />
+                                        </Tooltip>
+                                    </div>
+                                </div>
+
+                                <div className="flex my-4">
+                                    <div className="w-1/2">
+                                        <p>Liste des étudiants</p>
                                         <div>
-                                            <Tooltip content="Infos">
-                                                <HiInformationCircle className="h-4 w-4" />
-                                            </Tooltip>
+                                            <Table>
+                                                <Table.Head>
+                                                    <Table.HeadCell>Code permanent</Table.HeadCell>
+                                                    <Table.HeadCell>Nom</Table.HeadCell>
+                                                    <Table.HeadCell>Prénom</Table.HeadCell>
+                                                </Table.Head>
+                                                <Table.Body className="divide-y">
+                                                    { filteredStudents.map(student => 
+                                                        <Table.Row key={student.permanentCode} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200"
+                                                            onClick={() => addStudentCourse(student.permanentCode)}>
+                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                {student.permanentCode}
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                {student.lastName}
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                {student.firstName}
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                <div className="flex self-center"><HiOutlinePlusSm /></div>
+                                                            </Table.Cell>
+                                                        </Table.Row>
+                                                    )}
+                                                </Table.Body>
+                                            </Table>
                                         </div>
                                     </div>
 
-                                    <div className="w-full flex p-4">
-                                        <div className="w-1/2 flex border-2 border-sky-500 mr-2 p-2">
-                                            <label htmlFor="sigle" className="w-1/3">Cours au programme :</label>
-                                            <div className="w-2/3">
-                                                <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                    id="courseSigle" name="courseSigle" onChange={(e) => setClassesCoursesId(e.target.value)}
-                                                >
-                                                    <option value="">Sélectionnez un cours...</option>
-                                                    {classCourses.map((element, index) => (
-                                                        <option key={index} value={element.id}>
-                                                            Cours: {element.courseSigle}; Salle: {element.classeName}; {element.jours} de {element.startTime} à {element.endTime}
-                                                        </option>
+                                    <div className="mx-4">
+                                        <p>Etudiants à ajouter</p>
+                                        <div>
+                                            <Table>
+                                                <Table.Head>
+                                                    <Table.HeadCell>Code permanent</Table.HeadCell>
+                                                    <Table.HeadCell></Table.HeadCell>
+                                                </Table.Head>
+                                                <Table.Body className="divide-y">
+                                                    { studentsPermanentCodes.map((studentPC, index) => (
+                                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200">
+                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                {studentPC}
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                <div onClick={() => removeStudentCourse(studentPC)} 
+                                                                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                                    <HiX className="h-5 w-5" />
+                                                                </div>
+                                                            </Table.Cell>
+                                                        </Table.Row>
                                                     ))}
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="w-1/2 border-2 border-sky-500 ml-2 p-2">
-                                            <label htmlFor="sigle" className="w-1/2">Cours (hors programme) :</label>
+                                                </Table.Body>
+                                            </Table>
                                         </div>
                                     </div>
 
-                                    <div className="w-full flex p-4">
-                                        <label htmlFor="sigle" className="w-1/3">Rechercher un étudiant :</label>
-                                        <div className="w-1/3">
-                                            <input className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                type="text"
-                                                value={searchStudent}
-                                                onChange={handleCodeChange}
-                                                placeholder="Code permanent" />
-                                        </div>
+                                    <div className="ml-4">
+                                        <p>Cour à ajouter</p>
                                         <div>
-                                            <Tooltip content="Infos">
-                                                <HiInformationCircle className="h-4 w-4" />
-                                            </Tooltip>
+                                            <Table>
+                                                <Table.Head>
+                                                    <Table.HeadCell>Cours</Table.HeadCell>
+                                                    <Table.HeadCell></Table.HeadCell>
+                                                </Table.Head>
+                                                <Table.Body className="divide-y">
+                                                    { classesCoursesIds.map((courseId, index) => (
+                                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800  cursor-pointer hover:bg-sky-200">
+                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                {courseId}
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                <div onClick={() => removeCourseId(courseId)} 
+                                                                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                                    <HiX className="h-5 w-5" />
+                                                                </div>
+                                                            </Table.Cell>
+                                                        </Table.Row>
+                                                    ))}
+                                                </Table.Body>
+                                            </Table>
                                         </div>
                                     </div>
+                                </div>
 
-                                    <div className="flex my-4">
-                                        <div className="w-1/2">
-                                            <p>Liste des étudiants</p>
-                                            <div>
-                                                <Table>
-                                                    <Table.Head>
-                                                        <Table.HeadCell>Code permanent</Table.HeadCell>
-                                                        <Table.HeadCell>Nom</Table.HeadCell>
-                                                        <Table.HeadCell>Prénom</Table.HeadCell>
-                                                    </Table.Head>
-                                                    <Table.Body className="divide-y">
-                                                        { filteredStudents.map(student => 
-                                                            <Table.Row key={student.permanentCode} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200"
-                                                                onClick={() => addStudentCourse(student.permanentCode)}>
-                                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                    {student.permanentCode}
-                                                                </Table.Cell>
-                                                                <Table.Cell>
-                                                                    {student.lastName}
-                                                                </Table.Cell>
-                                                                <Table.Cell>
-                                                                    {student.firstName}
-                                                                </Table.Cell>
-                                                                <Table.Cell>
-                                                                    <div className="flex self-center"><HiOutlinePlusSm /></div>
-                                                                </Table.Cell>
-                                                            </Table.Row>
-                                                        )}
-                                                    </Table.Body>
-                                                </Table>
-                                            </div>
-                                        </div>
-                                        <div className="ml-4">
-                                            <p>Etudiants à ajouter</p>
-                                            <div>
-                                                <Table>
-                                                    <Table.Head>
-                                                        <Table.HeadCell>Code permanent</Table.HeadCell>
-                                                    </Table.Head>
-                                                    <Table.Body className="divide-y">
-                                                        { studentsPermanentCode.map((studentPC, index) => (
-                                                            <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                    {studentPC}
-                                                                </Table.Cell>
-                                                            </Table.Row>
-                                                        ))}
-                                                    </Table.Body>
-                                                </Table>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" disabled={ !classesCoursesId || !studentsPermanentCode.length > 0 }
-                                        className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                                        Ajouter cours
-                                    </button>
-                                </form>
-                            </div>
-                        )}
+                                <button type="submit" disabled={ !classesCoursesIds || !studentsPermanentCodes.length > 0 }
+                                    className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
+                                    Inscription
+                                </button>
+                            </form>
+                        </div>
 
                         { displayCoursesRegistration && (
                             <div>

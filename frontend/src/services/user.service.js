@@ -45,7 +45,28 @@ export const getStudentsS = async () => {
     }
 }
 
+export const getStudentsInfosS = async () => {
+  console.log("USER SERVICE : GET STUDENTS WITH MORE INFOS");
+  try {
+      const response = await axios.get(`${backend_url}/User/studentsV2`);
+      return response.data;
+  } catch (error) {
+      console.error('Erreur :', error);
+      throw error;
+  }
+}
+
 //Update
+export const activeStudentAccountS = async (activateAccount) => {
+    console.log("USER SERVICE : ACTIVE STUDENT ACCOUNT");
+    try {
+        const response = await axios.put(`${backend_url}/User/students/activate`, activateAccount);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
 
 //Delete
 
