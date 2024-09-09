@@ -115,11 +115,6 @@ const AdminDashboard = ({employeeCo}) => {
                   <div className="dashboard-name">Inscription à un cours</div>
                 </Link>
               </div>
-              <div className="flex">
-                <Link to="/student/activation">
-                  <div className="dashboard-name">Activation</div>
-                </Link>
-              </div>
             </Sidebar.Collapse>
           </div>
           
