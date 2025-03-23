@@ -29,12 +29,11 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
-          
-      - name: Check current directory
-        run: pwd && ls -la
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./dist -r
+        run: |
+          cd frontend
+          zip release.zip ./dist -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
