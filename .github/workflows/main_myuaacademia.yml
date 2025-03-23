@@ -76,4 +76,11 @@ jobs:
           slot-name: 'Production'
           package: "frontend/dist"
         timeout-minutes: 10
+
+      - name: Restart Azure Web App
+        run: |
+          az webapp restart --name MyUAAcademia --resource-group MA-AppService
+        env:
+          AZURE_WEBAPP_NAME: MyUAAcademia
+          AZURE_RESOURCE_GROUP: MA-AppService
           
