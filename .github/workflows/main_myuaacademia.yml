@@ -74,6 +74,6 @@ jobs:
         with:
           app-name: 'MyUAAcademia'
           slot-name: 'Production'
-          package: "frontend/build"
+          package: "frontend/dist"
         timeout-minutes: 10
           
