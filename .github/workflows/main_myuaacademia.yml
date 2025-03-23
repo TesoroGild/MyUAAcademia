@@ -29,6 +29,9 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
+          
+      - name: Check current directory
+        run: pwd && ls -la
 
       - name: Zip artifact for deployment
         run: zip release.zip ./dist -r
