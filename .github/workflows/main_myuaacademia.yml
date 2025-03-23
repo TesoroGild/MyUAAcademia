@@ -33,7 +33,7 @@ jobs:
       - name: Zip artifact for deployment
         run: |
           cd frontend
-          zip release.zip ./dist -r
+          zip release.zip ./dist/* -r
 
       - name: Check current directory
         run: pwd && ls
@@ -42,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: frontend/release.zip
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -79,7 +79,7 @@ jobs:
         with:
           app-name: 'MyUAAcademia'
           slot-name: 'Production'
-          package: dist
+          package: .
         timeout-minutes: 10
 
       - name: Restart Azure Web App
