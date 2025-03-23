@@ -65,13 +65,16 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8EC6E8833EB742A9BCE452D86B965AAF }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B001F3F9CB594EE497838071396D2D9B }}
 
+      - name: Check current directory
+        run: pwd && ls -la
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'MyUAAcademia'
           slot-name: 'Production'
-          package: dist/*
+          package: frontend/dist/*
         timeout-minutes: 10
 
       - name: Restart Azure Web App
