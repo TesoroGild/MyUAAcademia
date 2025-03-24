@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/eee6917f-2eca-49c7-9083-c5823ad93fe5/resourceGroups/appsvc_linux_centralus/providers/Microsoft.Web/sites/MyUAAcademia",
+    "appService.deploySubpath": "."
+}

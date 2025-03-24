@@ -66,7 +66,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2DC013B281134876A9251BA547B6A26B }}
 
       - name: Check dist content
-        run: pwd && ls frontend/dist/
+        run: ls frontend/dist/assets
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -74,7 +74,7 @@ jobs:
         with:
           app-name: 'MyUAAcademia'
           slot-name: 'Production'
-          package: .
+          package: frontend/dist/
         timeout-minutes: 5
 
       - name: Restart Azure Web App
