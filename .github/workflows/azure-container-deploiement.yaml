@@ -1,0 +1,58 @@
+name: Projet Build and Publish Docker Image 
+
+on:
+  push:
+    branches:
+      - main    #modify if you want to deploy on branch "docker-trial"
+
+  
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+        # checkout the repo
+        - name: 'Checkout GitHub Action'
+          uses: actions/checkout@main
+
+        - name: 'Hadolint for checking the code' 
+          uses: hadolint/hadolint-action@v3.1.0
+          with:
+              dockerfile: ./Dockerfile 
+          
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v2
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+        
+        - name: 'Create Container App Environment'
+          run: |
+            az containerapp env create \
+              --resource-group ${{ secrets.RESOURCE_GROUP }} \
+              --name <AZURE_CONTAINERAPP_ENV_NAME> \
+              --location 'france central'
+
+        - name: 'Build and push image'
+          uses: azure/docker-login@v1
+          with:
+            login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            username: ${{ secrets.REGISTRY_USERNAME }}
+            password: ${{ secrets.REGISTRY_PASSWORD }}
+        - run: |
+            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/<DOCKER_IMAGE_NAME>:${{ github.sha }}
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/<DOCKER_IMAGE_NAME>:${{ github.sha }}
+
+        - name: Build and deploy Container App
+          uses: azure/container-apps-deploy-action@v1
+          with:
+            acrName: efreibigdata           
+            containerAppName: <AZURE_CONTAINERAPP_NAME>
+            containerAppEnvironment : <AZURE_CONTAINERAPP_ENV_NAME>
+            resourceGroup: ${{ secrets.RESOURCE_GROUP }}
+            imageToDeploy: ${{ secrets.REGISTRY_LOGIN_SERVER }}/<DOCKER_IMAGE_NAME>:${{ github.sha }}
+            location: 'france central'
+            targetPort: 8080
+            registryUsername: ${{ secrets.REGISTRY_USERNAME }}
+            registryPassword: ${{ secrets.REGISTRY_PASSWORD }}
+            acrUsername: ${{ secrets.REGISTRY_USERNAME }}
+            acrPassword: ${{ secrets.REGISTRY_PASSWORD }}
+            azureCredentials : ${{ secrets.AZURE_CREDENTIALS }}
