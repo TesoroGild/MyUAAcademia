@@ -31,10 +31,8 @@ jobs:
           npm run test --if-present
 
       - name: Zip artifact for deployment
-        run: |
-          cd frontend/dist
-          zip ../release.zip ./* -r
-
+        run: zip release.zip frontend/dist/* -r
+        
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
@@ -76,7 +74,7 @@ jobs:
         with:
           app-name: 'MyUAAcademia'
           slot-name: 'Production'
-          package: ./
+          package: frontend/dist/
         timeout-minutes: 10
 
       - name: Restart Azure Web App
