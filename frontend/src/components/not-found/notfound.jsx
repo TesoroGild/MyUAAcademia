@@ -11,7 +11,11 @@ const Notfound = () => {
     const navigate = useNavigate();
     
     const navigateToHome = () => {
-        navigate('/notfound');
+        navigate('/home');
+    }
+
+    const navigateLogin = () => {
+        navigate('/login');
     }
 
     //Return
@@ -28,7 +32,10 @@ const Notfound = () => {
                 </div>
                 
                 <div>
-                <Button onClick={() => navigateToHome()}>Acceuil</Button>
+                    <Button onClick={() => navigateToHome()}>Acceuil</Button>
+                </div>
+                <div>
+                    <Button onClick={() => navigateLogin()}>Se connecter</Button>
                 </div>
             </div>
         </div>
