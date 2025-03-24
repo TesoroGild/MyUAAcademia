@@ -23,3 +23,24 @@ Example: With: <br/>
 $ docker build -t myapp .
 $ docker run -p 3000:8080 --name myapp-container myapp
 ```
+
+
+# Application deployment
+
+For the wrapped app deploiement, we need to use the Azure Container App deployment. The CI/CD worflow for this deployment is configured via the [`.github/worflows/azure-container-deploiement.yaml`](.github/workflows/azure-container-deploiement.yaml) file.
+
+First of all, it's mandatory to set up your credentials via GitHub secrets:
+- **AZURE_CREDENTIALS**: which may contains the following information:
+```json
+{
+    "clientSecret":  "******",
+    "subscriptionId":  "******",
+    "tenantId":  "******",
+    "clientId":  "******"
+}
+```
+
+- **RESOURCE_GROUP**: which contains the resource group name
+- **REGISTRY_USERNAME**: which contains the registry username
+- **REGISTRY_PASSWORD**: which contains the registry password
+- **REGISTRY_LOGIN_SERVER**: which contains the registry login server
