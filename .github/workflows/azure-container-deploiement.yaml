@@ -44,7 +44,7 @@ jobs:
             containerAppEnvironment: uaacademia-env
             resourceGroup: ${{ secrets.RESOURCE_GROUP }}
             imageToDeploy: frimpongefrei/myapp:amd64  # This tells Azure where to pull the image from Docker Hub
-            registryServer: index.docker.io  # Specifies Docker Hub registry
+            registryUrl: index.docker.io  # Specifies Docker Hub registry
             registryUsername: ${{ secrets.DOCKERHUB_USERNAME }}  # Docker Hub username (if the image is private)
             registryPassword: ${{ secrets.DOCKERHUB_PASSWORD }}  # Docker Hub password (if the image is private)
             location: 'west us'
