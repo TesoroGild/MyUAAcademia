@@ -3,7 +3,7 @@ name: Projet Build and Publish Docker Image
 on:
   push:
     branches:
-      - docker-trial    #modify if you want to deploy on branch "docker-trial"
+      - main    #modify if you want to deploy on branch "docker-trial"
 
   
 jobs:
