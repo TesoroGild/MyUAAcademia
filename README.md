@@ -55,7 +55,29 @@ $ docker run -p 3000:8080 --name myapp-container myapp
 >
 >For the wrapped app deployment, we need to use the Azure Container App deployment. The CI/CD worflow for this deployment is configured via the [`.github/worflows/azure-container-deploiement.yaml`](.github/workflows/azure-container-deploiement.yaml) file.
 
-First of all, it's mandatory to set up your Azure services (the `resource-group` and the `azure-container-app-environment`). Terraform is used to create these resources. Follow these steps (run in your local terminal):
+First of all, it's mandatory to set up your Azure services (the `resource-group` and the `azure-container-app-environment`). Terraform is used to create these resources. Follow these steps :
+
+Create the `variable.tf` file in the `IaC/` directory:
+```bash
+$ touch IaC/variable.tf
+```
+Add the following content to the `variable.tf` file (replace the default values with your own):
+```bash
+variable "RESOURCE_GROUP_NAME" {
+  type = string
+  default = "******"
+}
+variable "SUBSCRIPTION_ID" {
+  type = string
+  default = "******"
+}
+variable "LOCATION" {
+  type = string
+  default = "******"
+}
+```
+
+Then, run in your local terminal:
 ```bash
 $ az login
 ```
