@@ -401,3 +401,5 @@ FodyWeavers.xsd
 frontend/package-lock.json
 .terraform*
 variable.tf
+*.tfstate
+*.tfstate.backup
