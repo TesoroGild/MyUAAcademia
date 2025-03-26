@@ -3,11 +3,11 @@ name: Projet Build and Publish Docker Image
 on:
   push:
     branches:
-      - main    #modify if you want to deploy on branch "docker-trial"
+      - docker-trial    #modify if you want to deploy on branch "docker-trial"
 
   
 jobs:
-    build-and-deploy:
+    Deploy-Container-App:
         runs-on: ubuntu-latest
         steps:
         # checkout the repo
@@ -23,13 +23,6 @@ jobs:
           uses: azure/login@v2
           with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
-        
-        - name: 'Create Container App Environment'
-          run: |
-            az containerapp env create \
-              --resource-group ${{ secrets.RESOURCE_GROUP }} \
-              --name 'uaacademia-env' \
-              --location 'west us'
 
         - name: 'Login to Docker Hub using Access Token'
           uses: docker/login-action@v2
@@ -43,8 +36,8 @@ jobs:
             containerAppName: uaacademia
             containerAppEnvironment: uaacademia-env
             resourceGroup: ${{ secrets.RESOURCE_GROUP }}
-            imageToDeploy: frimpongefrei/myapp:v1  # This tells Azure where to pull the image from Docker Hub
-            registryServer: index.docker.io  # Specifies Docker Hub registry
+            imageToDeploy: frimpongefrei/myapp:amd64  # This tells Azure where to pull the image from Docker Hub
+            registryUrl: index.docker.io  # Specifies Docker Hub registry
             registryUsername: ${{ secrets.DOCKERHUB_USERNAME }}  # Docker Hub username (if the image is private)
             registryPassword: ${{ secrets.DOCKERHUB_PASSWORD }}  # Docker Hub password (if the image is private)
             location: 'west us'
