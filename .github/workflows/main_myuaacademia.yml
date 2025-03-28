@@ -65,9 +65,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_32E6407A3F7B427FBE9C4E4B69B9E687 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2DC013B281134876A9251BA547B6A26B }}
 
-      - name: Check dist content
-        run: ls frontend/dist/assets
-
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3

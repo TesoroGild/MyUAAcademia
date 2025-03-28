@@ -32,7 +32,7 @@ const Notfound = () => {
                 </div>
                 
                 <div>
-                    <Button onClick={() => navigateToHome()}>Acceuil</Button>
+                    <Button onClick={() => navigateToHome()}>Accueil</Button>
                 </div>
                 <div>
                     <Button onClick={() => navigateLogin()}>Se connecter</Button>
