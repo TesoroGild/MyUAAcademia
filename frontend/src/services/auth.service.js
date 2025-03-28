@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const backend_url = process.env.VITE_API_URL || import.meta.env.VITE_API_URL;
+const backend_url = process.env.VITE_API_URL_AZ || import.meta.env.VITE_API_URL;
 
 export const login = async (userCredentials) => {
   console.log("AUTH SERVICE : LOGIN");
