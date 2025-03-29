@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const backend_url = import.meta.env.VITE_API_URL;
+const backend_url = import.meta.env.REACT_APP_API_URI || import.meta.env.VITE_API_URL;
 
 export const login = async (userCredentials) => {
   console.log("AUTH SERVICE : LOGIN");
