@@ -75,7 +75,7 @@ jobs:
           app-name: 'MyUAAcademia'
           slot-name: 'Production'
           package: frontend/dist/
-        timeout-minutes: 5
+        timeout-minutes: 3
 
       - name: Restart Azure Web App
         run: |
