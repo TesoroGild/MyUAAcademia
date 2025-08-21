@@ -1,10 +1,10 @@
-import "./home.css";
+import "./space.css";
 
 //React
 import AdminDashboard from "../dashboard/admindashboard";
 import AdminHeader from "../header/adminheader";
 
-const AdminHome = ({employeeCo}) => {
+const AdminSpace = ({employeeCo}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
@@ -32,4 +32,4 @@ const AdminHome = ({employeeCo}) => {
     </>)
 }
 
-export default AdminHome;
+export default AdminSpace;

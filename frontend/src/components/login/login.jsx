@@ -107,7 +107,7 @@ function Login ({setUserCo, setEmployeeCo}) {
                     </div>
                     <button type="submit" disabled={!loginForm.permanentCode || !loginForm.pwd}
                         className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                        Créer étudiant
+                        Connexion
                     </button>
                 </form>
             </div>
