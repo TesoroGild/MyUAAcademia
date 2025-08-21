@@ -15,7 +15,7 @@ import Desjardins from "../../assets/img/Payment/Desjardins.jpg";
 import BanqueN from "../../assets/img/Payment/BanqueN.png";
 import Rbc from "../../assets/img/Payment/RBC.png";
 
-const Payment = () => {
+const PaymentCourse = () => {
     //States
     const location = useLocation();
     const [bill, setBill] = useState(location.state.billToDisplay);
@@ -119,4 +119,4 @@ const Payment = () => {
     );
 }
 
-export default Payment;
+export default PaymentCourse;

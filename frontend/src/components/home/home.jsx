@@ -26,19 +26,12 @@ const Home = () => {
                 header
             </div>
 
-            <div>
-                <div>
-                    Infos 
-                </div>
-                
-                <div className="flex">
-                    <div>
-                        <Button onClick={() => navigateToLogin()}>Connexion</Button>
-                    </div>
-                    <div>
-                        <Button onClick={() => navigateToAdmission()}>Admission</Button>
-                    </div>
-                </div>
+            <div className="flex">
+                <div>Certificat</div>
+                <div>BTS</div>
+                <div>License</div> 
+                <div>Master</div>
+                <div>Doctorat</div>
             </div>
         </div>
     </>)

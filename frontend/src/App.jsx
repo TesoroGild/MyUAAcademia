@@ -4,6 +4,7 @@ import './App.css'
 //Routes
 import Home from './components/home/home.jsx'
 import Admission from './components/admission/admission.jsx'
+import PaymentAdmission from './components/payment/paymentadmission.jsx'
 
 //Student components
 import Bill from './components/bill/bill'
@@ -12,7 +13,7 @@ import Calendar from './components/calendar/calendar'
 import Contact from './components/contact/contact'
 import Login from './components/login/login'
 import Notfound from './components/not-found/notfound'
-import Payment from './components/payment/payment'
+import PaymentCourse from './components/payment/paymentcourse.jsx'
 import Profile from './components/profile/profile'
 import Planning from './components/planning/planning'
 import Progress from './components/progress/progress'
@@ -36,6 +37,7 @@ import Registration from './components/registration/registration.jsx'
 import Student from './components/student/student'
 
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom'
+import AdmissionBill from './components/bill/admissionbill.jsx'
 
 const App = () => {
   
@@ -88,16 +90,18 @@ const App = () => {
           <Route path="/home" element={<Home />} />
           {/*<Route path="/home" element={<Home setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
           <Route path="/admission" element={<Admission />} />
-          {/*<Route path="/admission" element={<Home setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
+          {/*<Route path="/admission" element={<Admission setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
+          <Route path="/bill/admission" element={<AdmissionBill />} />
+          <Route path="/payment/admission" element={<PaymentAdmission />} />
 
           {/*Student routes*/}
-          <Route path="/bill" element={<Bill userCo= {userCo} userPermanentCode = {userCo.permanentCode}/>} />
+          <Route path="/bill/courses" element={<Bill userCo= {userCo} userPermanentCode = {userCo.permanentCode}/>} />
           <Route path="/bulletin" element={<Bulletin userCo = {userCo}/>} />
           <Route path="/calendar" element={<Calendar userCo= {userCo}/>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/userspace" element={<UserSpace userCo = {userCo} />} />
           <Route path="/login" element={<Login setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
-          <Route path="/payment" element={<Payment bill = {bill} />}/>
+          <Route path="/payment/courses" element={<PaymentCourse bill = {bill} />}/>
           <Route path="/profile" element={<Profile userCo = {userCo} setUserCo = {setUserCo} />} />
           <Route path="/planning" element={<Planning userCo = {userCo} />} />
           <Route path="/progress" element={<Progress userCo = {userCo} />} />
