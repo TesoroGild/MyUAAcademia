@@ -1,10 +1,15 @@
 import "./space.css";
 
-//React
+//Components
 import AdminDashboard from "../dashboard/admindashboard";
 import AdminHeader from "../header/adminheader";
 
+//React
+import { useNavigate } from 'react-router-dom';
+
 const AdminSpace = ({employeeCo}) => {
+    //Functions
+
     return (<>
         <div className="flex">
             <div className="dash-div">
@@ -17,14 +22,20 @@ const AdminSpace = ({employeeCo}) => {
                 </div>
 
                 <div>
-                    <div className="flex">
-                        <div className="w-1/2">Emploi du temps</div>
-                        <div className="w-1/2">Messagerie</div>
+                    <div className="border-2 border-sky-500">
+                        % de taches terminees
                     </div>
-
-                    <div className="flex">
-                        <div className="w-1/2">Cours</div>
-                        <div className="w-1/2">Etudiants</div>
+                    <div className="border-2 border-sky-500">
+                        Jours travailles, heures enregistrees, conges pris
+                    </div>
+                    <div className="border-2 border-sky-500">
+                        Nombres de reunions suivies/restantes
+                        </div>
+                    <div className="border-2 border-sky-500">
+                        Score de bien etre
+                    </div>
+                    <div className="border-2 border-sky-500">
+                        Heures supplementaires
                     </div>
                 </div>
             </div>

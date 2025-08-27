@@ -38,15 +38,19 @@ import Student from './components/student/student'
 
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom'
 import AdmissionBill from './components/bill/admissionbill.jsx'
+import EmployeeLogin from './components/login/employeelogin.jsx'
+import Employee from './components/employee/employee.jsx'
+import EmployeeCreate from './components/employee/add/employeecreate.jsx'
+import EmployeesList from './components/employee/list/employeeslist.jsx'
 
 const App = () => {
   
+  //student & professor
   const [userCo, setUserCo] = useState({
     firstName: "",
     lastName: "",
     permanentCode: "",
     sexe: "",
-    gender: "",
     email: "",
     userRole: "",
     department: "",
@@ -58,12 +62,12 @@ const App = () => {
     program: ""
   });
 
+  //employee & admin
   const [employeeCo, setEmployeeCo] = useState({
     firstName: "",
     lastName: "",
     code: "",
     sexe: "",
-    gender: "",
     email: "",
     userRole: "",
     department: "",
@@ -87,11 +91,12 @@ const App = () => {
         <Routes>
           
           <Route path="/" element={<Navigate replace to="/home"/>} />
-          <Route path="/home" element={<Home />} />
-          {/*<Route path="/home" element={<Home setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
           <Route path="/admission" element={<Admission />} />
           {/*<Route path="/admission" element={<Admission setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
           <Route path="/bill/admission" element={<AdmissionBill />} />
+          <Route path="/home" element={<Home />} />
+          {/*<Route path="/home" element={<Home setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
+          <Route path="/login/employee" element={<EmployeeLogin setEmployeeCo = {setEmployeeCo}/>} />
           <Route path="/payment/admission" element={<PaymentAdmission />} />
 
           {/*Student routes*/}
@@ -100,7 +105,7 @@ const App = () => {
           <Route path="/calendar" element={<Calendar userCo= {userCo}/>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/userspace" element={<UserSpace userCo = {userCo} />} />
-          <Route path="/login" element={<Login setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
+          <Route path="/login/user" element={<Login setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
           <Route path="/payment/courses" element={<PaymentCourse bill = {bill} />}/>
           <Route path="/profile" element={<Profile userCo = {userCo} setUserCo = {setUserCo} />} />
           <Route path="/planning" element={<Planning userCo = {userCo} />} />
@@ -117,12 +122,16 @@ const App = () => {
             <Route path='/program/classroom' element={<Classroom employeeCo= {employeeCo}  />} />
           <Route path="/registration" element={<Registration setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
           {/**<Route path="/registration" element={<Home setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} /> */}
-          <Route path='/student' element={<Student employeeCo = {employeeCo} />} />
-            <Route path="/students/:permanentcode" element={<Details employeeCo = {employeeCo} />} />
-            <Route path='/student/course' element={<Course employeeCo = {employeeCo} />} />
-            <Route path='/student/create' element={<Create employeeCo = {employeeCo} />} />
-            <Route path='/student/files' element={<Files employeeCo = {employeeCo} />} />
-            <Route path='/student/Inscription' element={<Inscription employeeCo = {employeeCo} />} /> 
+          <Route path='/employee/employees' element={<Employee employeeCo = {employeeCo} />} />
+          <Route path='/employee/employee/create' element={<EmployeeCreate employeeCo = {employeeCo} />} />
+          <Route path='/employee/employee/list' element={<EmployeesList employeeCo = {employeeCo} />} />
+          
+          <Route path='/employee/students' element={<Student employeeCo = {employeeCo} />} />
+            <Route path="/employee/students/:permanentcode" element={<Details employeeCo = {employeeCo} />} />
+            <Route path='/employee/student/course' element={<Course employeeCo = {employeeCo} />} />
+            <Route path='/employee/student/create' element={<Create employeeCo = {employeeCo} />} />
+            <Route path='/employee/student/list' element={<Files employeeCo = {employeeCo} />} />
+            <Route path='/employee/student/inscription' element={<Inscription employeeCo = {employeeCo} />} /> 
 
             <Route path="/notfound" element={<Notfound />} /> 
             <Route path="*" element={<Navigate replace to="/notfound" />} />

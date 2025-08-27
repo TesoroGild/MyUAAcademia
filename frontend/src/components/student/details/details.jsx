@@ -17,7 +17,6 @@ const Details = ({employeeCo}) => {
         firstName: "",
         lastName: "",
         sexe: "",
-        gender: "",
         userRole: "",
         phoneNumber: "",
         department: "",
@@ -78,10 +77,6 @@ const Details = ({employeeCo}) => {
 
                                     <div>
                                         Sexe : {student.sexe}
-                                    </div>
-
-                                    <div>
-                                        Genre : {student.gender}
                                     </div>
 
                                     <div>

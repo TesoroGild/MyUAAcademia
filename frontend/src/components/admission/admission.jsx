@@ -17,18 +17,17 @@ const Admission = () => {
     const [admissionForm, setAdmissionForm] = useState({
         lastname: "",
         firstname: "",
-        gender: "",
         dateOfBirth: "",
         address: "",
         email: "",
         phoneNumber: "",
+        sexe: "",
         schoolTranscript: null,
         picture: null,
         identityProof: null
     });
     const [lastnameFocused, setLastnameFocused] = useState(false);
     const [firstnameFocused, setFirstnameFocused] = useState(false);
-    const [gender, setGender] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState(false);
     const [addressFocused, setAddressFocused] = useState(false);
     const [emailFocused, setEmailFocused] = useState(false);
@@ -126,11 +125,11 @@ const Admission = () => {
                         </div>
                     </div>
                     <div className="w-full flex p-4">
-                        <label htmlFor="gender" className="w-1/3">Sexe :</label>
+                        <label htmlFor="sexe" className="w-1/3">Sexe :</label>
                         <div className="w-1/3">
-                            <select id="gender" name="gender"
-                                value={gender}
-                                onChange={(e) => setGender(e.target.value)}
+                            <select id="sexe" name="sexe"
+                                value={sexe}
+                                onChange={(e) => setAdmissionForm({ ...admissionForm, [e.target.sexe]: e.target.value })}
                                 required
                             >
                                 <option value="" disabled>-- Sélectionne --</option>

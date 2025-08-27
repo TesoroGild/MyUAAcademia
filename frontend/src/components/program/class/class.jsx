@@ -1,8 +1,8 @@
 //React
 import { useRef, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { Table, TextInput, Toast, Tooltip } from "flowbite-react"
-import { HiCurrencyDollar, HiExclamation, HiInformationCircle } from "react-icons/hi";
+import { Table, TextInput, Toast, ToastToggle, Tooltip } from "flowbite-react"
+import { useForm, Controller } from "react-hook-form";
 
 //Components
 import AdminDashboard from "../../dashboard/admindashboard";
@@ -13,83 +13,53 @@ import { createCourseS, getCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
 //Icons
-import { HiX } from "react-icons/hi";
+import { HiCheck, HiCurrencyDollar, HiExclamation, HiInformationCircle, HiX } from "react-icons/hi";
 
 const Class = ({employeeCo}) => {
     //States
-    const [sigleFocused, setSigleFocused] = useState(false);
-    const [nameFocused, setNameFocused] = useState(false);
-    const [priceFocused, setPriceFocused] = useState(false);
-    const [creditsFocused, setCreditsFocused] = useState(false);
-    const [autumnFocused, setAutumnFocused] = useState(false);
-    const [summerFocused, setSummerFocused] = useState(false);
-    const [winteFocused, setWinteFocused] = useState(false);
+    const {
+        register,
+        control,
+        handleSubmit,
+        reset,
+        formState: { errors }
+    } = useForm({
+        defaultValues: {
+            sigle: "",
+            fullName: "",
+            price: "",
+            credits: "",
+            autumn: "",
+            summer: "",
+            winter: ""
+        }
+    });
+    const [courseAddedSuccess, setCourseAddedSuccess] = useState(false);
     const [displayCourseExists, setDisplayCourseExists] = useState(false);
     const [displayForms, setDisplayForms] = useState(false);
-    const [courseForm, setCourseForm] = useState({
-        sigle: "",
-        fullName: "",
-        price: "",
-        credits: "",
-        autumn: "",
-        summer: "",
-        winter: ""
-    });
     const [courseList, setCourseList] = useState([]);
     const [programs, setPrograms] = useState([]);
     const [programTitle, setProgramTitle] = useState("");
 
     //Functions
-    const navigate = useNavigate();
-
     useEffect(() => {
         getCourses();
         getPrograms();
     }, []);
 
-    const handleSigleFocus = (event) => {
-        setSigleFocused(true);
-    }
-
-    const handleNameFocus = (event) => {
-        setNameFocused(true);
-    }
-
-    const handlePriceFocus = (event) => {
-        setPriceFocused(true);
-    }
-
-    const handleCreditsFocus = (event) => {
-        setCreditsFocused(true);
-    }
-
-    const handleAutumnFocus = (event) => {
-        setAutumnFocused(true);
-    }
-
-    const handleSummerFocus = (event) => {
-        setSummerFocused(true);
-    }
-
-    const handleWinterFocus = (event) => {
-        setWinteFocused(true);
-    }
-
-    const createCourse = async (event) => {
-        event.preventDefault();
-
-        const isNotInList = !courseList.some(course => course.sigle === courseForm.sigle);
+    const createCourse = async (newCourse) => {
+        const isNotInList = !courseList.some(course => course.sigle === newCourse.sigle);
 
         if (isNotInList) {
             try {
                 const courseToCreate = {
-                    sigle: courseForm.sigle,
-                    fullName: courseForm.fullName,
-                    price: courseForm.price,
-                    autumn: courseForm.autumn,
-                    summer: courseForm.summer,
-                    winter: courseForm.winter,
-                    credits: courseForm.credits,
+                    sigle: newCourse.sigle,
+                    fullName: newCourse.fullName,
+                    price: newCourse.price,
+                    autumn: newCourse.autumn,
+                    summer: newCourse.summer,
+                    winter: newCourse.winter,
+                    credits: newCourse.credits,
                     employeeCode: employeeCo.code,
                     programTitle: programTitle
                 }
@@ -98,11 +68,11 @@ const Class = ({employeeCo}) => {
     
                 if (courseCreated !== null && courseCreated !== undefined) {
                     await getCourses();
-                    await resetForm();
+                    setCourseAddedSuccess(true);
+                    setTimeout(() => setCourseAddedSuccess(false), 3000);
+                    reset();
                   } else {           
-                    setSigleFocused(true);
-                    setNameFocused(true);
-                    setPriceFocused(true);
+                    //erreur backend
                   }
                 } catch (error) {
                 console.log(error);
@@ -110,11 +80,6 @@ const Class = ({employeeCo}) => {
         } else {
             handleCourseExistError();
         }
-    }
-
-    const resetForm = async () => {
-        setProgramTitle("");
-        setCourseForm({ sigle: "", fullName: "", price: "", credits: "", autumn: "", summer: "", winter: "" });
     }
 
     const handleCourseExistError = () => {
@@ -133,10 +98,6 @@ const Class = ({employeeCo}) => {
         }
     }
 
-    const handleCourseChange = (event) => {
-        setCourseForm({ ...courseForm, [event.target.name]: event.target.value });
-    }
-
     const getCourses = async () => {
         try {
             const courses = await getCoursesS();
@@ -153,38 +114,6 @@ const Class = ({employeeCo}) => {
         } catch (error) {
             console.log(error);
         }
-    };
-
-    const handleCreditsChange = (event) => {
-        const { name, value } = event.target;
-        setCourseForm((prevCourseForm) => ({
-            ...prevCourseForm,
-            [name]: value,
-        }));
-    };
-
-    const handleWinterChange = (event) => {
-        const { name, value } = event.target;
-        setCourseForm((prevCourseForm) => ({
-            ...prevCourseForm,
-            [name]: value,
-        }));
-    };
-
-    const handleSummerChange = (event) => {
-        const { name, value } = event.target;
-        setCourseForm((prevCourseForm) => ({
-            ...prevCourseForm,
-            [name]: value,
-        }));
-    };
-
-    const handleAutumnChange = (event) => {
-        const { name, value } = event.target;
-        setCourseForm((prevCourseForm) => ({
-            ...prevCourseForm,
-            [name]: value,
-        }));
     };
 
     const displayMultipleFormCourses = () => {
@@ -229,9 +158,36 @@ const Class = ({employeeCo}) => {
                                             <Table.Cell>{course.fullName}</Table.Cell>
                                             <Table.Cell>{course.price}$</Table.Cell>
                                             <Table.Cell>{course.credits}</Table.Cell>
-                                            <Table.Cell>{course.winter}</Table.Cell>
-                                            <Table.Cell>{course.summer}</Table.Cell>
-                                            <Table.Cell>{course.autumn}</Table.Cell>
+                                            <Table.Cell>
+                                                {course.winter === 1 ? 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                        <HiX className="h-5 w-5" />
+                                                    </div> : 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                                        <HiCheck className="h-5 w-5" />
+                                                    </div>
+                                                }
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                {course.summer === 1 ? 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                        <HiX className="h-5 w-5" />
+                                                    </div> : 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                                        <HiCheck className="h-5 w-5" />
+                                                    </div>
+                                                }
+                                                </Table.Cell>
+                                            <Table.Cell>
+                                                {course.autumn === 1 ? 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                        <HiX className="h-5 w-5" />
+                                                    </div> : 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                                        <HiCheck className="h-5 w-5" />
+                                                    </div>
+                                                }
+                                                </Table.Cell>
                                         </Table.Row>
                                     ))
                                 ) : (
@@ -249,7 +205,18 @@ const Class = ({employeeCo}) => {
                         <div>
                             CRÉER UN NOUVEAU COURS
                         </div>
-                        <form onSubmit={createCourse}>
+                        { courseAddedSuccess && (
+                            <Toast>
+                                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                    <HiCheck className="h-5 w-5" />
+                                </div>
+                                <div className="ml-3 text-sm font-normal">Cours ajouté.</div>
+                                <div className="ml-auto flex items-center space-x-2">
+                                    <ToastToggle />
+                                </div>
+                            </Toast>
+                        )}
+                        <form onSubmit={handleSubmit(createCourse)}>
                             <div className="w-full flex p-4">
                                 <label htmlFor="program" className="w-1/3">Programme :</label>
                                 <div className="w-1/3">
@@ -276,13 +243,11 @@ const Class = ({employeeCo}) => {
                                 <div className="w-1/3">
                                     <input type="text" id="sigle" name="sigle"
                                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        onChange={handleCourseChange} required
-                                        onBlur={handleSigleFocus}
-                                        focused={sigleFocused.toString()}
+                                        {...register("sigle", { required: "Le sigle est requis!" })}
                                     />
-                                    <span className="text-xs font-light text-red-500 format-error">
-                                        Format invalid!
-                                    </span>
+                                    {errors.sigle && (
+                                        <p className="text-red-500 text-sm">{errors.sigle.message}</p>   
+                                    )}
                                 </div>
                                 <div>
                                     <Tooltip content="Infos">
@@ -295,13 +260,11 @@ const Class = ({employeeCo}) => {
                                 <div className="w-1/3">
                                     <input type="text" id="fullName" name="fullName"
                                         className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        onChange={handleCourseChange} required
-                                        onBlur={handleNameFocus}
-                                        focused={nameFocused.toString()}
+                                        {...register("fullName", { required: "L'intitulé est requis!" })}
                                     />
-                                    <span className="text-xs font-light text-red-500 format-error">
-                                        Format invalid!
-                                    </span>
+                                    {errors.fullName && (
+                                        <p className="text-red-500 text-sm">{errors.fullName.message}</p>   
+                                    )}
                                 </div>
                                 <div>
                                     <Tooltip content="Infos">
@@ -311,16 +274,14 @@ const Class = ({employeeCo}) => {
                             </div>
                             <div className="w-full flex p-4">
                                 <label htmlFor="price" className="w-1/3">Prix :</label>
-                                <div className="w-1/3 border-none bg-transparent">
-                                    <TextInput type="number" id="price" name="price"
-                                        onChange={handleCourseChange} required
-                                        onBlur={handlePriceFocus}
-                                        focused={priceFocused.toString()}
-                                        rightIcon={HiCurrencyDollar}
+                                <div className="w-1/3">
+                                    <input type="number" id="price" name="price"
+                                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        {...register("price", { required: "Le prix est requis!" })}
                                     />
-                                    <span className="text-xs font-light text-red-500 format-error">
-                                        Format invalid!
-                                    </span>
+                                    {errors.price && (
+                                        <p className="text-red-500 text-sm">{errors.price.message}</p>   
+                                    )}
                                 </div>
                                 <div>
                                     <Tooltip content="Infos">
@@ -335,8 +296,7 @@ const Class = ({employeeCo}) => {
                                         type="radio"
                                         name="credits"
                                         value="1"
-                                        checked={courseForm.credits === 1}
-                                        onChange={handleCreditsChange}
+                                        {...register("credits", { required: "Le nombre de crédit est requis!" })}
                                     />&nbsp;
                                     <label htmlFor="1">1</label>&nbsp;&nbsp;&nbsp;
                                     
@@ -344,8 +304,7 @@ const Class = ({employeeCo}) => {
                                         type="radio"
                                         name="credits"
                                         value="2"
-                                        checked={courseForm.credits === 2}
-                                        onChange={handleCreditsChange}
+                                        {...register("credits", { required: "Le nombre de crédit est requis!" })}
                                     />&nbsp;
                                     <label htmlFor="2">2</label>&nbsp;&nbsp;&nbsp;
 
@@ -353,8 +312,7 @@ const Class = ({employeeCo}) => {
                                         type="radio"
                                         name="credits"
                                         value="3"
-                                        checked={courseForm.credits === 3}
-                                        onChange={handleCreditsChange}
+                                        {...register("credits", { required: "Le nombre de crédit est requis!" })}
                                     />&nbsp;
                                     <label htmlFor="3">3</label>&nbsp;&nbsp;&nbsp;
 
@@ -362,10 +320,13 @@ const Class = ({employeeCo}) => {
                                         type="radio"
                                         name="credits"
                                         value="45"
-                                        checked={courseForm.credits === 45}
-                                        onChange={handleCreditsChange}
+                                        {...register("credits", { required: "Le nombre de crédit est requis!" })}
                                     />&nbsp;
                                     <label htmlFor="45">45</label>
+
+                                    {errors.credits && (
+                                        <p className="text-red-500 text-sm">{errors.credits.message}</p>   
+                                    )}
                                 </div>
                                 <div>
                                     <Tooltip content="Infos">
@@ -378,11 +339,9 @@ const Class = ({employeeCo}) => {
                                 <div className="w-1/3">
                                     <input
                                         type="radio"
-                                        id="yes"
                                         name="winter"
                                         value="1"
-                                        checked={courseForm.winter === 1}
-                                        onChange={handleWinterChange}
+                                        {...register("winter", { required: "Session requise!" })}
                                     />&nbsp;
                                     <label htmlFor="yes">Oui</label>&nbsp;&nbsp;&nbsp;
                                     
@@ -391,10 +350,13 @@ const Class = ({employeeCo}) => {
                                         id="no"
                                         name="winter"
                                         value="0"
-                                        checked={courseForm.winter === 0}
-                                        onChange={handleWinterChange}
+                                        {...register("winter", { required: "Session requise!" })}
                                     />&nbsp;
                                     <label htmlFor="no">Non</label>
+
+                                    {errors.winter && (
+                                        <p className="text-red-500 text-sm">{errors.winter.message}</p>   
+                                    )}
                                 </div>
                                 <div>
                                     <Tooltip content="Infos">
@@ -407,23 +369,23 @@ const Class = ({employeeCo}) => {
                                 <div className="w-1/3">
                                     <input
                                         type="radio"
-                                        id="yes"
                                         name="summer"
                                         value="1"
-                                        checked={courseForm.summer === 1}
-                                        onChange={handleSummerChange}
+                                        {...register("summer", { required: "Session requise!" })}
                                     />&nbsp;
                                     <label htmlFor="yes">Oui</label>&nbsp;&nbsp;&nbsp;
                                     
                                     <input
                                         type="radio"
-                                        id="no"
                                         name="summer"
                                         value="0"
-                                        checked={courseForm.summer === 0}
-                                        onChange={handleSummerChange}
+                                        {...register("summer", { required: "Session requise!" })}
                                     />&nbsp;
                                     <label htmlFor="no">Non</label>
+
+                                    {errors.summer && (
+                                        <p className="text-red-500 text-sm">{errors.summer.message}</p>   
+                                    )}
                                 </div>
                                 <div>
                                     <Tooltip content="Infos">
@@ -436,23 +398,23 @@ const Class = ({employeeCo}) => {
                                 <div className="w-1/3">
                                     <input
                                         type="radio"
-                                        id="yes"
                                         name="autumn"
                                         value="1"
-                                        checked={courseForm.autumn === 1}
-                                        onChange={handleAutumnChange}
+                                        {...register("autumn", { required: "Session requise!" })}
                                     />&nbsp;
                                     <label htmlFor="yes">Oui</label>&nbsp;&nbsp;&nbsp;
                                     
                                     <input
                                         type="radio"
-                                        id="no"
                                         name="autumn"
                                         value="0"
-                                        checked={courseForm.autumn === 0}
-                                        onChange={handleAutumnChange}
+                                        {...register("autumn", { required: "Session requise!" })}
                                     />&nbsp;
                                     <label htmlFor="no">Non</label>
+
+                                    {errors.autumn && (
+                                        <p className="text-red-500 text-sm">{errors.autumn.message}</p>   
+                                    )}
                                 </div>
                                 <div>
                                     <Tooltip content="Infos">
@@ -472,7 +434,6 @@ const Class = ({employeeCo}) => {
                             )}
 
                             <button type="submit"
-                                disabled={!courseForm.sigle || !courseForm.fullName || !courseForm.price || !courseForm.credits || !courseForm.winter || !courseForm.summer || !courseForm.autumn}
                                 className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
                                 Ajouter
                             </button>

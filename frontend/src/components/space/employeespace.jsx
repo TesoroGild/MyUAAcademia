@@ -17,7 +17,7 @@ const StudentSpace = ({userCo}) => {
                 </div>
                 
                 <div>
-                    espace etudiant
+                    emloye espace
                 </div>
             </div>
         </div>

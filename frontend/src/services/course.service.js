@@ -126,7 +126,6 @@ export const updateCourses = async () => {
 
 //Create
 export const createClassroomS = async (course) => {
-    console.log(course)
     console.log("COURSE SERVICE : CREATE CLASSROOM");
     try {
         const response = await axios.post(`${backend_url}/Classe/classes`, course);

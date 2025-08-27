@@ -23,13 +23,12 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
     const [showAlert, setShowAlert] = useState(false);
 
     const [profileToDisplay, setProfileToDisplay] = useState({
-        firstName: "",
-        lastName: "",
-        permanentCode: "",
+        firstname: "",
+        lastname: "",
+        code: "",
         department: "",
         lvlDegree: "",
         sexe: "",
-        gender: "",
         email: "",
         userRole: "",
         phoneNumber: "",
@@ -38,10 +37,10 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
     });
 
     const [profileModForm, setProfileModForm] = useState({
-        permanentCode: "",
-        gender: "",
+        code: "",
         phoneNumber: "",
-        nas: "",
+        lastname: "",
+        firstname: "",
         pwd: ""
     });
 
@@ -71,29 +70,18 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
         }));
     };
 
-    const firstNameInputRef = useRef("");
-    const lastNameInputRef = useRef("");
-    const sexeInputRef = useRef("");
-    const genderInputRef = useRef("");
+    const firstnameInputRef = useRef("");
+    const lastnameInputRef = useRef("");
     const phoneNumberInputRef = useRef("");
-    const nasInputRef = useRef("");
-    const pwdInputRef = useRef("");
 
-      const genderOptions = [
-        { value: '...', label: '...' },
-        { value: 'male', label: 'Masculin' },
-        { value: 'female', label: 'Féminin' },
-        { value: 'anandrogin', label: 'Androgyne' },
-        { value: 'non-binary', label: 'Non-binaire' },
-        { value: 'genderqueer', label: 'Genderqueer' }
-      ];
 
     //Functions
     const initUpdForm = () => {
         setProfileModForm({
-            gender: employeeCo.gender || "",
+            code: employeeCo.code,
             phoneNumber: employeeCo.phoneNumber || "",
-            nas: employeeCo.nas || "",
+            lastname: employeeCo.lastname || "",
+            firstname: employeeCo.firstname || "",
             pwd: ""
         });
 
@@ -105,10 +93,10 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
         console.log(profileModForm)
         try {
             const profileToModify = {
-                permanentCode: profileToDisplay.permanentCode,
-                gender: profileModForm.gender,
+                code: profileToDisplay.code,
                 phoneNumber: profileModForm.phoneNumber,
-                nas: profileModForm.nas,
+                lastname: profileModForm.lastname,
+                firstname: profileModForm.firstname,
                 pwd: profileModForm.pwd
             }
 
@@ -146,12 +134,117 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
                     <AdminHeader />
                 </div>
                 
-                <div className="page-div">
-                    Profil de l'admin
+                <div className="page-div justify-self-center">
+                    {/* Basic Informations */}
+                    <div className="flex w-full border-2 border-gray-300 rounded">
+                        {/* Picture + Name (down) + code */}
+                        <div className="left-div">
+                            <Avatar img={logo} bordered size="xl"/>
+                            {profileToDisplay.firstname} {profileToDisplay.lastname}
+                            {profileToDisplay.code}
+                            {/* Pencil pour boutton modifier */}
+                            
+                            <Modal show={openModal} size="md" popup onClose={() => setOpenModal(false)} initialFocus={firstnameInputRef}>
+                                <Modal.Header />
+                                <Modal.Body>
+                                    <form onSubmit={updateProfile}>
+                                        <div className="space-y-6">
+                                            <h3 className="text-xl font-medium text-gray-900 dark:text-white">Effectuez vos modification</h3>
+                                            <div>
+                                                <div className="mb-2 block">
+                                                    <Label htmlFor="lastname" value="Nom" />
+                                                </div>
+                                                <TextInput id="lastname" name="lastname" 
+                                                    ref={lastnameInputRef}
+                                                    value={profileModForm.lastname} 
+                                                    onChange={handleModifyChange}
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <div className="mb-2 block">
+                                                    <Label htmlFor="firstname" value="Prénom" />
+                                                </div>
+                                                <TextInput id="firstname" name="firstname" 
+                                                    ref={firstnameInputRef}
+                                                    value={profileModForm.firstname} 
+                                                    onChange={handleModifyChange}
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <div className="mb-2 block">
+                                                    <Label htmlFor="phoneNumber" value="Numéro" />
+                                                </div>
+                                                <TextInput id="phoneNumber" name="phoneNumber" 
+                                                    ref={phoneNumberInputRef}
+                                                    value={profileModForm.phoneNumber} 
+                                                    onChange={handleModifyChange}
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <div className="mb-2 flex">
+                                                    <Label htmlFor="pwd" value="Mot de passe  " />
+                                                    <Tooltip content="Garder ce champ vide si vous ne désirez pas changer votre mot de passe actuel!">
+                                                        <HiOutlineQuestionMarkCircle  />
+                                                    </Tooltip>
+                                                </div>
+                                                <TextInput id="pwd" name="pwd" type="password" 
+                                                    onChange={handleModifyChange}
+                                                />
+                                            </div>
+                                            <div className="w-full">
+                                                <Button type="submit">Modifier</Button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </Modal.Body>
+                                { showAlert && (
+                                    <Toast>
+                                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
+                                        <HiExclamation className="h-5 w-5" />
+                                        </div>
+                                        <div className="ml-3 text-sm font-normal">Erreur serveur.</div>
+                                        <Toast.Toggle />
+                                    </Toast>
+                                )}
+                            </Modal>
+                        </div>
+
+                        {/* cursus, programme, faculte */}
+                        <div className="right-div mt-8">
+                            <ul>
+                                <li className="bg-slate-300">Faculté : {profileToDisplay.faculty}</li>
+                                <li>Département : {profileToDisplay.department}</li>
+                                <li className="bg-slate-300">Job : {profileToDisplay.job}</li>
+                                <li>Date de début : {profileToDisplay.DateOfTakingOffice}</li>
+                                <li className="bg-slate-300">Contrat : {profileToDisplay.contracts}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* Reste des infos */}
+                    <div className="flex w-full border-2 border-gray-300 rounded mt-4">
+                        <div className="left-div mt-12">
+                            <Avatar img={logo} bordered size="xl"/>
+                        </div>
+                        <div className="right-div mt-8">
+                            <ul>
+                                <li className="bg-slate-300">Sexe : {profileToDisplay.sexe}</li>
+                                <li>Status : {profileToDisplay.empStatus}</li>
+                                <li className="bg-slate-300">Email : {profileToDisplay.email}</li>
+                                <li>Rôle : {profileToDisplay.userRole}</li>
+                                <li className="bg-slate-300">Numéro : {profileToDisplay.phoneNumber}</li>
+                                <li>NAS : {profileToDisplay.nas}</li>
+                                <li className="bg-slate-300">Date de naissance : {profileToDisplay.birthDay}</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <Button className="mt-8 justify-self-center" onClick={initUpdForm}><HiOutlinePencilAlt className="mr-2 h-5 w-5" />Modifier votre profil</Button>
                 </div>
             </div>
         </div>
-        
     </>)
 }
 

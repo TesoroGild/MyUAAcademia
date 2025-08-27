@@ -4,7 +4,7 @@ import "./space.css";
 import Dashboard from "../dashboard/dashboard";
 import Header from "../header/header";
 
-const StudentSpace = ({userCo}) => {
+const ProfessorSpace = ({userCo}) => {
     return (<>
         <div>
             <div>
@@ -17,11 +17,11 @@ const StudentSpace = ({userCo}) => {
                 </div>
                 
                 <div>
-                    espace etudiant
+                    prof espace
                 </div>
             </div>
         </div>
     </>)
 }
 
-export default StudentSpace;
+export default ProfessorSpace;

@@ -4,20 +4,20 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 //Services
-import { userLogin } from '../../services/auth.service';
+import { employeeLogin } from '../../services/auth.service';
 
-function Login ({setUserCo, setEmployeeCo}) {
+function EmployeeLogin ({ setEmployeeCo}) {
     //States
     const [loginForm, setLoginForm] = useState({
-        permanentCode: "",
+        code: "",
         pwd: ""
     });
-    const [permanentCodeFocused, setPermanentCodeFocused] = useState(false);
+    const [codeFocused, setCodeFocused] = useState(false);
     const [passwordFocused, setPasswordFocused] = useState(false);
 
     //Functions
     const handlePCFocus = (event) => {
-        setPermanentCodeFocused(true);
+        setcodeFocused(true);
     }
 
     const handlePFocus = (event) => {
@@ -28,44 +28,39 @@ function Login ({setUserCo, setEmployeeCo}) {
         setLoginForm({ ...loginForm, [event.target.name]: event.target.value });
     }
 
-    const isPermanentCodeValid = (code) => {
-        const regex = /^[A-Z]{4}\d{8}$/;
-        return regex.test(code);
-    }
-
     const navigate = useNavigate();
 
     const onLogin = async (event) => {
         event.preventDefault();
         try {
           const userCredentials = {
-            permanentCode: loginForm.permanentCode,
+            code: loginForm.code,
             pwd: loginForm.pwd
           };
           
-          const result = await userLogin(userCredentials);
+          const result = await employeeLogin(userCredentials);
 
           if (result.success) {
-            console.log(result.userConnected);
             await setEmployeeCo((prevEmployeeCo) => ({
                     ...prevEmployeeCo,
-                    ...result.userConnected
+                    ...result.userConnected.employee
                 }));
-            if (result.userConnected.userRole.toLowerCase() == "professor") {
-                navigate('/professorspace');
+            if (result.userConnected.employee.userRole.toLowerCase() == "admin") {
+                navigate('/adminspace');
             } else {
-                navigate('/studentspace');
+                navigate('/employeespace');
             } 
             console.log("L'utilisateur est connecté");
-            setPermanentCodeFocused(true);
+            setCodeFocused(true);
             setPasswordFocused(true);
-            setLoginForm({ permanentCode: "", pwd: "" });
+            setLoginForm({ code: "", pwd: "" });
           } else {
             alert(result.message);
           }
           
         } catch (error) {
             console.log(error);
+            alert("Une erreur est survenue. Réssayez plus tard.");
         }
     }
 
@@ -76,20 +71,20 @@ function Login ({setUserCo, setEmployeeCo}) {
             <div>
                 <form onSubmit={onLogin}>
                     <div className="w-full flex p-4">
-                        <label htmlFor="permanentCode" className="w-1/3">Code Permanent :</label>
+                        <label htmlFor="code" className="w-1/3">Code de l'employé :</label>
                         <div className="w-1/3">
                         {/* pattern="^[A-Z]{4}\d{8}$"*/}
-                            <input type="text" id="permanentCode" name="permanentCode" placeholder="Ex: AAAA64011145"
+                            <input type="text" id="code" name="code"
                                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                 onChange={handleLoginChange} required
                                 onBlur={handlePCFocus}
-                                focused={permanentCodeFocused.toString()}
+                                focused={codeFocused.toString()}
                             />
                             <span className="text-xs font-light text-red-500 format-error">
                                 Format invalid!
                             </span>
                         </div>
-                        <p className="w-1/3">Explication code permanent</p>
+                        <p className="w-1/3">Explication code employé</p>
                     </div>
                     <div className="w-full flex p-4">
                         <label className="w-1/3" htmlFor="pwd">Mot de passe :</label>
@@ -106,7 +101,7 @@ function Login ({setUserCo, setEmployeeCo}) {
                         </div>
                         <p className="w-1/3">Explication password</p>
                     </div>
-                    <button type="submit" disabled={!loginForm.permanentCode || !loginForm.pwd}
+                    <button type="submit" disabled={!loginForm.code || !loginForm.pwd}
                         className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
                         Connexion
                     </button>
@@ -116,4 +111,4 @@ function Login ({setUserCo, setEmployeeCo}) {
     </>)
 }
 
-export default Login;
+export default EmployeeLogin;

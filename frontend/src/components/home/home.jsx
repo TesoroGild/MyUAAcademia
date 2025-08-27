@@ -9,10 +9,6 @@ const Home = () => {
     //{userCo}
     //Functions
     const navigate = useNavigate();
-    
-    const navigateToLogin = () => {
-        navigate('/login');
-    }
 
     const navigateToAdmission = () => {
         navigate('/admission');
@@ -26,12 +22,12 @@ const Home = () => {
                 header
             </div>
 
-            <div className="flex">
-                <div>Certificat</div>
-                <div>BTS</div>
-                <div>License</div> 
-                <div>Master</div>
-                <div>Doctorat</div>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-4 mx-4">
+                <div className="border-2 border-sky-500" onClick={navigateToAdmission}>Certificat</div>
+                <div className="border-2 border-sky-500" onClick={navigateToAdmission}>BTS</div>
+                <div className="border-2 border-sky-500" onClick={navigateToAdmission}>License</div> 
+                <div className="border-2 border-sky-500" onClick={navigateToAdmission}>Master</div>
+                <div className="border-2 border-sky-500" onClick={navigateToAdmission}>Doctorat</div>
             </div>
         </div>
     </>)

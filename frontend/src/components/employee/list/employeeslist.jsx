@@ -1,4 +1,4 @@
-import "./files.css";
+//import "./list.css";
 
 //Reusable
 import { Switch } from 'antd';
@@ -13,43 +13,43 @@ import { Button, Table, TextInput, Toast, Tooltip } from "flowbite-react"
 import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
 
 //Services
-import { activeStudentAccountS, getStudentsS } from "../../../services/user.service";
+import { activeEmployeeAccountS, getEmployeesS } from '../../../services/employee.service';
 
-const Files = ({employeeCo}) => {
+const EmployeesList = ({employeeCo}) => {
     //States
-    const [students, setStudents] = useState([]);
-    const [filteredStudents, setFilteredStudents] = useState([]);
-    const [searchStudent, setSearchStudent] = useState("");
+    const [employees, setEmployees] = useState([]);
+    const [filteredEmployees, setFilteredEmployees] = useState([]);
+    const [searchEmployee, setSearchEmployee] = useState("");
     const [showSpinner, setShowSpinner] = useState(false);
 
     //Functions
     useEffect(() => {
-        getStudents();
+        getEmployees();
     }, []);
 
-    const getStudents = async () => {
+    const getEmployees = async () => {
         try {
-            const studentsL = await getStudentsS();
-            setStudents(studentsL);
-            setFilteredStudents(studentsL);
+            const employeesL = await getEmployeesS();
+            setEmployees(employeesL);
+            setFilteredEmployees(employeesL);
         } catch (error) {
             console.log(error);
         }
     };
 
-    const activeStudentAccount = async (permanentCode, activate) => {
+    const activeEmployeeAccount = async (code, activate) => {
         try {
             setShowSpinner(true);
 
             const activateAccount = {
-                permanentCode: permanentCode,
+                code: code,
                 isActivate: activate
             }
-            const response = await activeStudentAccountS(activateAccount);
+            const response = await activeEmployeeAccountS(activateAccount);
             setShowSpinner(false);
 
             if (response) {
-                await getStudents();
+                await getEmployees();
             } else {
                 console.log("Échec activation de compte")
             }
@@ -61,13 +61,13 @@ const Files = ({employeeCo}) => {
 
     const handleCodeChange = (event) => {
         const searchTerm = event.target.value;
-        setSearchStudent(searchTerm);
+        setSearchEmployee(searchTerm);
 
-        const filteredList = students.filter((student) => 
-            student.permanentCode.toUpperCase().includes(searchTerm.toUpperCase())
+        const filteredList = employees.filter((employee) => 
+            employee.code.toUpperCase().includes(searchTerm.toUpperCase())
         );
 
-        setFilteredStudents(filteredList);
+        setFilteredEmployees(filteredList);
     };
 
     //Return
@@ -95,9 +95,9 @@ const Files = ({employeeCo}) => {
                         <div className="w-1/3">
                             <input className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                 type="text"
-                                value={searchStudent}
+                                value={searchEmployee}
                                 onChange={handleCodeChange}
-                                placeholder="Code permanent" />
+                                placeholder="Code" />
                         </div>
                         <div>
                             <Tooltip content="Infos">
@@ -109,44 +109,46 @@ const Files = ({employeeCo}) => {
                     <div>
                         <Table>
                             <Table.Head>
-                                <Table.HeadCell>Code permanent</Table.HeadCell>
+                                <Table.HeadCell>Code</Table.HeadCell>
                                 <Table.HeadCell>Nom</Table.HeadCell>
                                 <Table.HeadCell>Prénom</Table.HeadCell>
                                 <Table.HeadCell>Mail</Table.HeadCell>
-                                <Table.HeadCell>Programme</Table.HeadCell>
+                                <Table.HeadCell>Job</Table.HeadCell>
+                                <Table.HeadCell>Dépt / Fac</Table.HeadCell>
                                 <Table.HeadCell>Activer/Désactiver</Table.HeadCell>
-                                <Table.HeadCell>Inscription</Table.HeadCell>
                             </Table.Head>
                             <Table.Body className="divide-y">
-                                { filteredStudents.map(student => 
-                                    <Table.Row key={student.permanentCode} className="bg-white dark:border-gray-700 dark:bg-gray-800 hover:bg-sky-200">
+                                { filteredEmployees.map(employee => 
+                                    <Table.Row key={employee.code} className="bg-white dark:border-gray-700 dark:bg-gray-800 hover:bg-sky-200">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            {student.permanentCode}
+                                            {employee.code}
                                         </Table.Cell>
                                         <Table.Cell>
-                                            {student.lastName}
+                                            {employee.lastName}
                                         </Table.Cell>
                                         <Table.Cell>
-                                            {student.firstName}
+                                            {employee.firstName}
                                         </Table.Cell>
                                         <Table.Cell>
-                                            {student.email}
+                                            {employee.email}
                                         </Table.Cell>
                                         <Table.Cell>
-                                            {student.department} {student.faculty} {student.lvlDegree}
+                                            {employee.job}
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            {employee.department} / {employee.faculty}
                                         </Table.Cell>
                                         <Table.Cell>
                                             { showSpinner ? (
                                                 <div className="spinner"></div>
                                             ) : (
-                                                student.isActivated == 1 ? (
-                                                    <Switch defaultChecked={true} onChange={(checked) => activeStudentAccount(student.permanentCode, checked)} />
+                                                employee.isActivated == 1 ? (
+                                                    <Switch defaultChecked={true} onChange={(checked) => activeEmployeeAccount(employee.code, checked)} />
                                                 ) : (
-                                                    <Switch defaultChecked={false} onChange={(checked) => activeStudentAccount(student.permanentCode, checked)} />
+                                                    <Switch defaultChecked={false} onChange={(checked) => activeEmployeeAccount(employee.code, checked)} />
                                                 )
                                             )}
                                         </Table.Cell>
-                                        <Table.Cell>Vérifier (afficher le dossier d'un etduiant avec les fichiers televerses pour son admission)</Table.Cell>
                                     </Table.Row>
                                 )}
                             </Table.Body>
@@ -158,4 +160,4 @@ const Files = ({employeeCo}) => {
     </>)
 }
 
-export default Files;
+export default EmployeesList;

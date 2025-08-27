@@ -18,25 +18,21 @@ const Student = ({employeeCo}) => {
                     <AdminHeader/>
                 </div>
 
-                <div>
-                    <div className="flex">
-                        <div>
-                            creer etudiant
-                        </div>
-
-                        <div>
-                            inscrire a un programme
-                            </div>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-4 mx-4">
+                    <div className="border-2 border-sky-500">
+                        creer etudiant
                     </div>
-                    
-                    <div className="flex">
-                        <div>
-                            inscrire a un cours
-                        </div>
 
-                        <div>
-                            liste
-                        </div>
+                    <div className="border-2 border-sky-500">
+                        inscrire a un programme
+                    </div>
+                
+                    <div className="border-2 border-sky-500">
+                        inscrire a un cours
+                    </div>
+
+                    <div className="border-2 border-sky-500">
+                        liste
                     </div>
                 </div>
             </div>

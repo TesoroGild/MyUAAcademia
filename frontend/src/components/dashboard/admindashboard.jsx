@@ -3,14 +3,29 @@
 
 import "./dashboard.css";
 
-import { Link, Route, Routes } from 'react-router-dom';
+import { Link, useNavigate, Route, Routes } from 'react-router-dom';
 import { Avatar, Dropdown, Card, Sidebar } from "flowbite-react";
-import { HiAcademicCap, HiArrowSmRight, HiChartPie, HiChatAlt2, HiInbox, HiOutlineClipboardList, HiShoppingBag, HiTable, HiUser } from "react-icons/hi";
+import { HiAcademicCap, HiArrowSmRight, HiChartPie, HiChatAlt2, HiInbox, HiLogout , HiOutlineClipboardList, HiShoppingBag, HiTable, HiUser } from "react-icons/hi";
+
+//Service
+import { logoutS } from '../../services/auth.service';
 
 //Images
 import Admin from '../../assets/img/Admin.jpg';
 
 const AdminDashboard = ({employeeCo}) => {
+  //States
+
+  //Functions
+  const logout = async (event) => {
+    event.preventDefault();
+    const result = await logoutS();
+
+    if (result.success) {
+      window.location.href = "/employee/login";
+    }
+  }
+
   //Return
   return (
     <Sidebar aria-label="Sidebar with multi-level dropdown example" className="w-66">
@@ -56,7 +71,7 @@ const AdminDashboard = ({employeeCo}) => {
 
           <div className="flex">
             <Sidebar.Item href="adminhome" icon={HiChartPie}/>
-            <Link to="/adminhome">
+            <Link to="/adminspace">
               <div className="dashboard-name">Tableau de bord</div>
             </Link>
           </div>
@@ -89,30 +104,50 @@ const AdminDashboard = ({employeeCo}) => {
           </div>
 
           <div className="flex">
-            <Link className="flex" to="/student">
+            <Link className="flex" to="/employee/students">
               <div className="flex dashboard-icon"><HiAcademicCap /></div>
               <div className="dashboard-name">Étudiants</div>
             </Link>
             
             <Sidebar.Collapse>
             <div className="flex">
-                <Link to="/student/files">
+                <Link to="/employee/student/list">
                   <div className="dashboard-name">Dossiers étudiants</div>
                 </Link>
               </div>
               <div className="flex">
-                <Link to="/student/create">
+                <Link to="/employee/student/create">
                   <div className="dashboard-name">Créer un dossier</div>
                 </Link>
               </div>
               <div className="flex">
-                <Link to="/student/Inscription">
+                <Link to="/employee/student/inscription">
                   <div className="dashboard-name">Inscription à un programme</div>
                 </Link>
               </div>
               <div className="flex">
-                <Link to="/student/course">
+                <Link to="/employee/student/course">
                   <div className="dashboard-name">Inscription à un cours</div>
+                </Link>
+              </div>
+            </Sidebar.Collapse>
+          </div>
+
+          <div className="flex">
+            <Link className="flex" to="/employee/employees">
+              <div className="flex dashboard-icon"><HiAcademicCap /></div>
+              <div className="dashboard-name">Employés</div>
+            </Link>
+            
+            <Sidebar.Collapse>
+            <div className="flex">
+                <Link to="/employee/employee/list">
+                  <div className="dashboard-name">Liste des employés</div>
+                </Link>
+              </div>
+              <div className="flex">
+                <Link to="/employee/employee/create">
+                  <div className="dashboard-name">Créer nouvel employé</div>
                 </Link>
               </div>
             </Sidebar.Collapse>
@@ -130,6 +165,11 @@ const AdminDashboard = ({employeeCo}) => {
             <Link to="/adminplanning">
               <div className="dashboard-name">Planning</div>
             </Link>
+          </div>
+
+          <div className="flex" onClick={logout}>
+            <Sidebar.Item href="adminplanning" icon={HiLogout}/>
+            <div className="dashboard-name">Déconnexion</div>
           </div>
           
         </Sidebar.ItemGroup>

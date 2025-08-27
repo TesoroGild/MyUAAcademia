@@ -33,7 +33,7 @@ const Inscription = ({employeeCo}) => {
     const [programTitle, setProgramTitle] = useState("");
     const [studentsPermanentCode, setStudentsPermanentCode] = useState([]);
     const [searchStudent, setSearchStudent] = useState("");
-    const [filteredStudents, setFilteredStudents] = useState([]);
+    const [filteredStudents, setFilteredStudents] = useState([]);//ne pas afficher l'etudiant s'il a deja un programme
     const [titleFocused, setTitleFocused] = useState(false);
     const [programNameFocused, setProgramNameFocused] = useState(false);
     const [descriptionsFocused, setDescriptionsFocused] = useState(false);
@@ -109,6 +109,14 @@ const Inscription = ({employeeCo}) => {
                 setTimeout(() => {
                     setShowProgramAdd(false);
                 }, 5000);
+                setProgramForm({
+                    title: "",
+                    programName: "",
+                    descriptions: "",
+                    grade: "",
+                    department: "",
+                    faculty: ""
+                });
             } else {
                 setTitleFocused(true);
                 setProgramNameFocused(true);
@@ -409,11 +417,11 @@ const Inscription = ({employeeCo}) => {
                                                     <Table.HeadCell>Code permanent</Table.HeadCell>
                                                     <Table.HeadCell>Nom</Table.HeadCell>
                                                     <Table.HeadCell>Prénom</Table.HeadCell>
+                                                    <Table.HeadCell>Ajouter au programme</Table.HeadCell>
                                                 </Table.Head>
                                                 <Table.Body className="divide-y">
                                                     { filteredStudents.map(student => 
-                                                        <Table.Row key={student.permanentCode} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200"
-                                                            onClick={() => addStudentProgram(student.permanentCode)}>
+                                                        <Table.Row key={student.permanentCode} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200">
                                                             <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                                                 {student.permanentCode}
                                                             </Table.Cell>
@@ -424,7 +432,9 @@ const Inscription = ({employeeCo}) => {
                                                                 {student.firstName}
                                                             </Table.Cell>
                                                             <Table.Cell>
-                                                                <div className="flex self-center"><HiOutlinePlusSm /></div>
+                                                                <div className="flex self-center"
+                                                                    onClick={() => addStudentProgram(student.permanentCode)}
+                                                                ><HiOutlinePlusSm /></div>
                                                             </Table.Cell>
                                                         </Table.Row>
                                                     )}

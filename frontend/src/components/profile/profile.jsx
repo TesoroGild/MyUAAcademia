@@ -30,7 +30,6 @@ const Profile = ({userCo, setUserCo}) => {
         department: "",
         lvlDegree: "",
         sexe: "",
-        gender: "",
         email: "",
         userRole: "",
         phoneNumber: "",
@@ -40,7 +39,6 @@ const Profile = ({userCo, setUserCo}) => {
 
     const [profileModForm, setProfileModForm] = useState({
         permanentCode: "",
-        gender: "",
         phoneNumber: "",
         nas: "",
         pwd: ""
@@ -75,24 +73,14 @@ const Profile = ({userCo, setUserCo}) => {
     const firstNameInputRef = useRef("");
     const lastNameInputRef = useRef("");
     const sexeInputRef = useRef("");
-    const genderInputRef = useRef("");
     const phoneNumberInputRef = useRef("");
     const nasInputRef = useRef("");
     const pwdInputRef = useRef("");
 
-      const genderOptions = [
-        { value: '...', label: '...' },
-        { value: 'male', label: 'Masculin' },
-        { value: 'female', label: 'Féminin' },
-        { value: 'anandrogin', label: 'Androgyne' },
-        { value: 'non-binary', label: 'Non-binaire' },
-        { value: 'genderqueer', label: 'Genderqueer' }
-      ];
-
     //Functions
     const initUpdForm = () => {
         setProfileModForm({
-            gender: userCo.gender || "",
+            //permanentCode: userCo.permanentCode,
             phoneNumber: userCo.phoneNumber || "",
             nas: userCo.nas || "",
             pwd: ""
@@ -106,8 +94,8 @@ const Profile = ({userCo, setUserCo}) => {
         console.log(profileModForm)
         try {
             const profileToModify = {
-                permanentCode: profileToDisplay.permanentCode,
-                gender: profileModForm.gender,
+                //permanentCode: profileToDisplay.permanentCode,
+                permanentCode: userCo.permanentCode,
                 phoneNumber: profileModForm.phoneNumber,
                 nas: profileModForm.nas,
                 pwd: profileModForm.pwd
@@ -165,21 +153,6 @@ const Profile = ({userCo, setUserCo}) => {
                                 <form onSubmit={updateProfile}>
                                     <div className="space-y-6">
                                         <h3 className="text-xl font-medium text-gray-900 dark:text-white">Effectuez vos modification</h3>
-                                        <div>
-                                            <div className="mb-2 block">
-                                                <Label htmlFor="gender" value="Genre" />
-                                            </div>
-                                            <Select
-                                                className="basic-single"
-                                                classNamePrefix="select"
-                                                defaultValue={genderOptions[0]}
-                                                isClearable={true}
-                                                isSearchable={true}
-                                                name="gender"
-                                                options={genderOptions}
-                                                onChange={handleSelectChange}
-                                            />
-                                        </div>
                                         <div>
                                             <div className="mb-2 block">
                                                 <Label htmlFor="phoneNumber" value="Numéro" />
@@ -246,12 +219,11 @@ const Profile = ({userCo, setUserCo}) => {
                         <div className="right-div left-space">
                             <ul>
                                 <li className="bg-slate-300">Sexe : {profileToDisplay.sexe}</li>
-                                <li>Genre : {profileToDisplay.gender}</li>
-                                <li className="bg-slate-300">Email : {profileToDisplay.email}</li>
-                                <li>Rôle : {profileToDisplay.userRole}</li>
-                                <li className="bg-slate-300">Numéro : {profileToDisplay.phoneNumber}</li>
-                                <li>NAS : {profileToDisplay.nas}</li>
-                                <li className="bg-slate-300">Date de naissance : {profileToDisplay.birthDay}</li>
+                                <li>Email : {profileToDisplay.email}</li>
+                                <li className="bg-slate-300">Rôle : {profileToDisplay.userRole}</li>
+                                <li>Numéro : {profileToDisplay.phoneNumber}</li>
+                                <li className="bg-slate-300">NAS : {profileToDisplay.nas}</li>
+                                <li>Date de naissance : {profileToDisplay.birthDay}</li>
                             </ul>
                         </div>
                     </div>
