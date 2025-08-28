@@ -25,7 +25,7 @@ const Details = ({employeeCo}) => {
         birthDay: "",
         nas: "",
         employeeCode: "",
-        permanentcode: ""
+        permanentCode: ""
     });
 
     //Function
@@ -57,18 +57,16 @@ const Details = ({employeeCo}) => {
                 <div>
                     { student.permanentcode != "" ? (
                         <div>
-                            <div className="flex w-full border-2 border-sky-500">
-                                <div className="w-1/2">
-                                    <div>
-                                        Picture
-                                    </div>
+                            <div className="flex w-full border-2 border-sky-500 justify-center">
+                                <div className="">
+                                    Picture
+                                </div>
+                            </div>
 
+                            <div className="flex w-full mt-8 px-4">
+                                <div className="w-1/2 border-2 border-sky-500 mr-2">
                                     <div>
-                                        Nom : {student.lastName}
-                                    </div>
-
-                                    <div>
-                                        Prénom : {student.firstName}
+                                        Nom complet : {student.lastName} {student.firstName}
                                     </div>
 
                                     <div>
@@ -84,7 +82,7 @@ const Details = ({employeeCo}) => {
                                     </div>
                                 </div>
 
-                                <div>
+                                <div className="w-1/2 border-2 border-sky-500 ml-2">
                                     <div>
                                         Profession : {student.userRole}
                                     </div>
@@ -107,10 +105,10 @@ const Details = ({employeeCo}) => {
                                 </div>
                             </div>
 
-                            <div className="border-2 border-sky-500 mt-8">
-                                <div>
+                            <div className="flex mt-8 px-4">
+                                <div className="w-1/2 border-2 border-sky-500 mr-2">
                                     <div>
-                                        Département : {student.department}pa
+                                        Département : {student.department}
                                     </div>
 
                                     <div>
@@ -126,13 +124,25 @@ const Details = ({employeeCo}) => {
                                     </div>
                                 </div>
 
-                                <div>
-                                    Profil crée par {student.employeeCode} le 
+                                <div className="w-1/2 border-2 border-sky-500 ml-2">
+                                    <div>
+                                        Relevés scolaires
+                                    </div>
+                                    <div>
+                                        Photo
+                                    </div>
+                                    <div>
+                                        Pièce d'identification
+                                    </div>
                                 </div>
+                            </div>
+                            
+                            <div>
+                                Profil crée par {student.employeeCode} le 
                             </div>
                         </div>
                     ) : (
-                        <div>Rien a afficher</div>
+                        <div>Aucun étudiant trouvé.</div>
                     )}
                 </div>
             </div>

@@ -91,12 +91,22 @@ const AdminDashboard = ({employeeCo}) => {
             
             <Sidebar.Collapse>
               <div className="flex">
-                <Link to="/program/class">
-                  <div className="dashboard-name">Cours</div>
+                <Link to="/employee/program/program">
+                  <div className="dashboard-name">Programmes</div>
                 </Link>
               </div>
               <div className="flex">
-                <Link to="/program/classroom">
+                <Link to="/employee/program/class">
+                  <div className="dashboard-name">Cours du programme</div>
+                </Link>
+              </div>
+              <div className="flex">
+                <Link to="/employee/program/course">
+                  <div className="dashboard-name">Cours de session</div>
+                </Link>
+              </div>
+              <div className="flex">
+                <Link to="/employee/program/classroom">
                   <div className="dashboard-name">Salles</div>
                 </Link>
               </div>
@@ -140,7 +150,7 @@ const AdminDashboard = ({employeeCo}) => {
             </Link>
             
             <Sidebar.Collapse>
-            <div className="flex">
+              <div className="flex">
                 <Link to="/employee/employee/list">
                   <div className="dashboard-name">Liste des employés</div>
                 </Link>

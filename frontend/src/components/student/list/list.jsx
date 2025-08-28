@@ -1,4 +1,4 @@
-import "./files.css";
+import "./list.css";
 
 //Reusable
 import { Switch } from 'antd';
@@ -8,6 +8,7 @@ import AdminHeader from "../../header/adminheader";
 //React
 import React, { useEffect, useState } from "react";
 import { Button, Table, TextInput, Toast, Tooltip } from "flowbite-react"
+import { useNavigate } from 'react-router-dom';
 
 //Icons
 import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
@@ -15,12 +16,13 @@ import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } fr
 //Services
 import { activeStudentAccountS, getStudentsS } from "../../../services/user.service";
 
-const Files = ({employeeCo}) => {
+const StudentsList = ({employeeCo}) => {
     //States
     const [students, setStudents] = useState([]);
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [searchStudent, setSearchStudent] = useState("");
     const [showSpinner, setShowSpinner] = useState(false);
+    const navigate = useNavigate();
 
     //Functions
     useEffect(() => {
@@ -69,6 +71,10 @@ const Files = ({employeeCo}) => {
 
         setFilteredStudents(filteredList);
     };
+
+    const navigateToFiles = (permanentCode) => {
+        navigate(`/employee/students/${permanentCode}`);
+    }
 
     //Return
     return (<>
@@ -146,7 +152,11 @@ const Files = ({employeeCo}) => {
                                                 )
                                             )}
                                         </Table.Cell>
-                                        <Table.Cell>Vérifier (afficher le dossier d'un etduiant avec les fichiers televerses pour son admission)</Table.Cell>
+                                        <Table.Cell>
+                                            <Button onClick={() => navigateToFiles(student.permanentCode)}>
+                                                Vérifier fichiers
+                                            </Button>  
+                                        </Table.Cell>
                                     </Table.Row>
                                 )}
                             </Table.Body>
@@ -158,4 +168,4 @@ const Files = ({employeeCo}) => {
     </>)
 }
 
-export default Files;
+export default StudentsList;

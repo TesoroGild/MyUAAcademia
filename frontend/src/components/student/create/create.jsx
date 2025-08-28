@@ -215,6 +215,24 @@ const Create = ({employeeCo}) => {
                                 )}
                             </div>
                         </div>
+
+                        <div className="w-full flex p-4">
+                            <label htmlFor="nationality" className="w-1/3">Nationalité :</label>
+                            <div className="w-1/3">
+                                <input type="text" id="nationality" name="nationality" placeholder="API DES PAYS DU MONDE POUR NATIONALITE"
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    {...register("nationality", { required: "La nationalité est requise!" })}
+                                />
+                                {errors.nationality && (
+                                    <p className="text-red-500 text-sm">{errors.nationality.message}</p>   
+                                )}
+                            </div>
+                            <div>
+                                <Tooltip content="Infos">
+                                    <HiInformationCircle className="h-4 w-4" />
+                                </Tooltip>
+                            </div>
+                        </div>
                         
                         <div className="w-full flex p-4">
                             <label htmlFor="phoneNumber" className="w-1/3">Téléphone :</label>

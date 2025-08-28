@@ -29,7 +29,7 @@ import Classroom from './components/program/classroom/classroom.jsx'
 import Course from './components/student/course/course.jsx'
 import Create from './components/student/create/create.jsx'
 import Details from './components/student/details/details.jsx'
-import Files from './components/student/files/files.jsx'
+import StudentList from './components/student/list/list.jsx'
 import Inscription from './components/student/inscription/inscription.jsx'
 import Message from './components/message/message.jsx'
 import Program from './components/program/program.jsx'
@@ -42,6 +42,8 @@ import EmployeeLogin from './components/login/employeelogin.jsx'
 import Employee from './components/employee/employee.jsx'
 import EmployeeCreate from './components/employee/add/employeecreate.jsx'
 import EmployeesList from './components/employee/list/employeeslist.jsx'
+import ProgramCreate from './components/employee/program/programcreate.jsx'
+import CourseCreate from './components/employee/course/coursecreate.jsx'
 
 const App = () => {
   
@@ -118,10 +120,12 @@ const App = () => {
           <Route path="/adminplanning" element={<AdminPlanning employeeCo = {employeeCo} />} />
           <Route path="/message" element={<Message employeeCo = {employeeCo} />} />
           <Route path='/program' element={<Program employeeCo = {employeeCo} />} />
-            <Route path='/program/class' element={<Class employeeCo = {employeeCo} />} />
-            <Route path='/program/classroom' element={<Classroom employeeCo= {employeeCo}  />} />
+            <Route path='/employee/program/class' element={<Class employeeCo = {employeeCo} />} />
+            <Route path='/employee/program/classroom' element={<Classroom employeeCo= {employeeCo}  />} />
           <Route path="/registration" element={<Registration setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
           {/**<Route path="/registration" element={<Home setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} /> */}
+          <Route path="/employee/program/program" element={<ProgramCreate employeeCo = {employeeCo}/>} />
+          <Route path='/employee/program/course' element={<CourseCreate employeeCo = {employeeCo} />} />
           <Route path='/employee/employees' element={<Employee employeeCo = {employeeCo} />} />
           <Route path='/employee/employee/create' element={<EmployeeCreate employeeCo = {employeeCo} />} />
           <Route path='/employee/employee/list' element={<EmployeesList employeeCo = {employeeCo} />} />
@@ -130,7 +134,7 @@ const App = () => {
             <Route path="/employee/students/:permanentcode" element={<Details employeeCo = {employeeCo} />} />
             <Route path='/employee/student/course' element={<Course employeeCo = {employeeCo} />} />
             <Route path='/employee/student/create' element={<Create employeeCo = {employeeCo} />} />
-            <Route path='/employee/student/list' element={<Files employeeCo = {employeeCo} />} />
+            <Route path='/employee/student/list' element={<StudentList employeeCo = {employeeCo} />} />
             <Route path='/employee/student/inscription' element={<Inscription employeeCo = {employeeCo} />} /> 
 
             <Route path="/notfound" element={<Notfound />} /> 
