@@ -2,48 +2,48 @@ import { useState } from 'react'
 import './App.css'
 
 //Routes
-import Home from './components/home/home.jsx'
-import Admission from './components/admission/admission.jsx'
-import PaymentAdmission from './components/payment/paymentadmission.jsx'
+import Home from './pages/home/home.jsx'
+import Admission from './pages/admission/admission.jsx'
+import PaymentAdmission from './pages/payment/paymentadmission.jsx'
 
-//Student components
-import Bill from './components/bill/bill'
-import Bulletin from './components/bulletin/bulletin'
-import Calendar from './components/calendar/calendar'
-import Contact from './components/contact/contact'
-import Login from './components/login/login'
-import Notfound from './components/not-found/notfound'
-import PaymentCourse from './components/payment/paymentcourse.jsx'
-import Profile from './components/profile/profile'
-import Planning from './components/planning/planning'
-import Progress from './components/progress/progress'
-import UserSpace from './components/space/userspace'
-import Subscribe from './components/subscribe/subscribe'
+//Student pages
+import Bill from './pages/bill/bill'
+import Bulletin from './pages/bulletin/bulletin'
+import Calendar from './pages/calendar/calendar'
+import Contact from './pages/contact/contact'
+import Login from './pages/login/login'
+import Notfound from './pages/not-found/notfound'
+import PaymentCourse from './pages/payment/paymentcourse.jsx'
+import Profile from './pages/profile/profile'
+import Planning from './pages/planning/planning'
+import Progress from './pages/progress/progress'
+import UserSpace from './pages/space/userspace'
+import Subscribe from './pages/subscribe/subscribe'
 
-//Admin components
-import AdminSpace from './components/space/adminspace.jsx'
-import AdminProfile from './components/profile/adminprofile'
-import AdminPlanning from './components/planning/adminplanning.jsx'
-import Class from './components/program/class/class.jsx'
-import Classroom from './components/program/classroom/classroom.jsx'
-import Course from './components/student/course/course.jsx'
-import Create from './components/student/create/create.jsx'
-import Details from './components/student/details/details.jsx'
-import StudentList from './components/student/list/list.jsx'
-import Inscription from './components/student/inscription/inscription.jsx'
-import Message from './components/message/message.jsx'
-import Program from './components/program/program.jsx'
-import Registration from './components/registration/registration.jsx'
-import Student from './components/student/student'
+//Admin pages
+import AdminSpace from './pages/space/adminspace.jsx'
+import AdminProfile from './pages/profile/adminprofile'
+import AdminPlanning from './pages/planning/adminplanning.jsx'
+import Class from './pages/program/class/class.jsx'
+import Classroom from './pages/program/classroom/classroom.jsx'
+import Course from './pages/student/course/course.jsx'
+import Create from './pages/student/create/create.jsx'
+import Details from './pages/student/details/details.jsx'
+import StudentList from './pages/student/list/list.jsx'
+import Inscription from './pages/student/inscription/inscription.jsx'
+import Message from './pages/message/message.jsx'
+import Program from './pages/program/program.jsx'
+import Registration from './pages/registration/registration.jsx'
+import Student from './pages/student/student'
 
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom'
-import AdmissionBill from './components/bill/admissionbill.jsx'
-import EmployeeLogin from './components/login/employeelogin.jsx'
-import Employee from './components/employee/employee.jsx'
-import EmployeeCreate from './components/employee/add/employeecreate.jsx'
-import EmployeesList from './components/employee/list/employeeslist.jsx'
-import ProgramCreate from './components/employee/program/programcreate.jsx'
-import CourseCreate from './components/employee/course/coursecreate.jsx'
+import AdmissionBill from './pages/bill/admissionbill.jsx'
+import EmployeeLogin from './pages/login/employeelogin.jsx'
+import Employee from './pages/employee/employee.jsx'
+import EmployeeCreate from './pages/employee/add/employeecreate.jsx'
+import EmployeesList from './pages/employee/list/employeeslist.jsx'
+import ProgramCreate from './pages/employee/program/programcreate.jsx'
+import CourseCreate from './pages/employee/course/coursecreate.jsx'
 
 const App = () => {
   
@@ -95,11 +95,11 @@ const App = () => {
           <Route path="/" element={<Navigate replace to="/home"/>} />
           <Route path="/admission" element={<Admission />} />
           {/*<Route path="/admission" element={<Admission setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
-          <Route path="/bill/admission" element={<AdmissionBill />} />
+          <Route path="/admission/bill" element={<AdmissionBill />} />
           <Route path="/home" element={<Home />} />
           {/*<Route path="/home" element={<Home setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
           <Route path="/login/employee" element={<EmployeeLogin setEmployeeCo = {setEmployeeCo}/>} />
-          <Route path="/payment/admission" element={<PaymentAdmission />} />
+          <Route path="/admission/payment" element={<PaymentAdmission />} />
 
           {/*Student routes*/}
           <Route path="/bill/courses" element={<Bill userCo= {userCo} userPermanentCode = {userCo.permanentCode}/>} />

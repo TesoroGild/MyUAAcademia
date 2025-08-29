@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Table, TextInput, Toast, ToastToggle, Tooltip } from "flowbite-react"
 import { useForm, Controller } from "react-hook-form";
 
-//Components
+//pages
 import AdminDashboard from "../../dashboard/admindashboard";
 import AdminHeader from "../../header/adminheader";
 

@@ -1,6 +1,6 @@
 import "./space.css";
 
-//Components
+//pages
 import AdminDashboard from "../dashboard/admindashboard";
 import AdminHeader from "../header/adminheader";
 

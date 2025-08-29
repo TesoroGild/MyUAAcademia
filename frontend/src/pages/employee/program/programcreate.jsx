@@ -6,6 +6,7 @@ import AdminHeader from "../../header/adminheader";
 import React, { useEffect, useState } from "react";
 import { Button, Table, Toast } from "flowbite-react";
 import { Tooltip } from "flowbite-react"
+import { useForm, Controller } from "react-hook-form";
 
 //Services
 import { createProgramS, getProgramsS, programRegistrationS } from "../../../services/program.service";
@@ -16,29 +17,35 @@ import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm  } from "r
 
 const ProgramCreate = ({employeeCo}) => {
     //States
+    const {
+            register,
+            setValue,
+            control,
+            handleSubmit,
+            reset,
+            formState: { errors }
+        } = useForm({
+            defaultValues: {
+                title: "",
+                programName: "",
+                descriptions: "",
+                grade: "",
+                department: "",
+                faculty: "",
+                employeeCode: employeeCo.code
+            }
+        });
     const [programs, setPrograms] = useState([]);
     const [students, setStudents] = useState([]);
     const [displayInscriptionCreate, setDisplayInscriptionCreate] = useState(false);
     const [displayInscriptionModify, setDisplayInscriptionModify] = useState(false);
     const [displayInscriptionDelete, setDisplayInscriptionDelete] = useState(false);
     const [showProgramAdd, setShowProgramAdd] = useState(false);
-    const [programForm, setProgramForm] = useState({
-        title: "",
-        programName: "",
-        descriptions: "",
-        grade: "",
-        department: "",
-        faculty: ""
-    });
-    const [filteredStudents, setFilteredStudents] = useState([]);//ne pas afficher l'etudiant s'il a deja un programme
-    const [titleFocused, setTitleFocused] = useState(false);
-    const [programNameFocused, setProgramNameFocused] = useState(false);
-    const [descriptionsFocused, setDescriptionsFocused] = useState(false);
 
     //Functions
     useEffect(() => {
-        getPrograms();
-        getStudents();
+        //getPrograms();
+        //getStudents();
     }, []);
 
     const getPrograms = async () => {
@@ -60,37 +67,17 @@ const ProgramCreate = ({employeeCo}) => {
         }
     }
 
-    const createProgram = async (event) => {
-        event.preventDefault();
-
+    const createProgram = async (programToCreate) => {
         try {
-            const programToCreate = {
-                title: programForm.title,
-                programName: programForm.programName,
-                descriptions: programForm.descriptions,
-                grade: programForm.grade,
-                department: programForm.department,
-                faculty: programForm.faculty,
-                employeeCode: employeeCo.code
-            }
-
             const createdProgram = await createProgramS(programToCreate);
 
             if (createdProgram !== null && createdProgram !== undefined) {
-                console.log("Programme ajouté");
-                await getPrograms();
+                //await getPrograms();
+                reset();
                 setShowProgramAdd(true);
                 setTimeout(() => {
                     setShowProgramAdd(false);
                 }, 5000);
-                setProgramForm({
-                    title: "",
-                    programName: "",
-                    descriptions: "",
-                    grade: "",
-                    department: "",
-                    faculty: ""
-                });
             } else {
                 setTitleFocused(true);
                 setProgramNameFocused(true);
@@ -117,22 +104,6 @@ const ProgramCreate = ({employeeCo}) => {
         setDisplayInscriptionDelete(!displayInscriptionDelete);
         setDisplayInscriptionCreate(false);
         setDisplayInscriptionModify(false);
-    }
-
-    const handleProgramChange = (event) => {
-        setProgramForm({ ...programForm, [event.target.name]: event.target.value });
-    }
-
-    const handleTitleFocus = (event) => {
-        setTitleFocused(true);
-    }
-
-    const handleProgramNameFocus = (event) => {
-        setProgramNameFocused(true);
-    }
-    
-    const handleDescriptionsFocus = (event) => {
-        setDescriptionsFocused(true);
     }
 
     //Return
@@ -190,19 +161,17 @@ const ProgramCreate = ({employeeCo}) => {
 
                     { displayInscriptionCreate && (
                         <div>
-                            <form onSubmit={createProgram}>
+                            <form onSubmit={handleSubmit(createProgram)}>
                                 <div className="w-full flex p-4">
                                     <label htmlFor="title" className="w-1/3">Titre :</label>
                                     <div className="w-1/3">
                                         <input type="text" id="title" name="title"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            onChange={handleProgramChange} required
-                                            onBlur={handleTitleFocus}
-                                            focused={titleFocused.toString()}
+                                            {...register("title", { required: "Le titre est requis!" })}
                                         />
-                                        <span className="text-xs font-light text-red-500 format-error">
-                                            Format invalid!
-                                        </span>
+                                        {errors.title && (
+                                            <p className="text-red-500 text-sm">{errors.title.message}</p>   
+                                        )}
                                     </div>
                                     <div>
                                         <Tooltip content="Infos">
@@ -216,13 +185,11 @@ const ProgramCreate = ({employeeCo}) => {
                                     <div className="w-1/3">
                                         <input type="text" id="programName" name="programName"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            onChange={handleProgramChange} required
-                                            onBlur={handleProgramNameFocus}
-                                            focused={programNameFocused.toString()}
+                                            {...register("programName", { required: "Le nom du programme est requis!" })}
                                         />
-                                        <span className="text-xs font-light text-red-500 format-error">
-                                            Format invalid!
-                                        </span>
+                                        {errors.programName && (
+                                            <p className="text-red-500 text-sm">{errors.programName.message}</p>   
+                                        )}
                                     </div>
                                     <div>
                                         <Tooltip content="Infos">
@@ -236,13 +203,11 @@ const ProgramCreate = ({employeeCo}) => {
                                     <div className="w-1/3">
                                         <textarea id="descriptions" name="descriptions"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            onChange={handleProgramChange} required
-                                            onBlur={handleDescriptionsFocus}
-                                            focused={descriptionsFocused.toString()}
+                                            {...register("descriptions", { required: "La description du programme est requise!" })}
                                         />
-                                        <span className="text-xs font-light text-red-500 format-error">
-                                            Format invalid!
-                                        </span>
+                                        {errors.descriptions && (
+                                            <p className="text-red-500 text-sm">{errors.descriptions.message}</p>   
+                                        )}
                                     </div>
                                     <div>
                                         <Tooltip content="Infos">
@@ -255,14 +220,18 @@ const ProgramCreate = ({employeeCo}) => {
                                     <label htmlFor="grade" className="w-1/3">Niveau d'étude :</label>
                                     <div className="w-1/3">
                                         <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="grade" name="grade" onChange={handleProgramChange}
+                                            id="grade" name="grade"
+                                            {...register("grade", { required: "Le grade est requis!" })}
                                         >
-                                            <option value="">Sélectionnez le niveau d'étude</option>
+                                            <option value="" disabled>Sélectionnez le niveau d'étude</option>
                                             <option value="Certificat">Certificat</option>
                                             <option value="Baccalauréat">Baccalauréat</option>
                                             <option value="Master">Master</option>
                                             <option value="Doctorat">Doctorat</option>
                                         </select>
+                                        {errors.grade && (
+                                            <p className="text-red-500 text-sm">{errors.grade.message}</p>
+                                        )}
                                     </div>
                                     <div>
                                         <Tooltip content="Infos">
@@ -275,14 +244,19 @@ const ProgramCreate = ({employeeCo}) => {
                                     <label htmlFor="department" className="w-1/3">Département :</label>
                                     <div className="w-1/3">
                                         <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="department" name="department" onChange={handleProgramChange}
+                                            id="department" name="department"
+                                            {...register("department", { required: "Le département est requis!" })}
                                         >
-                                            <option value="">Sélectionnez le département</option>
+                                            <option value="" disabled>Sélectionnez le département</option>
+                                            <option value="Art visuel et médiatique">Art visuel et médiatique</option>
                                             <option value="Enseignement">Enseignement</option>
                                             <option value="Informatique">Informatique</option>
-                                            <option value="Mathematiques">Mathematiques</option>
+                                            <option value="Mathématiques">Mathématiques</option>
                                             <option value="Ressources Humaines">Ressources Humaines</option>
                                         </select>
+                                        {errors.department && (
+                                            <p className="text-red-500 text-sm">{errors.department.message}</p>
+                                        )}
                                     </div>
                                     <div>
                                         <Tooltip content="Infos">
@@ -295,9 +269,10 @@ const ProgramCreate = ({employeeCo}) => {
                                     <label htmlFor="faculty" className="w-1/3">Faculté :</label>
                                     <div className="w-1/3">
                                         <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="faculty" name="faculty" onChange={handleProgramChange}
+                                            id="faculty" name="faculty"
+                                            {...register("faculty", { required: "La faculté est requise!" })}
                                         >
-                                            <option value="">Sélectionnez la Faculté</option>
+                                            <option value="" disabled>Sélectionnez la Faculté</option>
                                             <option value="Arts">Arts</option>
                                             <option value="Communication">Communication</option>
                                             <option value="Développement durable">Développement durable</option>
@@ -309,6 +284,9 @@ const ProgramCreate = ({employeeCo}) => {
                                             <option value="Sciences">Sciences</option>
                                             <option value="Sciences humaine">Sciences humaine</option>
                                         </select>
+                                        {errors.sexe && (
+                                            <p className="text-red-500 text-sm">{errors.sexe.message}</p>
+                                        )}
                                     </div>
                                     <div>
                                         <Tooltip content="Infos">
@@ -317,8 +295,8 @@ const ProgramCreate = ({employeeCo}) => {
                                     </div>
                                 </div>
 
-                                <button type="submit" disabled={!programForm.department || !programForm.faculty || !programForm.programName || !programForm.descriptions || !programForm.title || !programForm.grade}
-                                    className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
+                                <button type="submit"
+                                className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
                                     Créer
                                 </button>
                             </form>

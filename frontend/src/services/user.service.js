@@ -11,6 +11,26 @@ const backend_url = import.meta.env.VITE_API_URL;
 //################################
 
 //Create
+export const admissionS = async (studentToRegister) => {
+    console.log("USER SERVICE : ADMISSION STUDENTS");
+    try {
+        const response = await axios.post(
+            `${backend_url}/User/students`, 
+            studentToRegister
+        );
+        return { success: true, studentRegistered: response.data };
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0]
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur." };
+    }
+} 
+
 export const createStudentS = async (studentToCreate) => {
   console.log("USER SERVICE : CREATE STUDENTS");
   try {
@@ -21,6 +41,7 @@ export const createStudentS = async (studentToCreate) => {
     throw error;
   }
 }
+
 
 //Read
 export const getStudentS = async (permanentCode) => {

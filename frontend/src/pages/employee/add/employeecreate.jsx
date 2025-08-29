@@ -355,7 +355,7 @@ const EmployeeCreate = ({employeeCo}) => {
                             <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
                                 <HiExclamation className="h-5 w-5" />
                             </div>
-                            <div className="ml-3 text-sm font-normal">{errorMessage}</div>
+                            <div className="ml-3 text-sm font-normal">Impossible de contacter le serveur. Veuillez essayer plus tard.</div>
                             <ToastToggle />
                         </Toast>
                     )}
@@ -364,7 +364,7 @@ const EmployeeCreate = ({employeeCo}) => {
                             <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
                                 <HiX className="h-5 w-5" />
                             </div>
-                            <div className="ml-3 text-sm font-normal">Item has been deleted.</div>
+                            <div className="ml-3 text-sm font-normal">{errorMessage}</div>
                             <ToastToggle />
                         </Toast>
                     )}
