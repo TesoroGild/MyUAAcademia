@@ -9,5 +9,5 @@ test("affiche la page d'accueil", () => {
         <App />
       </MemoryRouter>
     );
-    expect(screen.getByText("Code Permanent :")).toBeInTheDocument();
+    expect(screen.getByText("Certificat")).toBeInTheDocument();
   });
