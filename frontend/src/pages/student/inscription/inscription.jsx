@@ -4,15 +4,15 @@ import AdminHeader from "../../header/adminheader";
 
 //React
 import React, { useEffect, useState } from "react";
-import { Button, Table, Toast } from "flowbite-react";
+import { Button, Table, Toast, ToastToggle } from "flowbite-react";
 import { Tooltip } from "flowbite-react"
 
 //Services
 import { createProgramS, getProgramsS, programRegistrationS } from "../../../services/program.service";
-import { getStudentsS } from "../../../services/user.service";
+import { getStudentsNotInProgramS } from "../../../services/user.service";
 
 //Icons
-import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm  } from "react-icons/hi";
+import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
 
 const Inscription = ({employeeCo}) => {
     //States
@@ -37,11 +37,15 @@ const Inscription = ({employeeCo}) => {
     const [titleFocused, setTitleFocused] = useState(false);
     const [programNameFocused, setProgramNameFocused] = useState(false);
     const [descriptionsFocused, setDescriptionsFocused] = useState(false);
+    const [showSuccesToast, setShowSuccesToast] = useState(false);
+    const [showErrorToast, setShowErrorToast] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showWarningToast, setShowWarningToast] = useState(false);
 
     //Functions
     useEffect(() => {
         getPrograms();
-        getStudents();
+        getStudentsNotInProgram();
     }, []);
 
     const getPrograms = async () => {
@@ -53,13 +57,21 @@ const Inscription = ({employeeCo}) => {
         }
     }
 
-    const getStudents = async () => {
+    const getStudentsNotInProgram = async () => {
         try {
-            const studentsList = await getStudentsS();
-            setStudents(studentsList);
-            setFilteredStudents(studentsList);
+            const result = await getStudentsNotInProgramS();
+            if (result.success) {
+                setStudents(result.studentsNotEnrolled);
+                setFilteredStudents(result.studentsNotEnrolled);
+            } else {
+                setErrorMessage(result.message);
+                setShowErrorToast(true);
+                setTimeout(() => setShowErrorToast(false), 5000);
+            }
         } catch (error) {
             console.log(error);
+            setShowWarningToast(true);
+            setTimeout(() => setShowWarningToast(false), 5000);
         }
     }
 
@@ -75,55 +87,20 @@ const Inscription = ({employeeCo}) => {
             const registrationResponse = await programRegistrationS(registrationToCreate);
 
             if (registrationResponse !== null && registrationResponse !== undefined) {
-                console.log("Inscriptions réussies"); 
                 setStudentsPermanentCode([]);
                 setProgramTitle("");
+                setShowSuccesToast(true);
+                //reset();
+                setTimeout(() => setShowSuccesToast(false), 5000);
             } else {
-                console.log("Erreur");
+                setErrorMessage(result.message);
+                setShowErrorToast(true);
+                setTimeout(() => setShowErrorToast(false), 5000);
             }
         } catch (error) {
             console.log(error);
-        }
-    }
-
-    const createProgram = async (event) => {
-        event.preventDefault();
-
-        try {
-            const programToCreate = {
-                title: programForm.title,
-                programName: programForm.programName,
-                descriptions: programForm.descriptions,
-                grade: programForm.grade,
-                department: programForm.department,
-                faculty: programForm.faculty,
-                employeeCode: employeeCo.code
-            }
-
-            const createdProgram = await createProgramS(programToCreate);
-
-            if (createdProgram !== null && createdProgram !== undefined) {
-                console.log("Programme ajouté");
-                await getPrograms();
-                setShowProgramAdd(true);
-                setTimeout(() => {
-                    setShowProgramAdd(false);
-                }, 5000);
-                setProgramForm({
-                    title: "",
-                    programName: "",
-                    descriptions: "",
-                    grade: "",
-                    department: "",
-                    faculty: ""
-                });
-            } else {
-                setTitleFocused(true);
-                setProgramNameFocused(true);
-                setDescriptionsFocused(true);
-            }
-        } catch (error) {
-            console.log(error);
+            setShowWarningToast(true);
+            setTimeout(() => setShowWarningToast(false), 5000);
         }
     }
 
@@ -187,9 +164,38 @@ const Inscription = ({employeeCo}) => {
                 <div>
                     <AdminHeader/>
                 </div>
-il faut pouvoir laissser le programme dans le formulaire d'inscription vide sinon cette page ne sert a rien. de plus lors de l'etude de dossier, l'etudiant n'a pas encore de programme et il peut choisir jusqua 3 programmes pour s'inscrire. ce n'est qu'apres que l'employe pourra lui attribuer un programme base sur ses documents
+lors de l'etude de dossier, l'etudiant n'a pas encore de programme et il peut choisir jusqua 3 programmes pour s'inscrire. ce n'est qu'apres que l'employe pourra lui attribuer un programme base sur ses documents
                 
                 <div className="m-4">
+                    {showSuccesToast && (
+                        <Toast>
+                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                <HiCheck className="h-5 w-5" />
+                            </div>
+                            <div className="ml-3 text-sm font-normal">Utilisateur ajouté.</div>
+                            <div className="ml-auto flex items-center space-x-2">
+                                <ToastToggle />
+                            </div>
+                        </Toast>
+                    )}
+                    {showWarningToast && (
+                        <Toast>
+                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
+                                <HiExclamation className="h-5 w-5" />
+                            </div>
+                            <div className="ml-3 text-sm font-normal">Impossible de contacter le serveur. Veuillez essayer plus tard.</div>
+                            <ToastToggle />
+                        </Toast>
+                    )}
+                    {showErrorToast && (
+                        <Toast>
+                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                <HiX className="h-5 w-5" />
+                            </div>
+                            <div className="ml-3 text-sm font-normal">{errorMessage}</div>
+                            <ToastToggle />
+                        </Toast>
+                    )}
                     <form onSubmit={registerStudentsProgram}>
                         <div className="flex">
                             <div className="w-1/2 mr-2">
@@ -199,7 +205,7 @@ il faut pouvoir laissser le programme dans le formulaire d'inscription vide sino
                                     <option value="">Sélectionnez un programme</option>
                                     {programs.map((element, index) => (
                                         <option key={index} value={element.title}>
-                                            {element.grade} : {element.programName}
+                                            {element.title} | {element.grade} : {element.programName}
                                         </option>
                                     ))}
                                 </select>
@@ -213,7 +219,6 @@ il faut pouvoir laissser le programme dans le formulaire d'inscription vide sino
                                     placeholder="Chercher un code permanent" />
                             </div>
                         </div>
-                        
 
                         <div className="flex my-4">
                             <div className="w-1/2">

@@ -11,8 +11,8 @@ import { useForm, Controller } from "react-hook-form";
 import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
 
 //Services
-import { getStudentsS } from "../../../services/user.service";
-import { courseRegistrationS, coursesRegistrationS, createClasseCourseS, createClassroomS, getClassroomsS, getClassesCoursesBySessionYearS, getCoursesBySessionYearS, getProgramCoursesS } from "../../../services/course.service";
+import { getProgramStudentsS } from "../../../services/user.service";
+import { courseRegistrationS, coursesRegistrationS, createClasseCourseS, createClassroomS, getClassroomsS, getProgramSessionCoursesS, getProgramCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
 const Course = ({employeeCo}) => {
@@ -36,9 +36,7 @@ const Course = ({employeeCo}) => {
     });
     const [students, setStudents] = useState([]);
     const [programs, setPrograms] = useState([]);
-    const [courses, setCourses] = useState([]);
-    const [classrooms, setClassrooms] = useState([]);
-    const [classCourses, setClassCourses] = useState([]);
+    const [classesCourses, setClassesCourses] = useState([]);
     const [searchStudent, setSearchStudent] = useState("");
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [courseSigle, setCourseSigle] = useState("");
@@ -49,19 +47,17 @@ const Course = ({employeeCo}) => {
     const [showCourseAdd, setShowCourseAdd] = useState(false);
     const [showClasseCourseAdd, setShowClasseCourseAdd] = useState(false);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [session, setSession] = useState("");
     const [sessionCourse, setSessionCourse] = useState("");
+    const [displayBX, setDisplayBS] = useState(false);
 
     //Functions
     useEffect(() => {
         getPrograms();
-        getStudents();
-        getClassrooms();
 
-        if (session !== "" && programTitle !== "") {
-            getCoursesBySessionYear();
+        if (sessionCourse !== "" && programTitle !== "") {
+            getProgramSessionCourses();
         }
-    }, [session, programTitle]);
+    }, [sessionCourse, programTitle]);
 
     const getPrograms = async () => {
         try {
@@ -72,55 +68,29 @@ const Course = ({employeeCo}) => {
         }
     };
 
-    const getStudents = async () => {
-        try {
-            const studentsL = await getStudentsS();
-            setStudents(studentsL);
-            setFilteredStudents(studentsL);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const getClassrooms = async () => {
-        try {
-            const classes = await getClassroomsS();
-            setClassrooms(classes);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const getCoursesBySessionYear = async () => {
-        try {
-            const sessionYearProgram = {
-                programTitle: programTitle,
-                sessionCourse: session
-            }
-            const filteredCourses = await getCoursesBySessionYearS(sessionYearProgram);
-
-            setCourses(filteredCourses);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const getClassesCoursesBySession = async (titleProg) => {
+    const getProgramSessionCourses = async () => {
         try {
             const sessionProgram = {
-                sessionCourse: sessionCourse,
-                programTitle: titleProg
+                programTitle: programTitle,
+                sessionCourse: sessionCourse
             }
-
-            const classesCourses = await getClassesCoursesBySessionYearS(sessionProgram);
-            await updateClassCourses(classesCourses);
+            const classesCourses = await getProgramSessionCoursesS(sessionProgram);
+            setClassesCourses(classesCourses);
         } catch (error) {
             console.log(error);
         }
     }
 
-    const updateClassCourses = async (cc) => {
-        setClassCourses(cc);
+    const getProgramStudents = async (progTitle) => {
+        setProgramTitle(progTitle);
+        try {
+            const studentsInProgram = await getProgramStudentsS(progTitle);
+            console.log(studentsInProgram);
+            setStudents(studentsInProgram);
+            setFilteredStudents(studentsInProgram);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const createClasseCourse = async (newClasseCourse) => {
@@ -204,13 +174,20 @@ const Course = ({employeeCo}) => {
         setStudentsPermanentCodes(studentsPermanentCodes.filter((student) => student !== pc));
     }
 
-    const addProgramCourse = (id) => {
-        setClassesCoursesIds([...classesCoursesIds, id]);
+    const removeCourse = (id) => {
+        setClassesCoursesIds(classesCoursesIds.filter((courseId) => courseId !== id));
+        displayButtonOrX();
     }
 
-    const removeCourseId = (id) => {
-        setClassesCoursesIds(classesCoursesIds.filter((courseId) => courseId !== id));
+    const addCourse = (id) => {
+        setClassesCoursesIds([...classesCoursesIds, id]);
+        displayButtonOrX();
     }
+
+    const displayButtonOrX = () => {
+        setDisplayBS(!displayBX);
+    }
+
 
     //Return
     return (<>
@@ -271,33 +248,12 @@ const Course = ({employeeCo}) => {
                                 <label htmlFor="titleCourse" className="w-1/3">Programme :</label>
                                 <div className="w-1/3">
                                     <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        id="titleCourse" name="titleCourse" onChange={(e) => getClassesCoursesBySession(e.target.value)}
+                                        id="titleCourse" name="titleCourse" onChange={(e) => getProgramStudents(e.target.value)}
                                     >
                                         <option value="">Sélectionnez un programme...</option>
                                         {programs.map((element, index) => (
                                             <option key={index} value={element.title}>
                                                 {element.title} : {element.programName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-
-                            <div className="w-full flex p-4">
-                                <label htmlFor="sigle" className="w-1/3">Cours disponilbes :</label>
-                                <div className="w-1/3">
-                                    <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        id="courseSigle" name="courseSigle" onChange={(e) => addProgramCourse(e.target.value)}
-                                    >
-                                        <option value="">Sélectionnez un cours...</option>
-                                        {classCourses.map((element, index) => (
-                                            <option key={index} value={element.id}>
-                                                ({element.id}) Cours: {element.courseSigle}; Salle: {element.classeName}; {element.jours} de {element.startTime} à {element.endTime}
                                             </option>
                                         ))}
                                     </select>
@@ -358,59 +314,77 @@ const Course = ({employeeCo}) => {
                                     </div>
                                 </div>
 
-                                <div className="mx-4">
-                                    <p>Etudiants à ajouter</p>
-                                    <div>
-                                        <Table>
-                                            <Table.Head>
-                                                <Table.HeadCell>Code permanent</Table.HeadCell>
-                                                <Table.HeadCell></Table.HeadCell>
-                                            </Table.Head>
-                                            <Table.Body className="divide-y">
-                                                { studentsPermanentCodes.map((studentPC, index) => (
-                                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200">
-                                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            {studentPC}
-                                                        </Table.Cell>
-                                                        <Table.Cell>
-                                                            <div onClick={() => removeStudentCourse(studentPC)} 
-                                                                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                                <HiX className="h-5 w-5" />
-                                                            </div>
-                                                        </Table.Cell>
-                                                    </Table.Row>
-                                                ))}
-                                            </Table.Body>
-                                        </Table>
+                                <div className="w-1/2">
+                                    <div className="mx-4">
+                                        <p>Etudiants à ajouter</p>
+                                        <div>
+                                            <Table>
+                                                <Table.Head>
+                                                    <Table.HeadCell>Code permanent</Table.HeadCell>
+                                                    <Table.HeadCell></Table.HeadCell>
+                                                </Table.Head>
+                                                <Table.Body className="divide-y">
+                                                    { studentsPermanentCodes.map((studentPC, index) => (
+                                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200">
+                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                {studentPC}
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                <div onClick={() => removeStudentCourse(studentPC)} 
+                                                                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                                    <HiX className="h-5 w-5" />
+                                                                </div>
+                                                            </Table.Cell>
+                                                        </Table.Row>
+                                                    ))}
+                                                </Table.Body>
+                                            </Table>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="ml-4">
-                                    <p>Cours à ajouter</p>
-                                    <div>
-                                        <Table>
-                                            <Table.Head>
-                                                <Table.HeadCell>Cours</Table.HeadCell>
-                                                <Table.HeadCell></Table.HeadCell>
-                                            </Table.Head>
-                                            <Table.Body className="divide-y">
-                                                { classesCoursesIds.map((courseId, index) => (
-                                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800  cursor-pointer hover:bg-sky-200">
-                                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            {courseId}
-                                                        </Table.Cell>
-                                                        <Table.Cell>
-                                                            <div onClick={() => removeCourseId(courseId)} 
-                                                                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                                <HiX className="h-5 w-5" />
-                                                            </div>
-                                                        </Table.Cell>
-                                                    </Table.Row>
-                                                ))}
-                                            </Table.Body>
-                                        </Table>
+                                    <div className="ml-4">
+                                        <p>Cours disponilbes</p>
+                                        <div>
+                                            <Table>
+                                                <Table.Head>
+                                                    <Table.HeadCell>Sigle</Table.HeadCell>
+                                                    <Table.HeadCell>Salle</Table.HeadCell>
+                                                    <Table.HeadCell>Horaire</Table.HeadCell>
+                                                    <Table.HeadCell></Table.HeadCell>
+                                                </Table.Head>
+                                                <Table.Body className="divide-y">
+                                                    { classesCourses.map(element => 
+                                                        <Table.Row key={element.courseSigle} 
+                                                            className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200"
+                                                        >
+                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                                {element.courseSigle}
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                {element.classeName}
+                                                            </Table.Cell>
+                                                            <Table.Cell>
+                                                                {element.jours} de {element.startTime} à {element.endTime}
+                                                            </Table.Cell>
+                                                            <Table.Cell onClick={() => addCourse(element.id)}>
+                                                                {displayBX ? (
+                                                                    <div onClick={() => removeCourse(element.id)} 
+                                                                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                                        <HiX className="h-5 w-5" />
+                                                                    </div>
+                                                                ) : (
+                                                                    <Button className="flex self-center">Ajouter cours</Button>
+                                                                )}
+                                                                
+                                                            </Table.Cell>
+                                                        </Table.Row>
+                                                    )}
+                                                </Table.Body>
+                                            </Table>
+                                        </div>
                                     </div>
                                 </div>
+                                
                             </div>
 
                             <button type="submit" disabled={ !classesCoursesIds || !studentsPermanentCodes.length > 0 }

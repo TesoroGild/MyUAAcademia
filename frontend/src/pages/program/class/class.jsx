@@ -138,69 +138,6 @@ const Class = ({employeeCo}) => {
 
                 <div>
                     <div>
-                        <Table>
-                            <Table.Head>
-                                <Table.HeadCell>Sigle</Table.HeadCell>
-                                <Table.HeadCell>Nom</Table.HeadCell>
-                                <Table.HeadCell>Prix</Table.HeadCell>
-                                <Table.HeadCell>Crédits</Table.HeadCell>
-                                <Table.HeadCell>Hiver</Table.HeadCell>
-                                <Table.HeadCell>Été</Table.HeadCell>
-                                <Table.HeadCell>Automne</Table.HeadCell>
-                            </Table.Head>
-                            <Table.Body className="divide-y">
-                                { courseList && courseList.length > 0 ? (
-                                    courseList.map((course, index) => (
-                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                {course.sigle}
-                                            </Table.Cell>
-                                            <Table.Cell>{course.fullName}</Table.Cell>
-                                            <Table.Cell>{course.price}$</Table.Cell>
-                                            <Table.Cell>{course.credits}</Table.Cell>
-                                            <Table.Cell>
-                                                {course.winter === 0 ? 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                        <HiX className="h-5 w-5" />
-                                                    </div> : 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                                        <HiCheck className="h-5 w-5" />
-                                                    </div>
-                                                }
-                                            </Table.Cell>
-                                            <Table.Cell>
-                                                {course.summer === 0 ? 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                        <HiX className="h-5 w-5" />
-                                                    </div> : 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                                        <HiCheck className="h-5 w-5" />
-                                                    </div>
-                                                }
-                                                </Table.Cell>
-                                            <Table.Cell>
-                                                {course.autumn === 0 ? 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                        <HiX className="h-5 w-5" />
-                                                    </div> : 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                                        <HiCheck className="h-5 w-5" />
-                                                    </div>
-                                                }
-                                                </Table.Cell>
-                                        </Table.Row>
-                                    ))
-                                ) : (
-                                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white col-span-7">
-                                            Aucun cours!
-                                        </Table.Cell>
-                                    </Table.Row>
-                                )}
-                            </Table.Body>
-                        </Table>
-                    </div>
-
                     <div className="border-2 border-red-500 mt-4">
                         <div>
                             CRÉER UN NOUVEAU COURS
@@ -448,6 +385,72 @@ const Class = ({employeeCo}) => {
                             )}
                         </form>
                     </div>
+                    <div className="mt-4 justify-self-center">Cours obligatoires des programmes</div>
+                        <Table>
+                            <Table.Head>
+                                <Table.HeadCell>Programme</Table.HeadCell>
+                                <Table.HeadCell>Sigle</Table.HeadCell>
+                                <Table.HeadCell>Nom</Table.HeadCell>
+                                <Table.HeadCell>Prix</Table.HeadCell>
+                                <Table.HeadCell>Crédits</Table.HeadCell>
+                                <Table.HeadCell>Hiver</Table.HeadCell>
+                                <Table.HeadCell>Été</Table.HeadCell>
+                                <Table.HeadCell>Automne</Table.HeadCell>
+                            </Table.Head>
+                            <Table.Body className="divide-y">
+                                { courseList && courseList.length > 0 ? (
+                                    courseList.map((course, index) => (
+                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                            <Table.Cell>{course.programTitle}</Table.Cell>
+                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                {course.sigle}
+                                            </Table.Cell>
+                                            <Table.Cell>{course.fullName}</Table.Cell>
+                                            <Table.Cell>{course.price}$</Table.Cell>
+                                            <Table.Cell>{course.credits}</Table.Cell>
+                                            <Table.Cell>
+                                                {course.winter === 0 ? 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                        <HiX className="h-5 w-5" />
+                                                    </div> : 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                                        <HiCheck className="h-5 w-5" />
+                                                    </div>
+                                                }
+                                            </Table.Cell>
+                                            <Table.Cell>
+                                                {course.summer === 0 ? 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                        <HiX className="h-5 w-5" />
+                                                    </div> : 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                                        <HiCheck className="h-5 w-5" />
+                                                    </div>
+                                                }
+                                                </Table.Cell>
+                                            <Table.Cell>
+                                                {course.autumn === 0 ? 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                        <HiX className="h-5 w-5" />
+                                                    </div> : 
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                                        <HiCheck className="h-5 w-5" />
+                                                    </div>
+                                                }
+                                                </Table.Cell>
+                                        </Table.Row>
+                                    ))
+                                ) : (
+                                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white col-span-7">
+                                            Aucun cours!
+                                        </Table.Cell>
+                                    </Table.Row>
+                                )}
+                            </Table.Body>
+                        </Table>
+                    </div>
+
                 </div>
             </div>
         </div>

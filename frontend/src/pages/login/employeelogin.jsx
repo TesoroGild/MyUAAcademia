@@ -17,7 +17,7 @@ function EmployeeLogin ({ setEmployeeCo}) {
 
     //Functions
     const handlePCFocus = (event) => {
-        setcodeFocused(true);
+        setCodeFocused(true);
     }
 
     const handlePFocus = (event) => {

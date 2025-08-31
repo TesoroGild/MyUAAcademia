@@ -4,13 +4,15 @@ import AdminHeader from "../../header/adminheader";
 
 //React
 import React, { useEffect, useState } from "react";
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 //Services
 import { getStudentS } from "../../../services/user.service";
 
 const Details = ({employeeCo}) => {
     const { permanentcode } = useParams();
+    const location = useLocation();
+    const user = location.state?.userInProcess;
 
     //States
     const [student, setStudent] = useState({
@@ -30,7 +32,9 @@ const Details = ({employeeCo}) => {
 
     //Function
     useEffect(() => {
-        getStudent();
+        if (user != null && user != undefined)
+            setStudent(user);
+        else getStudent();
     }, []);
 
     const getStudent = async () => {
@@ -55,7 +59,7 @@ const Details = ({employeeCo}) => {
                 </div>
 
                 <div>
-                    { student.permanentcode != "" ? (
+                    { student.permanentCode != "" ? (
                         <div>
                             <div className="flex w-full border-2 border-sky-500 justify-center">
                                 <div className="">
@@ -78,7 +82,11 @@ const Details = ({employeeCo}) => {
                                     </div>
 
                                     <div>
-                                        Nationalité :
+                                        Email personel : {student.personalEmail}
+                                    </div>
+
+                                    <div>
+                                        Nationalité : {student.nationality}
                                     </div>
                                 </div>
 
@@ -92,7 +100,7 @@ const Details = ({employeeCo}) => {
                                     </div>
 
                                     <div>
-                                        Email : {student.email}
+                                        Email scolaire : {student.professionalEmail}
                                     </div>
 
                                     <div>

@@ -6,11 +6,11 @@ import AdminHeader from "../../header/adminheader";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import { Datepicker, Tooltip } from "flowbite-react"
+import { Datepicker, FileInput, Label, Toast, ToastToggle, Tooltip } from "flowbite-react"
 import { useForm, Controller } from "react-hook-form";
 
 //Icons
-import { HiCalendar, HiInformationCircle } from "react-icons/hi";
+import { HiCheck, HiExclamation, HiInformationCircle, HiX } from "react-icons/hi";
 
 //Services
 import { createStudentS } from "../../../services/user.service";
@@ -27,17 +27,21 @@ const Create = ({employeeCo}) => {
         formState: { errors }
     } = useForm({
         defaultValues: {
-            birthday: "",
-            employeeCode: employeeCo.code,
-            department: "",
-            faculty: "",
+            birthDay: "",
+            employeeCode: "",
             firstname: "",
+            identityProof: null,
             lastname: "",
-            lvlDegree: "",
             nas: "",
+            nationality: "",
+            personalEmail: "",
             phoneNumber: "",
+            picture: null,
+            programTitle: "",
+            schoolTranscript: null,
             sexe: "",
             streetAddress: "",
+            userStatus: "",
             userRole: ""
         }
     });
@@ -45,6 +49,11 @@ const Create = ({employeeCo}) => {
     const [programs, setPrograms] = useState([]);
     const [formattedNumber, setFormattedNumber] = useState('');
     const [formattedNas, setFormattedNas] = useState('');
+    const [showSuccesToast, setShowSuccesToast] = useState(false);
+    const [showErrorToast, setShowErrorToast] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showWarningToast, setShowWarningToast] = useState(false);
+    const [newUser, setNewUser] = useState(null);
 
     //Function
     const navigate = useNavigate();
@@ -60,12 +69,8 @@ const Create = ({employeeCo}) => {
     const handleProgramChange = (event) => {
         const program = event.target.value;
         const progFounded = programs.find(prog => prog.title === program);
-        console.log(progFounded);
-        if (progFounded !== undefined) {
-            setValue("department", progFounded.department);
-            setValue("faculty", progFounded.faculty);
-            setValue("lvlDegree", progFounded.grade);
-        }
+        if (progFounded !== undefined)
+            setValue("programTitle", progFounded.title);
     }
 
     const formatPhoneNumber = (value) => {
@@ -89,25 +94,46 @@ const Create = ({employeeCo}) => {
         }
     };
         
-    const createStudentDirectory = async (studentToCreate) => {
+    const createStudentDirectory = async (datas) => {
         try {
-            studentToCreate.phoneNumber = formattedNumber;
-            studentToCreate.nas = formattedNas;
-            studentToCreate.employeeCode = employeeCo.code;
-            
-            const createdStudent = await createStudentS(studentToCreate);
+            const studentToRegister = new FormData();
+            studentToRegister.append("birthDay", datas.birthDay);
+            studentToRegister.append("firstname", datas.firstname);
+            if (datas.identityProof)
+                studentToRegister.append("identityProof", datas.identityProof[0]);
+            studentToRegister.append("lastname", datas.lastname);
+            studentToRegister.append("nas", formattedNas);
+            studentToRegister.append("nationality", datas.nationality);
+            studentToRegister.append("personalEmail", datas.personalEmail);
+            studentToRegister.append("phoneNumber", formattedNumber);
+            if (datas.picture)
+                studentToRegister.append("picture", datas.picture);
+            if (datas.schoolTranscript)
+                studentToRegister.append("schoolTranscript", datas.schoolTranscript[0]);
+            studentToRegister.append("sexe", datas.sexe);
+            studentToRegister.append("streetAddress", datas.streetAddress);
+            studentToRegister.append("userStatus", datas.userStatus);
+            studentToRegister.append("programTitle", datas.programTitle);
+            studentToRegister.append("userRole", "student");
+            studentToRegister.append("employeeCode", employeeCo.code);
+            const result = await createStudentS(studentToRegister);
 
-            if (createdStudent !== null && createdStudent !== undefined) {
-                const permanentcode = createdStudent.permanentCode;
-                //navigate(`/students/${permanentcode}`);
+            if (result.success) {
+                setNewUser(result.studentRegistered);
+                setShowSuccesToast(true);
                 reset();
+                setTimeout(() => setShowSuccesToast(false), 10000);
                 setFormattedNumber('');
                 setFormattedNas('');
             } else {
-                
+                setErrorMessage(result.message);
+                setShowErrorToast(true);
+                setTimeout(() => setShowErrorToast(false), 5000);
             }
         } catch (error) {
             console.log(error);
+            setShowWarningToast(true);
+            setTimeout(() => setShowWarningToast(false), 5000);
         }
     }
 
@@ -118,6 +144,13 @@ const Create = ({employeeCo}) => {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    const navigateToDetails = async () => {
+        //if student permcode if prof code
+        //if student navigate students if prof navigate employe
+        const permanentcode = newUser.permanentCode;
+        navigate(`/employee/students/${permanentcode}`, { state: { userInProcess: newUser } });
     }
 
     //Retrun
@@ -133,6 +166,42 @@ const Create = ({employeeCo}) => {
                 </div>
 
                 <div>
+                    {showSuccesToast && (
+                        <Toast>
+                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                <HiCheck className="h-5 w-5" />
+                            </div>
+                            <div className="ml-3 text-sm font-normal">Utilisateur ajouté.</div>
+                            <div className="ml-auto flex items-center space-x-2">
+                                <a type="button"
+                                    onClick={navigateToDetails}
+                                    className="cursor-pointer rounded-lg p-1.5 text-sm font-medium text-primary-600 hover:bg-primary-100 dark:text-primary-500 dark:hover:bg-gray-700"
+                                >
+                                    Voir
+                                </a>
+                                <ToastToggle />
+                            </div>
+                        </Toast>
+                    )}
+                    {showWarningToast && (
+                        <Toast>
+                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
+                                <HiExclamation className="h-5 w-5" />
+                            </div>
+                            <div className="ml-3 text-sm font-normal">Impossible de contacter le serveur. Veuillez essayer plus tard.</div>
+                            <ToastToggle />
+                        </Toast>
+                    )}
+                    {showErrorToast && (
+                        <Toast>
+                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                <HiX className="h-5 w-5" />
+                            </div>
+                            <div className="ml-3 text-sm font-normal">{errorMessage}</div>
+                            <ToastToggle />
+                        </Toast>
+                    )}
+                    
                     <form id="create-student" onSubmit={handleSubmit(createStudentDirectory)}>
                         <div className="w-full flex p-4">
                             <label htmlFor="lastname" className="w-1/3">Nom :</label>
@@ -195,10 +264,10 @@ const Create = ({employeeCo}) => {
                         </div>
 
                         <div className="w-full flex p-4">
-                            <label htmlFor="birthday" className="w-1/3">Date de naissance :</label>
+                            <label htmlFor="birthDay" className="w-1/3">Date de naissance :</label>
                             <div className="w-1/3">
                                 <Controller
-                                    name="birthday"
+                                    name="birthDay"
                                     control={control}
                                     rules={{ required: "La date de naissance est requise!" }}
                                     render={({ field }) => (
@@ -210,8 +279,21 @@ const Create = ({employeeCo}) => {
                                         />
                                     )}
                                 />
-                                {errors.birthday && (
-                                    <p className="text-red-500 text-sm">{errors.birthday.message}</p>
+                                {errors.birthDay && (
+                                    <p className="text-red-500 text-sm">{errors.birthDay.message}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="w-full flex p-4">
+                            <label htmlFor="personalEmail" className="w-1/3">Email :</label>
+                            <div className="w-1/3">
+                                <input type="text" id="personalEmail" name="personalEmail"
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    {...register("personalEmail", { required: "L'adresse mail est requise!" })}
+                                />
+                                {errors.personalEmail && (
+                                    <p className="text-red-500 text-sm">{errors.personalEmail.message}</p>   
                                 )}
                             </div>
                         </div>
@@ -277,13 +359,32 @@ const Create = ({employeeCo}) => {
                                 </Tooltip>
                             </div>
                         </div>
+
+                        <div className="w-full flex p-4">
+                            <label htmlFor="userStatus" className="w-1/3">Status :</label>
+                            <div className="w-1/3">
+                                <select id="userStatus" name="userStatus"
+                                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    {...register("userStatus", { required: "Le statut est requis!" })}
+                                >
+                                    <option value="" disabled>-- Sélectionnez --</option>
+                                    <option value="canadian">Canadien</option>
+                                    <option value="permanentresident">Résident permanent</option>
+                                    <option value="workpermit">Permis de travail</option>
+                                    <option value="studypermit">Permis d'études</option>
+                                </select>
+                                {errors.userStatus && (
+                                    <p className="text-red-500 text-sm">{errors.userStatus.message}</p>
+                                )}
+                            </div>
+                        </div>
         
                         <div className="w-full flex p-4">
                             <label htmlFor="nas" className="w-1/3">NAS :</label>
                             <div className="w-1/3">
                                 <input type="text" id="nas" value={formattedNas}
                                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    onChange={handleNasChange} required
+                                    onChange={handleNasChange}
                                     onBlur={handleNasFocus}
                                     focused={nasFocused.toString()}
                                     maxLength="9"
@@ -317,7 +418,6 @@ const Create = ({employeeCo}) => {
                                     {...register("userRole", { required: "Le rôle est requis!" })}
                                 />&nbsp;
                                 <label htmlFor="2">Professeur</label>&nbsp;&nbsp;&nbsp;
-
                                 {errors.userRole && (
                                     <p className="text-red-500 text-sm">{errors.userRole.message}</p>   
                                 )}
@@ -334,13 +434,13 @@ const Create = ({employeeCo}) => {
                             <div className="w-1/3">
                                 <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                     id="program" name="program" 
-                                    {...register("program", { required: "Le programme est requis!" })}
+                                    {...register("program")}
                                     onChange={handleProgramChange}
                                 >
                                     <option value="">Sélectionnez un programme</option>
                                     {programs.map((element, index) => (
                                         <option key={index} value={element.title}>
-                                            {element.grade} : {element.programName}
+                                            {element.title} | {element.grade} : {element.programName}
                                         </option>
                                     ))}
                                 </select>
@@ -350,6 +450,31 @@ const Create = ({employeeCo}) => {
                                     <HiInformationCircle className="h-4 w-4" />
                                 </Tooltip>
                             </div>
+                        </div>
+
+                        <div className="w-full flex p-4">
+                            <Label className="mb-2 block w-1/3" htmlFor="file-upload">
+                                Relevés scolaires :
+                            </Label>
+                            <FileInput id="file-upload" className="w-1/3" 
+                                {...register("schoolTranscript")}
+                            />
+                        </div>
+                        <div className="w-full flex p-4">
+                            <Label className="mb-2 block w-1/3" htmlFor="file-upload">
+                                Photos :
+                            </Label>
+                            <FileInput id="multiple-file-upload" multiple className="w-1/3" 
+                                {...register("picture")}
+                            />
+                        </div>
+                        <div className="w-full flex p-4">
+                            <Label className="mb-2 block w-1/3" htmlFor="file-upload">
+                                Pièce d'identité :
+                            </Label>
+                            <FileInput id="file-upload" className="w-1/3" 
+                                {...register("identityProof")}
+                            />
                         </div>
 
                         <button type="submit"

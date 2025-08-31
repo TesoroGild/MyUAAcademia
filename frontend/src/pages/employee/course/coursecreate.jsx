@@ -12,7 +12,7 @@ import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } fr
 
 //Services
 import { getStudentsS } from "../../../services/user.service";
-import { courseRegistrationS, coursesRegistrationS, createClasseCourseS, createClassroomS, getClassroomsS, getClassesCoursesBySessionYearS, getCoursesBySessionYearS, getProgramCoursesS } from "../../../services/course.service";
+import { courseRegistrationS, coursesRegistrationS, createClasseCourseS, createClassroomS, getClassroomsS, getProgramCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
 const CourseCreate = ({employeeCo}) => {
@@ -59,7 +59,7 @@ const CourseCreate = ({employeeCo}) => {
         getClassrooms();
 
         if (session !== "" && programTitle !== "") {
-            getCoursesBySessionYear();
+            getProgramSessionCourses();
         }
     }, [session, programTitle]);
 
@@ -91,29 +91,15 @@ const CourseCreate = ({employeeCo}) => {
         }
     };
 
-    const getCoursesBySessionYear = async () => {
+    const getProgramSessionCourses = async () => {
         try {
             const sessionYearProgram = {
                 programTitle: programTitle,
                 sessionCourse: session
             }
-            const filteredCourses = await getCoursesBySessionYearS(sessionYearProgram);
+            const filteredCourses = await getProgramCoursesS(sessionYearProgram);
 
             setCourses(filteredCourses);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const getClassesCoursesBySession = async (titleProg) => {
-        try {
-            const sessionProgram = {
-                sessionCourse: sessionCourse,
-                programTitle: titleProg
-            }
-
-            const classesCourses = await getClassesCoursesBySessionYearS(sessionProgram);
-            await updateClassCourses(classesCourses);
         } catch (error) {
             console.log(error);
         }

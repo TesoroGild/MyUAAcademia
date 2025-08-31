@@ -31,14 +31,20 @@ export const admissionS = async (studentToRegister) => {
     }
 } 
 
-export const createStudentS = async (studentToCreate) => {
+export const createStudentS = async (studentToRegister) => {
   console.log("USER SERVICE : CREATE STUDENTS");
   try {
-    const response = await axios.post(`${backend_url}/User/students`, studentToCreate);
-    return response.data;
+    const response = await axios.post(`${backend_url}/User/students`, studentToRegister);
+    return { success: true, studentRegistered: response.data }
   } catch (error) {
-    console.error('Erreur :', error);
-    throw error;
+    if (error.response) {
+        return {
+            success: false,
+            message: error.response.data[""]?.[0] || error.response.data.title
+        };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur." };
   }
 }
 
@@ -66,6 +72,17 @@ export const getStudentsS = async () => {
     }
 }
 
+export const getProgramStudentsS = async (progTitle) => {
+    console.log("USER SERVICE : GET STUDENTS");
+    try {
+        const response = await axios.get(`${backend_url}/UserProgram/students-in-the-program/${progTitle}`);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
 export const getStudentsInfosS = async () => {
   console.log("USER SERVICE : GET STUDENTS WITH MORE INFOS");
   try {
@@ -74,6 +91,23 @@ export const getStudentsInfosS = async () => {
   } catch (error) {
       console.error('Erreur :', error);
       throw error;
+  }
+}
+
+export const getStudentsNotInProgramS = async () => {
+    console.log("USER SERVICE : GET STUDENTS NOT IN PROGRAM");
+    try {
+        const response = await axios.get(`${backend_url}/UserProgram/students-not-in-a-progra`);
+        return { success: true, studentsNotEnrolled: response.data }
+    } catch (error) {
+    if (error.response) {
+        return {
+            success: false,
+            message: error.response.data[""]?.[0] || error.response.data.title
+        };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur." };
   }
 }
 

@@ -16,6 +16,7 @@ import { useForm, Controller } from "react-hook-form";
 //Services
 import { admissionS } from "../../services/user.service";
 import { getProgramsS } from "../../services/program.service";
+import { fi } from "date-fns/locale";
 
 const Admission = () => {
     //States
@@ -37,12 +38,11 @@ const Admission = () => {
             personalEmail: "",
             phoneNumber: "",
             picture: null,
+            programTitle: "",
             schoolTranscript: null,
             sexe: "",
             streetAddress: "",
-            userStatus: "",
-            programTitle: ""
-            //userRole: "student"
+            userStatus: ""
         }
     });
     // const [schoolTranscript, setSchoolTranscript] = useState(null);
@@ -82,12 +82,19 @@ const Admission = () => {
             studentToRegister.append("userRole", "student");
 
             const result = await admissionS(studentToRegister);
-            console.log(result);
+            
             if (result.success) {
                 setShowSuccesToast(true);
                 reset();
                 setTimeout(() => setShowSuccesToast(false), 5000);
-                navigate('/admission/payment');
+                const userInProcess = {
+                    firstName: result.studentRegistered.firstName,
+                    lastName: result.studentRegistered.lastName,
+                    email: result.studentRegistered.personalEmail,
+                    sexe: result.studentRegistered.sexe,
+                    program: result.studentRegistered.userProgramEnrollments[0].title
+                }
+                navigate("/admission/payment", { state: { userInProcess: userInProcess } });
             } else {
                 setErrorMessage(result.message);
                 setShowErrorToast(true);

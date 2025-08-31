@@ -25,7 +25,7 @@ export const createProgramS = async (programToCreate) => {
 export const programRegistrationS = async (requestParams) => {
     console.log("PROGRAM SERVICE : PROGRAM REGISTRATION");
     try {
-        const response = await axios.post(`${backend_url}/UserProgram/register-student-program`, requestParams);
+        const response = await axios.post(`${backend_url}/UserProgram/register-student`, requestParams);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);

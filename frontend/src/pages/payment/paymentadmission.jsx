@@ -3,17 +3,19 @@ import "./payment.css";
 
 //React
 import { Button, Table } from "flowbite-react"
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
 
 
 const PaymentAdmission = () => {
     //States
     const navigate = useNavigate();
+    const location = useLocation();
+    const userInProcess = location.state?.userInProcess;
 
     //Functions
     const pay = () => {
-        navigate('/admission/bill');
+        navigate("/admission/bill", { state: { userInProcess: userInProcess } });
     }
 
 
@@ -24,13 +26,15 @@ const PaymentAdmission = () => {
                 <div className="overflow-x-auto">
                     <Table>
                         <Table.Head>
+                            <Table.HeadCell>Nom complet</Table.HeadCell>
                             <Table.HeadCell>Programme</Table.HeadCell>
                             <Table.HeadCell>Frais d'étude de dossier</Table.HeadCell>
                         </Table.Head>
                         <Table.Body className="divide-y">
                             <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">{userInProcess.lastName} {userInProcess.firstName}</Table.Cell>
                                 <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                    faire un get programme
+                                    {userInProcess.program}
                                 </Table.Cell>
                                 <Table.Cell>120$</Table.Cell>
                             </Table.Row>                   
