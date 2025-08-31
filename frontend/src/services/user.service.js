@@ -97,7 +97,7 @@ export const getStudentsInfosS = async () => {
 export const getStudentsNotInProgramS = async () => {
     console.log("USER SERVICE : GET STUDENTS NOT IN PROGRAM");
     try {
-        const response = await axios.get(`${backend_url}/UserProgram/students-not-in-a-progra`);
+        const response = await axios.get(`${backend_url}/UserProgram/students-not-in-a-program`);
         return { success: true, studentsNotEnrolled: response.data }
     } catch (error) {
     if (error.response) {

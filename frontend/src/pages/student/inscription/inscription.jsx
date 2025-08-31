@@ -18,25 +18,10 @@ const Inscription = ({employeeCo}) => {
     //States
     const [programs, setPrograms] = useState([]);
     const [students, setStudents] = useState([]);
-    const [displayInscriptionCreate, setDisplayInscriptionCreate] = useState(false);
-    const [displayInscriptionModify, setDisplayInscriptionModify] = useState(false);
-    const [displayInscriptionDelete, setDisplayInscriptionDelete] = useState(false);
-    const [showProgramAdd, setShowProgramAdd] = useState(false);
-    const [programForm, setProgramForm] = useState({
-        title: "",
-        programName: "",
-        descriptions: "",
-        grade: "",
-        department: "",
-        faculty: ""
-    });
     const [programTitle, setProgramTitle] = useState("");
     const [studentsPermanentCode, setStudentsPermanentCode] = useState([]);
     const [searchStudent, setSearchStudent] = useState("");
-    const [filteredStudents, setFilteredStudents] = useState([]);//ne pas afficher l'etudiant s'il a deja un programme
-    const [titleFocused, setTitleFocused] = useState(false);
-    const [programNameFocused, setProgramNameFocused] = useState(false);
-    const [descriptionsFocused, setDescriptionsFocused] = useState(false);
+    const [filteredStudents, setFilteredStudents] = useState([]);
     const [showSuccesToast, setShowSuccesToast] = useState(false);
     const [showErrorToast, setShowErrorToast] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -90,7 +75,7 @@ const Inscription = ({employeeCo}) => {
                 setStudentsPermanentCode([]);
                 setProgramTitle("");
                 setShowSuccesToast(true);
-                //reset();
+                getStudentsNotInProgram();
                 setTimeout(() => setShowSuccesToast(false), 5000);
             } else {
                 setErrorMessage(result.message);
@@ -119,40 +104,6 @@ const Inscription = ({employeeCo}) => {
         setFilteredStudents(filteredList);
     }
 
-    const displayInscription1 = () => {
-        setDisplayInscriptionCreate(!displayInscriptionCreate);
-        setDisplayInscriptionModify(false);
-        setDisplayInscriptionDelete(false);
-    }
-
-    const displayInscription2 = () => {
-        setDisplayInscriptionModify(!displayInscriptionModify);
-        setDisplayInscriptionCreate(false);
-        setDisplayInscriptionDelete(false);
-    }
-
-    const displayInscription3 = () => {
-        setDisplayInscriptionDelete(!displayInscriptionDelete);
-        setDisplayInscriptionCreate(false);
-        setDisplayInscriptionModify(false);
-    }
-
-    const handleProgramChange = (event) => {
-        setProgramForm({ ...programForm, [event.target.name]: event.target.value });
-    }
-
-    const handleTitleFocus = (event) => {
-        setTitleFocused(true);
-    }
-
-    const handleProgramNameFocus = (event) => {
-        setProgramNameFocused(true);
-    }
-    
-    const handleDescriptionsFocus = (event) => {
-        setDescriptionsFocused(true);
-    }
-
     //Return
     return (<>
         <div className="flex">
@@ -164,7 +115,6 @@ const Inscription = ({employeeCo}) => {
                 <div>
                     <AdminHeader/>
                 </div>
-lors de l'etude de dossier, l'etudiant n'a pas encore de programme et il peut choisir jusqua 3 programmes pour s'inscrire. ce n'est qu'apres que l'employe pourra lui attribuer un programme base sur ses documents
                 
                 <div className="m-4">
                     {showSuccesToast && (
@@ -222,7 +172,7 @@ lors de l'etude de dossier, l'etudiant n'a pas encore de programme et il peut ch
 
                         <div className="flex my-4">
                             <div className="w-1/2">
-                                <p>Liste des étudiants</p>
+                                <p>Liste des étudiants non inscrits</p>
                                 <div>
                                     <Table>
                                         <Table.Head>
@@ -255,7 +205,7 @@ lors de l'etude de dossier, l'etudiant n'a pas encore de programme et il peut ch
                                 </div>
                             </div>
                             <div className="ml-4">
-                                <p>Etudiants à ajouter</p>
+                                <p>Etudiants à ajouter au programme {programTitle}</p>
                                 <div>
                                     <Table>
                                         <Table.Head>

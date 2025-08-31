@@ -112,7 +112,8 @@ const Create = ({employeeCo}) => {
                 studentToRegister.append("schoolTranscript", datas.schoolTranscript[0]);
             studentToRegister.append("sexe", datas.sexe);
             studentToRegister.append("streetAddress", datas.streetAddress);
-            studentToRegister.append("userStatus", datas.userStatus);
+            if (datas.userStatus != "")
+                studentToRegister.append("userStatus", datas.userStatus);
             studentToRegister.append("programTitle", datas.programTitle);
             studentToRegister.append("userRole", "student");
             studentToRegister.append("employeeCode", employeeCo.code);
@@ -365,17 +366,14 @@ const Create = ({employeeCo}) => {
                             <div className="w-1/3">
                                 <select id="userStatus" name="userStatus"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    {...register("userStatus", { required: "Le statut est requis!" })}
+                                    {...register("userStatus", { required: false })}
                                 >
-                                    <option value="" disabled>-- Sélectionnez --</option>
+                                    <option value="">-- Sélectionnez --</option>
                                     <option value="canadian">Canadien</option>
                                     <option value="permanentresident">Résident permanent</option>
                                     <option value="workpermit">Permis de travail</option>
                                     <option value="studypermit">Permis d'études</option>
                                 </select>
-                                {errors.userStatus && (
-                                    <p className="text-red-500 text-sm">{errors.userStatus.message}</p>
-                                )}
                             </div>
                         </div>
         
