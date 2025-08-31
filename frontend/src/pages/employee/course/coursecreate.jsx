@@ -5,14 +5,14 @@ import AdminHeader from "../../header/adminheader";
 //React
 import React, { useEffect, useState } from "react";
 import { Button, Table, TextInput, Toast, Tooltip } from "flowbite-react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, set } from "react-hook-form";
 
 //Icons
 import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
 
 //Services
 import { getStudentsS } from "../../../services/user.service";
-import { courseRegistrationS, coursesRegistrationS, createClasseCourseS, createClassroomS, getClassroomsS, getProgramCoursesS } from "../../../services/course.service";
+import { enrollStudentsInCourseS, createClasseCourseS, getClassesCoursesS, getClassroomsS, getProgramCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
 const CourseCreate = ({employeeCo}) => {
@@ -39,44 +39,31 @@ const CourseCreate = ({employeeCo}) => {
     const [courses, setCourses] = useState([]);
     const [classrooms, setClassrooms] = useState([]);
     const [classCourses, setClassCourses] = useState([]);
+
     const [searchStudent, setSearchStudent] = useState("");
     const [filteredStudents, setFilteredStudents] = useState([]);
     const [courseSigle, setCourseSigle] = useState("");
     const [classesCoursesIds, setClassesCoursesIds] = useState([]);
-    const [programTitle, setProgramTitle] = useState("");
-    const [studentsPermanentCodes, setStudentsPermanentCodes] = useState([]);
-    const [displayCoursesRegistration, setDisplayCoursesRegistration] = useState(false);
-    const [showCourseAdd, setShowCourseAdd] = useState(false);
     const [showClasseCourseAdd, setShowClasseCourseAdd] = useState(false);
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [session, setSession] = useState("");
-    const [sessionCourse, setSessionCourse] = useState("");
+    const [showClassCourseExist, setShowClassCourseExist] = useState(false);
 
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    
+    const [programTitle, setProgramTitle] = useState("");
+    const [session, setSession] = useState("");
+    const [studentsPermanentCodes, setStudentsPermanentCodes] = useState([]);
+    
     //Functions
     useEffect(() => {
         getPrograms();
-        getStudents();
         getClassrooms();
-
-        if (session !== "" && programTitle !== "") {
-            getProgramSessionCourses();
-        }
-    }, [session, programTitle]);
+        getClassesCourses();
+    }, []);
 
     const getPrograms = async () => {
         try {
             const programs = await getProgramsS();
             setPrograms(programs);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const getStudents = async () => {
-        try {
-            const studentsL = await getStudentsS();
-            setStudents(studentsL);
-            setFilteredStudents(studentsL);
         } catch (error) {
             console.log(error);
         }
@@ -91,23 +78,24 @@ const CourseCreate = ({employeeCo}) => {
         }
     };
 
-    const getProgramSessionCourses = async () => {
+    const getClassesCourses = async () => {
         try {
-            const sessionYearProgram = {
-                programTitle: programTitle,
-                sessionCourse: session
-            }
-            const filteredCourses = await getProgramCoursesS(sessionYearProgram);
-
-            setCourses(filteredCourses);
+            const classesCourses = await getClassesCoursesS(programTitle);
+            setClassCourses(classesCourses);
         } catch (error) {
             console.log(error);
         }
     }
 
-    const updateClassCourses = async (cc) => {
-        setClassCourses(cc);
-    }
+    const getProgramCourses = async (progTitle) => {
+        setProgramTitle(progTitle);
+        try {
+            const courses = await getProgramCoursesS(progTitle);
+            setCourses(courses);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
     const createClasseCourse = async (newClasseCourse) => {
         try {
@@ -123,49 +111,65 @@ const CourseCreate = ({employeeCo}) => {
                 employeeCode: employeeCo.code
             }
 
-            const classeCourseCreated = await createClasseCourseS(classeCourseToCreate);
+            const exists = classCourses.find(i => i.classeName === classeCourseToCreate.classeName 
+                && i.sessionCourse === classeCourseToCreate.sessionCourse
+                && i.yearCourse === classeCourseToCreate.yearCourse
+                && i.jours === classeCourseToCreate.jours
+                && i.startTime === classeCourseToCreate.startTime
+                && i.endTime === classeCourseToCreate.endTime
+            );
 
-            if (classeCourseCreated != null && classeCourseCreated != undefined) {
-                setShowClasseCourseAdd(true);
+            if (exists) {
+                setShowClassCourseExist(true);
                 setTimeout(() => {
-                    setShowClasseCourseAdd(false);
+                    setShowClassCourseExist(false);
                 }, 5000);
-                reset();
             } else {
-                //erreur backend
+                const classeCourseCreated = await createClasseCourseS(classeCourseToCreate);
+    
+                if (classeCourseCreated != null && classeCourseCreated != undefined) {
+                    setShowClasseCourseAdd(true);
+                    setTimeout(() => {
+                        setShowClasseCourseAdd(false);
+                    }, 5000);
+                    reset();
+                } else {
+                    //erreur backend
+                }
             }
+
         } catch (error) {
             console.log(error);
         }
     }
 
-    const registerStudentsCourse = async (event) => {
-        event.preventDefault();
+    // const registerStudentsCourse = async (event) => {
+    //     event.preventDefault();
 
-        try {
-            const registrationToCreate = {
-                cCourseIds: classesCoursesIds,
-                permanentCodes: studentsPermanentCodes
-            }
+    //     try {
+    //         const registrationToCreate = {
+    //             cCourseIds: classesCoursesIds,
+    //             permanentCodes: studentsPermanentCodes
+    //         }
 
-            const registrationResponse = await courseRegistrationS(registrationToCreate);
+    //         const registrationResponse = await enrollStudentsInCourseS(registrationToCreate);
 
-            if (registrationResponse) {
-                setStudentsPermanentCodes([]);
-                setClassesCoursesIds([]);
-                setProgramTitle("");
-                setCourseSigle("");
-                setShowCourseAdd(true);
-                setTimeout(() => {
-                    setShowCourseAdd(false);
-                }, 5000);
-            } else {
-                console.log("Erreur");
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    //         if (registrationResponse) {
+    //             setStudentsPermanentCodes([]);
+    //             setClassesCoursesIds([]);
+    //             setProgramTitle("");
+    //             setCourseSigle("");
+    //             setShowCourseAdd(true);
+    //             setTimeout(() => {
+    //                 setShowCourseAdd(false);
+    //             }, 5000);
+    //         } else {
+    //             console.log("Erreur");
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
 
     const registerStudentCourseS = async (event) => {
         event.preventDefault();
@@ -228,6 +232,18 @@ const CourseCreate = ({employeeCo}) => {
                             </div>
                         )}
 
+                        { showClassCourseExist && (
+                            <div>
+                                <Toast>
+                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-700 dark:text-red-200">
+                                        <HiExclamation className="h-5 w-5" />
+                                    </div>
+                                    <div className="ml-3 text-sm font-normal">Salle de classe indisponible à cette plage horaire.</div>
+                                    <Toast.Toggle />
+                                </Toast>
+                            </div>
+                        )}
+
                         <div>
                             <form onSubmit={handleSubmit(createClasseCourse)}>
                                 <div className="w-full flex p-4">
@@ -275,7 +291,7 @@ const CourseCreate = ({employeeCo}) => {
                                     <label htmlFor="title" className="w-1/3">Programme :</label>
                                     <div className="w-1/3">
                                         <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="title" name="title" onChange={(e) => setProgramTitle(e.target.value)}
+                                            id="title" name="title" onChange={(e) => getProgramCourses(e.target.value)}
                                         >
                                             <option value="">Sélectionnez un programme...</option>
                                             {programs.map((element, index) => (

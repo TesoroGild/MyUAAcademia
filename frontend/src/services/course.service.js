@@ -20,10 +20,10 @@ export const createCourseS = async (course) => {
 }
 
 //Register several students for a course
-export const courseRegistrationS = async (requestParams) => {
+export const enrollStudentsInCourseS = async (requestParams) => {
     console.log("COURSE SERVICE : CREATE COURSE-REGISTRATIONS");
     try {
-        const response = await axios.post(`${backend_url}/UserCourse/register-students-to-a-course`, requestParams);
+        const response = await axios.post(`${backend_url}/UserCourse/enroll-students-in-course`, requestParams);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
@@ -32,10 +32,10 @@ export const courseRegistrationS = async (requestParams) => {
 }
 
 //Register several courses for a students
-export const coursesRegistrationS = async (requestParams) => {
+export const enrollStudentInCoursesS = async (requestParams) => {
     console.log("COURSE SERVICE : CREATE COURSES-REGISTRATION");
     try {
-        const response = await axios.post(`${backend_url}/UserCourse/register-courses-for-a-student`, requestParams);
+        const response = await axios.post(`${backend_url}/UserCourse/enroll-student-in-courses`, requestParams);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
@@ -55,10 +55,10 @@ export const register = async (userCourses) => {
 }
 
 //Read
-export const getAvailableCoursesS = async (availableCourses) => {
+export const getAvailableCoursesS = async (availablePeriods) => {
     console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
-        const response = await axios.post(`${backend_url}/ClasseCourse/courses/sessions`, availableCourses);
+        const response = await axios.post(`${backend_url}/ClasseCourse/courses/sessions`, availablePeriods);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
@@ -159,7 +159,19 @@ export const createClasseCourseS = async (classeCourseToCreate) => {
 }
 
 //Read
+export const getClassesCoursesS = async () => {
+    console.log("COURSE SERVICE : GET CLASSES-COURSES");
+    try {
+        const response = await axios.get(`${backend_url}/ClasseCourse/classe-course`);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
 export const getProgramSessionCoursesS = async (sessionProgram) => {
+    console.log(sessionProgram);
     console.log("COURSE SERVICE : GET COURSES BY SESSION YEAR");
     try {
         const response = await axios.post(`${backend_url}/ClasseCourse/classes-courses-by-program-session`, sessionProgram);

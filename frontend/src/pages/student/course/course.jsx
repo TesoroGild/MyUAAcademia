@@ -12,7 +12,7 @@ import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } fr
 
 //Services
 import { getProgramStudentsS } from "../../../services/user.service";
-import { courseRegistrationS, coursesRegistrationS, createClasseCourseS, createClassroomS, getClassroomsS, getProgramSessionCoursesS, getProgramCoursesS } from "../../../services/course.service";
+import { enrollStudentInCoursesS, enrollStudentsInCourseS, createClasseCourseS, createClassroomS, getClassroomsS, getProgramSessionCoursesS, getProgramCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
 const Course = ({employeeCo}) => {
@@ -39,16 +39,16 @@ const Course = ({employeeCo}) => {
     const [classesCourses, setClassesCourses] = useState([]);
     const [searchStudent, setSearchStudent] = useState("");
     const [filteredStudents, setFilteredStudents] = useState([]);
-    const [courseSigle, setCourseSigle] = useState("");
     const [classesCoursesIds, setClassesCoursesIds] = useState([]);
     const [programTitle, setProgramTitle] = useState("");
     const [studentsPermanentCodes, setStudentsPermanentCodes] = useState([]);
-    const [displayCoursesRegistration, setDisplayCoursesRegistration] = useState(false);
-    const [showCourseAdd, setShowCourseAdd] = useState(false);
-    const [showClasseCourseAdd, setShowClasseCourseAdd] = useState(false);
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [sessionCourse, setSessionCourse] = useState("");
     const [displayBX, setDisplayBS] = useState(false);
+    
+    const [showStudentsAdd, setShowStudentsAdd] = useState(false);
+    const [showClassesAdd, setShowClassesAdd] = useState(false);
+    const [showStudentsClassesAdded, setShowStudentsClassesAdded] = useState(false);
+    const [displayCoursesRegistration, setDisplayCoursesRegistration] = useState(false);
 
     //Functions
     useEffect(() => {
@@ -93,37 +93,7 @@ const Course = ({employeeCo}) => {
         }
     }
 
-    const createClasseCourse = async (newClasseCourse) => {
-        try {
-            //on ne sait pas c'est dans quel programme?
-            const classeCourseToCreate = {
-                classeName: newClasseCourse.classeName,
-                sessionCourse: session,
-                courseSigle: newClasseCourse.courseSigle,
-                jours: newClasseCourse.jours,
-                startTime: newClasseCourse.startTime,
-                endTime: newClasseCourse.endTime,
-                yearCourse: newClasseCourse.yearCourse,
-                employeeCode: employeeCo.code
-            }
-
-            const classeCourseCreated = await createClasseCourseS(classeCourseToCreate);
-
-            if (classeCourseCreated != null && classeCourseCreated != undefined) {
-                setShowClasseCourseAdd(true);
-                setTimeout(() => {
-                    setShowClasseCourseAdd(false);
-                }, 5000);
-                reset();
-            } else {
-                //erreur backend
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const registerStudentsCourse = async (event) => {
+    const enrollStudentsInCourse = async (event) => {
         event.preventDefault();
 
         try {
@@ -132,16 +102,15 @@ const Course = ({employeeCo}) => {
                 permanentCodes: studentsPermanentCodes
             }
 
-            const registrationResponse = await courseRegistrationS(registrationToCreate);
+            const registrationResponse = await enrollStudentsInCourseS(registrationToCreate);
 
             if (registrationResponse) {
                 setStudentsPermanentCodes([]);
                 setClassesCoursesIds([]);
                 setProgramTitle("");
-                setCourseSigle("");
-                setShowCourseAdd(true);
+                setShowStudentsAdd(true);
                 setTimeout(() => {
-                    setShowCourseAdd(false);
+                    setShowStudentsAdd(false);
                 }, 5000);
             } else {
                 console.log("Erreur");
@@ -151,7 +120,33 @@ const Course = ({employeeCo}) => {
         }
     }
 
-    const registerStudentCourseS = async (event) => {
+    const enrollStudentInCourses = async (event) => {
+        event.preventDefault();
+        try {
+            const registrationToCreate = {
+                cCourseIds: classesCoursesIds,
+                permanentCodes: studentsPermanentCodes
+            }
+
+            const registrationResponse = await enrollStudentInCoursesS(registrationToCreate);
+
+            if (registrationResponse) {
+                setStudentsPermanentCodes([]);
+                setClassesCoursesIds([]);
+                setProgramTitle("");
+                setShowClassesAdd(true);
+                setTimeout(() => {
+                    setShowClassesAdd(false);
+                }, 5000);
+            } else {
+                console.log("Erreur");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const enrollStudentsInCoursesS = async (event) => {
         event.preventDefault();
     }
 
@@ -213,7 +208,7 @@ const Course = ({employeeCo}) => {
                         POUR AJOUTER PLUSIEURS COURS OU PLUSIEURS ÉTUDIANTS SIMULTANÉMENT, CHOISISSEZ EN PLUSIEURS
                     </div>
 
-                    { showCourseAdd && (
+                    { showStudentsAdd && (
                         <div>
                             <Toast>
                                 <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-700 dark:text-green-200">
@@ -224,9 +219,21 @@ const Course = ({employeeCo}) => {
                             </Toast>
                         </div>
                     )}
+
+                    { showClassesAdd && (
+                        <div>
+                            <Toast>
+                                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-700 dark:text-green-200">
+                                    <HiCheck className="h-5 w-5" />
+                                </div>
+                                <div className="ml-3 text-sm font-normal">Étudiant ajouté au cours.</div>
+                                <Toast.Toggle />
+                            </Toast>
+                        </div>
+                    )}
                     
                     <div className="mt-4">
-                        <form onSubmit={registerStudentsCourse}>
+                        <form onSubmit={enrollStudentsInCourse}>
                             <div className="w-full flex p-4">
                                 <label htmlFor="sessionCourse" className="w-1/3">Session :</label>
                                 <div className="w-1/3">
