@@ -144,7 +144,7 @@ const EmployeeCreate = ({employeeCo}) => {
                                         rules={{ required: "La date de naissance est requise!" }}
                                         render={({ field }) => (
                                             <Datepicker
-                                                selectedDate={field.value ? new Date(field.value) : null}
+                                                selecteddate={field.value ? new Date(field.value) : null}
                                                 onSelectedDateChanged={(date) =>
                                                     field.onChange(date.toISOString().split("T")[0])
                                                 }

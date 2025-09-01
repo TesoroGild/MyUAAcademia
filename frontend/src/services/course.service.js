@@ -20,22 +20,10 @@ export const createCourseS = async (course) => {
 }
 
 //Register several students for a course
-export const enrollStudentsInCourseS = async (requestParams) => {
+export const enrollStudentsInCoursesS = async (requestParams) => {
     console.log("COURSE SERVICE : CREATE COURSE-REGISTRATIONS");
     try {
-        const response = await axios.post(`${backend_url}/UserCourse/enroll-students-in-course`, requestParams);
-        return response.data;
-    } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
-    }
-}
-
-//Register several courses for a students
-export const enrollStudentInCoursesS = async (requestParams) => {
-    console.log("COURSE SERVICE : CREATE COURSES-REGISTRATION");
-    try {
-        const response = await axios.post(`${backend_url}/UserCourse/enroll-student-in-courses`, requestParams);
+        const response = await axios.post(`${backend_url}/UserCourse/students-courses`, requestParams);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
@@ -171,7 +159,6 @@ export const getClassesCoursesS = async () => {
 }
 
 export const getProgramSessionCoursesS = async (sessionProgram) => {
-    console.log(sessionProgram);
     console.log("COURSE SERVICE : GET COURSES BY SESSION YEAR");
     try {
         const response = await axios.post(`${backend_url}/ClasseCourse/classes-courses-by-program-session`, sessionProgram);

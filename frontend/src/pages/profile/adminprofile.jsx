@@ -140,8 +140,8 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
                         {/* Picture + Name (down) + code */}
                         <div className="left-div">
                             <Avatar img={logo} bordered size="xl"/>
-                            {profileToDisplay.firstname} {profileToDisplay.lastname}
-                            {profileToDisplay.code}
+                            <p className="justify-self-center">{profileToDisplay.firstName} {profileToDisplay.lastName}</p>
+                            <p className="justify-self-center">{profileToDisplay.code}</p>
                             {/* Pencil pour boutton modifier */}
                             
                             <Modal show={openModal} size="md" popup onClose={() => setOpenModal(false)} initialFocus={firstnameInputRef}>
@@ -233,7 +233,7 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
                             <ul>
                                 <li className="bg-slate-300">Sexe : {profileToDisplay.sexe}</li>
                                 <li>Status : {profileToDisplay.empStatus}</li>
-                                <li className="bg-slate-300">Email : {profileToDisplay.email}</li>
+                                <li className="bg-slate-300">Email : {profileToDisplay.professionalEmail}</li>
                                 <li>Rôle : {profileToDisplay.userRole}</li>
                                 <li className="bg-slate-300">Numéro : {profileToDisplay.phoneNumber}</li>
                                 <li>NAS : {profileToDisplay.nas}</li>

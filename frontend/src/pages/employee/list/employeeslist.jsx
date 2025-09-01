@@ -46,6 +46,7 @@ const EmployeesList = ({employeeCo}) => {
                 isActivate: activate
             }
             const response = await activeEmployeeAccountS(activateAccount);
+            
             setShowSpinner(false);
 
             if (response) {
@@ -130,7 +131,7 @@ const EmployeesList = ({employeeCo}) => {
                                             {employee.firstName}
                                         </Table.Cell>
                                         <Table.Cell>
-                                            {employee.email}
+                                            {employee.professionalEmail}
                                         </Table.Cell>
                                         <Table.Cell>
                                             {employee.job}

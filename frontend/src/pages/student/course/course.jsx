@@ -12,7 +12,7 @@ import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } fr
 
 //Services
 import { getProgramStudentsS } from "../../../services/user.service";
-import { enrollStudentInCoursesS, enrollStudentsInCourseS, createClasseCourseS, createClassroomS, getClassroomsS, getProgramSessionCoursesS, getProgramCoursesS } from "../../../services/course.service";
+import { enrollStudentsInCoursesS, getProgramSessionCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
 const Course = ({employeeCo}) => {
@@ -43,10 +43,8 @@ const Course = ({employeeCo}) => {
     const [programTitle, setProgramTitle] = useState("");
     const [studentsPermanentCodes, setStudentsPermanentCodes] = useState([]);
     const [sessionCourse, setSessionCourse] = useState("");
-    const [displayBX, setDisplayBS] = useState(false);
-    
-    const [showStudentsAdd, setShowStudentsAdd] = useState(false);
-    const [showClassesAdd, setShowClassesAdd] = useState(false);
+
+
     const [showStudentsClassesAdded, setShowStudentsClassesAdded] = useState(false);
     const [displayCoursesRegistration, setDisplayCoursesRegistration] = useState(false);
 
@@ -85,7 +83,6 @@ const Course = ({employeeCo}) => {
         setProgramTitle(progTitle);
         try {
             const studentsInProgram = await getProgramStudentsS(progTitle);
-            console.log(studentsInProgram);
             setStudents(studentsInProgram);
             setFilteredStudents(studentsInProgram);
         } catch (error) {
@@ -93,7 +90,7 @@ const Course = ({employeeCo}) => {
         }
     }
 
-    const enrollStudentsInCourse = async (event) => {
+    const enrollStudentsInCourses = async (event) => {
         event.preventDefault();
 
         try {
@@ -102,15 +99,15 @@ const Course = ({employeeCo}) => {
                 permanentCodes: studentsPermanentCodes
             }
 
-            const registrationResponse = await enrollStudentsInCourseS(registrationToCreate);
+            const registrationResponse = await enrollStudentsInCoursesS(registrationToCreate);
 
             if (registrationResponse) {
                 setStudentsPermanentCodes([]);
                 setClassesCoursesIds([]);
                 setProgramTitle("");
-                setShowStudentsAdd(true);
+                setShowStudentsClassesAdded(true);
                 setTimeout(() => {
-                    setShowStudentsAdd(false);
+                    setShowStudentsClassesAdded(false);
                 }, 5000);
             } else {
                 console.log("Erreur");
@@ -118,36 +115,6 @@ const Course = ({employeeCo}) => {
         } catch (error) {
             console.log(error);
         }
-    }
-
-    const enrollStudentInCourses = async (event) => {
-        event.preventDefault();
-        try {
-            const registrationToCreate = {
-                cCourseIds: classesCoursesIds,
-                permanentCodes: studentsPermanentCodes
-            }
-
-            const registrationResponse = await enrollStudentInCoursesS(registrationToCreate);
-
-            if (registrationResponse) {
-                setStudentsPermanentCodes([]);
-                setClassesCoursesIds([]);
-                setProgramTitle("");
-                setShowClassesAdd(true);
-                setTimeout(() => {
-                    setShowClassesAdd(false);
-                }, 5000);
-            } else {
-                console.log("Erreur");
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const enrollStudentsInCoursesS = async (event) => {
-        event.preventDefault();
     }
 
     const handleCodeChange = (event) => {
@@ -171,16 +138,10 @@ const Course = ({employeeCo}) => {
 
     const removeCourse = (id) => {
         setClassesCoursesIds(classesCoursesIds.filter((courseId) => courseId !== id));
-        displayButtonOrX();
     }
 
     const addCourse = (id) => {
         setClassesCoursesIds([...classesCoursesIds, id]);
-        displayButtonOrX();
-    }
-
-    const displayButtonOrX = () => {
-        setDisplayBS(!displayBX);
     }
 
 
@@ -208,7 +169,7 @@ const Course = ({employeeCo}) => {
                         POUR AJOUTER PLUSIEURS COURS OU PLUSIEURS ÉTUDIANTS SIMULTANÉMENT, CHOISISSEZ EN PLUSIEURS
                     </div>
 
-                    { showStudentsAdd && (
+                    { showStudentsClassesAdded && (
                         <div>
                             <Toast>
                                 <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-700 dark:text-green-200">
@@ -219,21 +180,9 @@ const Course = ({employeeCo}) => {
                             </Toast>
                         </div>
                     )}
-
-                    { showClassesAdd && (
-                        <div>
-                            <Toast>
-                                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-700 dark:text-green-200">
-                                    <HiCheck className="h-5 w-5" />
-                                </div>
-                                <div className="ml-3 text-sm font-normal">Étudiant ajouté au cours.</div>
-                                <Toast.Toggle />
-                            </Toast>
-                        </div>
-                    )}
                     
                     <div className="mt-4">
-                        <form onSubmit={enrollStudentsInCourse}>
+                        <form onSubmit={enrollStudentsInCourses}>
                             <div className="w-full flex p-4">
                                 <label htmlFor="sessionCourse" className="w-1/3">Session :</label>
                                 <div className="w-1/3">
@@ -247,7 +196,9 @@ const Course = ({employeeCo}) => {
                                     </select>
                                 </div>
                                 <div>
-                                    <p className="text-red-500">Sélectionnez toujours la session avant de choisir un programme</p>
+                                    <Tooltip content="Infos">
+                                        <HiInformationCircle className="h-4 w-4" />
+                                    </Tooltip>
                                 </div>
                             </div>
 
@@ -260,7 +211,7 @@ const Course = ({employeeCo}) => {
                                         <option value="">Sélectionnez un programme...</option>
                                         {programs.map((element, index) => (
                                             <option key={index} value={element.title}>
-                                                {element.title} : {element.programName}
+                                                {element.title} | {element.title} : {element.programName}
                                             </option>
                                         ))}
                                     </select>
@@ -373,14 +324,14 @@ const Course = ({employeeCo}) => {
                                                             <Table.Cell>
                                                                 {element.jours} de {element.startTime} à {element.endTime}
                                                             </Table.Cell>
-                                                            <Table.Cell onClick={() => addCourse(element.id)}>
-                                                                {displayBX ? (
+                                                            <Table.Cell>
+                                                                { classesCoursesIds.includes(element.id) ? (
                                                                     <div onClick={() => removeCourse(element.id)} 
                                                                         className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
                                                                         <HiX className="h-5 w-5" />
                                                                     </div>
                                                                 ) : (
-                                                                    <Button className="flex self-center">Ajouter cours</Button>
+                                                                    <Button className="flex self-center" onClick={() => addCourse(element.id)}>Ajouter cours</Button>
                                                                 )}
                                                                 
                                                             </Table.Cell>
@@ -394,9 +345,11 @@ const Course = ({employeeCo}) => {
                                 
                             </div>
 
-                            <button type="submit" disabled={ !classesCoursesIds || !studentsPermanentCodes.length > 0 }
-                                className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                                Inscription
+                            <button type="submit"
+                                disabled={ !classesCoursesIds || !studentsPermanentCodes.length > 0 }
+                                className="w-full m-4 text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50"
+                            >
+                                Inscrire des étudiants à des cours
                             </button>
                         </form>
                     </div>

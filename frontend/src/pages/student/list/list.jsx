@@ -48,10 +48,10 @@ const StudentsList = ({employeeCo}) => {
                 isActivate: activate
             }
             const response = await activeStudentAccountS(activateAccount);
-            setShowSpinner(false);
 
             if (response) {
                 await getStudents();
+                setShowSpinner(false);
             } else {
                 console.log("Échec activation de compte")
             }

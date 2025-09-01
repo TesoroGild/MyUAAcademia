@@ -298,7 +298,7 @@ const Admission = () => {
                                 <option value="">Sélectionnez un programme</option>
                                 {programs.map((element, index) => (
                                     <option key={index} value={element.title}>
-                                        {element.grade} : {element.programName}
+                                        {element.title} | {element.grade} : {element.programName}
                                     </option>
                                 ))}
                             </select>

@@ -12,7 +12,7 @@ import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } fr
 
 //Services
 import { getStudentsS } from "../../../services/user.service";
-import { enrollStudentsInCourseS, createClasseCourseS, getClassesCoursesS, getClassroomsS, getProgramCoursesS } from "../../../services/course.service";
+import { createClasseCourseS, getClassesCoursesS, getClassroomsS, getProgramCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
 const CourseCreate = ({employeeCo}) => {
@@ -296,7 +296,7 @@ const CourseCreate = ({employeeCo}) => {
                                             <option value="">Sélectionnez un programme...</option>
                                             {programs.map((element, index) => (
                                                 <option key={index} value={element.title}>
-                                                    {element.title} : {element.programName}
+                                                    {element.title} | {element.title} : {element.programName}
                                                 </option>
                                             ))}
                                         </select>
