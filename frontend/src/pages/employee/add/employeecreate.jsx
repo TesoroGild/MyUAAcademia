@@ -113,7 +113,7 @@ const EmployeeCreate = ({employeeCo}) => {
                                         {...register("firstname", { required: "Le prénom est requis!" })}
                                     />
                                     {errors.firstname && (
-                                        <p className="text-red-500 text-sm">{errors.lastname.message}</p>   
+                                        <p className="text-red-500 text-sm">{errors.firstname.message}</p>   
                                     )}
                                 </div>
                             </div>

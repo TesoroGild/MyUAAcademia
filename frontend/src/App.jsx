@@ -44,6 +44,7 @@ import EmployeeCreate from './pages/employee/add/employeecreate.jsx'
 import EmployeesList from './pages/employee/list/employeeslist.jsx'
 import ProgramCreate from './pages/employee/program/programcreate.jsx'
 import CourseCreate from './pages/employee/course/coursecreate.jsx'
+import ChangePassword from './pages/employee/change-pwd/changepassword.jsx'
 
 const App = () => {
   
@@ -78,6 +79,12 @@ const App = () => {
     phoneNumber: "",
     birthDay: "",
     nas: ""
+  });
+
+  const [employeeTRC, setEmployeeTRC] = useState({
+    firstName: "",
+    lastName: "",
+    code: ""
   });
 
   const [bill, setBill] = useState({
@@ -115,6 +122,7 @@ const App = () => {
           <Route path="/subscribe" element={<Subscribe userCo = {userCo}/>} />
 
           {/*Admin routes*/}
+          <Route path='/employee/resetpwd' element={<ChangePassword employeeTRC = {employeeTRC} />}></Route>
           <Route path='/adminspace' element={<AdminSpace employeeCo = {employeeCo} />} />
           <Route path='/adminprofile' element={<AdminProfile employeeCo = {employeeCo} setEmployeeCo = {setEmployeeCo} />} />
           <Route path="/adminplanning" element={<AdminPlanning employeeCo = {employeeCo} />} />

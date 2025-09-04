@@ -1,10 +1,15 @@
 import "./login.css";
-import React from 'react';
+
+//React
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Toast, ToastToggle } from "flowbite-react";
 
 //Services
 import { employeeLogin } from '../../services/auth.service';
+
+//Icons
+import { HiExclamation, HiX  } from "react-icons/hi";
 
 function EmployeeLogin ({ setEmployeeCo}) {
     //States
@@ -14,6 +19,9 @@ function EmployeeLogin ({ setEmployeeCo}) {
     });
     const [codeFocused, setCodeFocused] = useState(false);
     const [passwordFocused, setPasswordFocused] = useState(false);
+    const [showErrorToast, setShowErrorToast] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showWarningToast, setShowWarningToast] = useState(false);
 
     //Functions
     const handlePCFocus = (event) => {
@@ -43,24 +51,24 @@ function EmployeeLogin ({ setEmployeeCo}) {
           if (result.success) {
             await setEmployeeCo((prevEmployeeCo) => ({
                     ...prevEmployeeCo,
-                    ...result.userConnected.employee
+                    ...result.userConnected
                 }));
-            if (result.userConnected.employee.userRole.toLowerCase() == "admin") {
+            if (result.userConnected.userRole.toLowerCase() == "admin") {
                 navigate('/adminspace');
             } else {
                 navigate('/employeespace');
-            } 
-            console.log("L'utilisateur est connecté");
+            }
             setCodeFocused(true);
             setPasswordFocused(true);
             setLoginForm({ code: "", pwd: "" });
           } else {
-            alert(result.message);
+            setErrorMessage(result.message);
+            setShowErrorToast(true);
+            setTimeout(() => setShowErrorToast(false), 5000);
           }
-          
         } catch (error) {
-            console.log(error);
-            alert("Une erreur est survenue. Réssayez plus tard.");
+            setShowWarningToast(true);
+            setTimeout(() => setShowWarningToast(false), 5000);
         }
     }
 
@@ -69,6 +77,24 @@ function EmployeeLogin ({ setEmployeeCo}) {
         <div>
             <div></div>
             <div>
+                {showWarningToast && (
+                    <Toast>
+                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
+                            <HiExclamation className="h-5 w-5" />
+                        </div>
+                        <div className="ml-3 text-sm font-normal">Impossible de contacter le serveur. Veuillez essayer plus tard.</div>
+                        <ToastToggle />
+                    </Toast>
+                )}
+                {showErrorToast && (
+                    <Toast>
+                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                            <HiX className="h-5 w-5" />
+                        </div>
+                        <div className="ml-3 text-sm font-normal">{errorMessage}</div>
+                        <ToastToggle />
+                    </Toast>
+                )}
                 <form onSubmit={onLogin}>
                     <div className="w-full flex p-4">
                         <label htmlFor="code" className="w-1/3">Code de l'employé :</label>

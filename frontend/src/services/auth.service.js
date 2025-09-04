@@ -2,22 +2,51 @@ import axios from 'axios';
 
 const backend_url = import.meta.env.VITE_API_URL;
 
+//CREATE
+export const modifyPasswordS = async(changePwdCredentials) => {
+  console.log("EMPLOYEE SERVICE : MODIFY PASSWORD");
+  try {
+    await axios.put(`${backend_url}/Auth/reset-password`, changePwdCredentials);
+    return { success: true }
+  } catch (error) {
+    console.error('Erreur :', error);
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data[""]?.[0]
+      };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur" };
+  }
+}
+// await axios.post(
+        //     "http://localhost:5000/api/auth/change-password",
+        //     {
+        //     userCode,
+        //     oldPassword,
+        //     newPassword
+        //     },
+        //     { withCredentials: true }
+        // );
+
+
+//READ
 export const employeeLogin = async (credentials) => {
   console.log("AUTH SERVICE : LOGIN");
   try {
-    const response = await axios.post(`${backend_url}/Employee/login`, credentials);
+    const response = await axios.post(`${backend_url}/Auth/login`, credentials);
     return { 
       success: true, 
       userConnected: response.data 
     };
-    //return response.data;
   } catch (error) {
-    console.error('Erreur :', error);
-    //throw error;
+    console.error('Erreur :', error.response.data);
+    
     if (error.response) {
       return {
         success: false,
-        message: error.response.data[""].errors[0].errorMessage
+        message: error.response.data
       };
     }
 

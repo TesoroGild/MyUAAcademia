@@ -8,10 +8,8 @@ export const createEmployee = async (employeeTocreate) => {
   try {
     const response = await axios.post(`${backend_url}/Employee/employee`, employeeTocreate);
     return { success: true, employeeAdded: response.data };
-    //return response.data;
   } catch (error) {
     console.error('Erreur :', error);
-    //throw error;
     if (error.response) {
       return {
         success: false,
@@ -22,6 +20,7 @@ export const createEmployee = async (employeeTocreate) => {
     return { success: false, message: "Impossible de contacter le serveur" };
   }
 };
+
 
 //Read
 export const getEmployeesS = async () => {
