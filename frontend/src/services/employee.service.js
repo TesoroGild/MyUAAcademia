@@ -23,13 +23,30 @@ export const createEmployee = async (employeeTocreate) => {
 
 
 //Read
+export const getEmployeeS = async (code) => {
+  console.log("EMPLOYEE SERVICE : GET EMPLOYEE");
+  try {
+      const response = await axios.get(`${backend_url}/Employee/employee/${code}`, {withCredentials: true});
+      return { success: true, employeeFounded: response.data };
+  } catch (error) {
+    console.error('Erreur :', error);
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data[""]?.[0]
+      };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur" };
+  }
+}
+
 export const getEmployeesS = async () => {
   console.log("EMPLOYEE SERVICE : GET EMPLOYEES");
   try {
-    const response = await axios.get(`${backend_url}/Employee/employees`);
+    const response = await axios.get(`${backend_url}/Employee/employees`, {withCredentials: true});
     return response.data;
   } catch (error) {
-    console.error('Erreur :', error);
     throw error;
   }
 };
@@ -41,7 +58,6 @@ export const activeEmployeeAccountS = async (activateAccount) => {
         const response = await axios.put(`${backend_url}/Employee/activate`, activateAccount);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }

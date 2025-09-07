@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
 import './App.css'
 
 //Routes
@@ -22,13 +23,13 @@ import Subscribe from './pages/subscribe/subscribe'
 
 //Admin pages
 import AdminSpace from './pages/space/adminspace.jsx'
-import AdminProfile from './pages/profile/adminprofile'
 import AdminPlanning from './pages/planning/adminplanning.jsx'
 import Class from './pages/program/class/class.jsx'
 import Classroom from './pages/program/classroom/classroom.jsx'
 import Course from './pages/student/course/course.jsx'
 import Create from './pages/student/create/create.jsx'
-import Details from './pages/student/details/details.jsx'
+import StudentDetails from './pages/student/details/details.jsx'
+import EmployeeDetails from './pages/employee/details/details.jsx'
 import StudentList from './pages/student/list/list.jsx'
 import Inscription from './pages/student/inscription/inscription.jsx'
 import Message from './pages/message/message.jsx'
@@ -45,10 +46,22 @@ import EmployeesList from './pages/employee/list/employeeslist.jsx'
 import ProgramCreate from './pages/employee/program/programcreate.jsx'
 import CourseCreate from './pages/employee/course/coursecreate.jsx'
 import ChangePassword from './pages/employee/change-pwd/changepassword.jsx'
+import { getUserBySessionS } from './services/auth.service.js';
 
 const App = () => {
-  
-  //student & professor
+  //States
+  useEffect(() => {
+    getUserBySession();
+  }, [])
+  const navigate = useNavigate();
+
+  //Moedls
+  const [studentCo, seStudentCo] = useState({
+    firstName: "",
+    lastName: "",
+    permanentCode: ""
+  });
+
   const [userCo, setUserCo] = useState({
     firstName: "",
     lastName: "",
@@ -65,20 +78,10 @@ const App = () => {
     program: ""
   });
 
-  //employee & admin
   const [employeeCo, setEmployeeCo] = useState({
     firstName: "",
     lastName: "",
-    code: "",
-    sexe: "",
-    email: "",
-    userRole: "",
-    department: "",
-    faculty: "",
-    job: "",
-    phoneNumber: "",
-    birthDay: "",
-    nas: ""
+    code: ""
   });
 
   const [employeeTRC, setEmployeeTRC] = useState({
@@ -94,6 +97,29 @@ const App = () => {
     sessionStudy: "",
     yearStudy: ""
 });
+
+  //Functions
+  const getUserBySession = async () => {
+    try {
+      const response = getUserBySessionS();
+      if (response.success) {
+        console.log(response.userConnected);
+        if (response.userConnecte.UserRole === "student") {
+          seStudentCo(response.userConnecte);
+        }
+        if (response.userConnecte.UserRole === "employee") {
+          setEmployeeCo(response.userConnecte);
+          navigate('/employeespace');
+        }
+        if (response.userConnecte.UserRole === "Admin") {
+          setEmployeeCo(response.userConnecte);
+          navigate('/adminspace');
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
       <div>
@@ -124,7 +150,6 @@ const App = () => {
           {/*Admin routes*/}
           <Route path='/employee/resetpwd' element={<ChangePassword employeeTRC = {employeeTRC} />}></Route>
           <Route path='/adminspace' element={<AdminSpace employeeCo = {employeeCo} />} />
-          <Route path='/adminprofile' element={<AdminProfile employeeCo = {employeeCo} setEmployeeCo = {setEmployeeCo} />} />
           <Route path="/adminplanning" element={<AdminPlanning employeeCo = {employeeCo} />} />
           <Route path="/message" element={<Message employeeCo = {employeeCo} />} />
           <Route path='/program' element={<Program employeeCo = {employeeCo} />} />
@@ -137,9 +162,10 @@ const App = () => {
           <Route path='/employee/employees' element={<Employee employeeCo = {employeeCo} />} />
           <Route path='/employee/employee/create' element={<EmployeeCreate employeeCo = {employeeCo} />} />
           <Route path='/employee/employee/list' element={<EmployeesList employeeCo = {employeeCo} />} />
+          <Route path='/employee/:usercode' element={<EmployeeDetails employeeCo = {employeeCo} />} />
           
           <Route path='/employee/students' element={<Student employeeCo = {employeeCo} />} />
-            <Route path="/employee/students/:permanentcode" element={<Details employeeCo = {employeeCo} />} />
+            <Route path="/student/:permanentcode" element={<StudentDetails studentCo = {studentCo} />} />
             <Route path='/employee/student/course' element={<Course employeeCo = {employeeCo} />} />
             <Route path='/employee/student/create' element={<Create employeeCo = {employeeCo} />} />
             <Route path='/employee/student/list' element={<StudentList employeeCo = {employeeCo} />} />

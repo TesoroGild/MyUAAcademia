@@ -9,7 +9,7 @@ import { useLocation, useParams } from 'react-router-dom';
 //Services
 import { getStudentS } from "../../../services/user.service";
 
-const Details = ({employeeCo}) => {
+const StudentDetails = ({studentCo}) => {
     const { permanentcode } = useParams();
     const location = useLocation();
     const user = location.state?.userInProcess;
@@ -26,7 +26,6 @@ const Details = ({employeeCo}) => {
         lvlDegree: "",
         birthDay: "",
         nas: "",
-        employeeCode: "",
         permanentCode: ""
     });
 
@@ -50,7 +49,7 @@ const Details = ({employeeCo}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
-                <AdminDashboard employeeCo = {employeeCo} />
+                <AdminDashboard studentCo = {studentCo} />
             </div>
                 
             <div className="w-full">
@@ -144,10 +143,6 @@ const Details = ({employeeCo}) => {
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div>
-                                Profil crée par {student.employeeCode} le 
-                            </div>
                         </div>
                     ) : (
                         <div>Aucun étudiant trouvé.</div>
@@ -158,4 +153,4 @@ const Details = ({employeeCo}) => {
     </>)
 }
 
-export default Details;
+export default StudentDetails;

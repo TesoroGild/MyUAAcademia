@@ -35,7 +35,7 @@ export const modifyPasswordS = async(changePwdCredentials) => {
 export const employeeLogin = async (credentials) => {
   console.log("AUTH SERVICE : LOGIN");
   try {
-    const response = await axios.post(`${backend_url}/Auth/login`, credentials);
+    const response = await axios.post(`${backend_url}/Auth/login`, credentials, {withCredentials: true});
     return { 
       success: true, 
       userConnected: response.data 
@@ -54,10 +54,26 @@ export const employeeLogin = async (credentials) => {
   }
 };
 
+export const getUserBySessionS = async () => {
+  console.log("AUTH SERVICE : GET USER LOGEDIN");
+  try {
+    // if () {
+    //   //appel api sur get employe
+    //   return { 
+    //     success: true, 
+    //     userConnected: response.data 
+    //   };
+    // }
+    return { succes: false }
+  } catch (error) {
+    
+  } 
+}
+
 export const userLogin = async (credentials) => {
   console.log("AUTH SERVICE : LOGIN");
   try {
-    const response = await axios.post(`${backend_url}/User/login`, credentials);
+    const response = await axios.post(`${backend_url}/User/login`, credentials, {withCredentials: true});
     return response.data.user;
   } catch (error) {
     console.error('Erreur :', error);
@@ -65,10 +81,12 @@ export const userLogin = async (credentials) => {
   }
 };
 
-export const logoutS = () => {
+export const logoutS = async () => {
   console.log("AUTH SERVICE : LOGOUT");
   try {
-
+    const response = axios.post(`${backend_url}/Auth/logout`, {}, {withCredentials: true});
+    localStorage.clear();
+    return { success: true, response: response.data };
   } catch (error) {
     console.error('Erreur :', error);
     throw error;

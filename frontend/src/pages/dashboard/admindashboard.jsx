@@ -17,12 +17,17 @@ const AdminDashboard = ({employeeCo}) => {
   //States
 
   //Functions
-  const logout = async (event) => {
-    event.preventDefault();
-    const result = await logoutS();
-
-    if (result.success) {
-      window.location.href = "/employee/login";
+  const logout = async () => {
+    try {
+      const result = await logoutS();
+console.log(result)
+      if (result.success) {
+        console.log("result", result);
+        //setEmployeeCo("");
+        window.location.href = "/login/employee";
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -77,8 +82,8 @@ const AdminDashboard = ({employeeCo}) => {
           </div>
           
           <div className="flex">
-            <Sidebar.Item href="adminprofile" icon={HiUser}/>
-            <Link to="/adminprofile">
+            <Sidebar.Item href="/employee/:`${employeeCo.userCode}`" icon={HiUser}/>
+            <Link to="/employee/:`${employeeCo.userCode}`">
               <div className="dashboard-name">Profil</div>
             </Link> 
           </div>
@@ -177,7 +182,7 @@ const AdminDashboard = ({employeeCo}) => {
             </Link>
           </div>
 
-          <div className="flex" onClick={logout}>
+          <div className="flex cursor-pointer" onClick={logout}>
             <Sidebar.Item href="adminplanning" icon={HiLogout}/>
             <div className="dashboard-name">Déconnexion</div>
           </div>

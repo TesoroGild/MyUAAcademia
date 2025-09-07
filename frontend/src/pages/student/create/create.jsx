@@ -151,7 +151,7 @@ const Create = ({employeeCo}) => {
         //if student permcode if prof code
         //if student navigate students if prof navigate employe
         const permanentcode = newUser.permanentCode;
-        navigate(`/employee/students/${permanentcode}`, { state: { userInProcess: newUser } });
+        navigate(`/users/${permanentcode}`, { state: { userInProcess: newUser } });
     }
 
     //Retrun

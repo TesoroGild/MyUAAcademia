@@ -8,15 +8,14 @@ import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 
 //Pictures
-import logo from '../../assets/img/UA_Logo.png';
-import studentLogo from '../../assets/img/FacLogos/science_logo.png';
+import logo from '../../../assets/img/UA_Logo.png';
 
 //Reusable
-import AdminHeader from "../header/adminheader";
-import AdminDashboard from "../dashboard/admindashboard";
-import "./profile.css";
+import AdminHeader from "../../header/adminheader";
+import AdminDashboard from "../../dashboard/admindashboard";
+import { getEmployeeS } from "../../../services/employee.service";
 
-const AdminProfile = ({employeeCo, setemployeeCo}) => {
+const EmployeeDetails = ({employeeCo}) => {
 
     //States
     const [openModal, setOpenModal] = useState(false);
@@ -49,13 +48,23 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
     const navigate = useNavigate();
     
     useEffect(() => {
+        console.log(employeeCo);
         if (employeeCo) {
-            setProfileToDisplay((prevProfDisplay) => ({
-                ...prevProfDisplay,
-                ...employeeCo
-            }));
+            getEmployee(employeeCo.code);
         }
-      }, [employeeCo]);
+    }, [employeeCo]);
+
+    const getEmployee = async (code) => {
+        try {
+            const response = await getEmployeeS(code);
+            if (response.success) {
+                console.log(response.employeeFounded);
+                setProfileToDisplay(response.employeeFounded);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const handleModifyChange = (event) => {
         setProfileModForm({ ...profileModForm, [event.target.name]: event.target.value });
@@ -104,10 +113,7 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
 
             if (profileModified !== null && profileModified !== undefined) {
                 setOpenModal(false);
-                setemployeeCo((prevemployeeCo) => ({
-                    ...prevemployeeCo,
-                    ...profileModified
-                }));
+                
                 setProfileToDisplay((prevProf) => ({
                     ...prevProf,
                     ...profileModified
@@ -241,6 +247,19 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
                             </ul>
                         </div>
                     </div>
+
+                    {/**Infos cachees */}
+                    <div>
+                         <ul>
+                            <li className="bg-slate-300">Nationalité : {profileToDisplay.nationality}</li>
+                            <li>Profession : {profileToDisplay.userRole}</li>
+                            <li className="bg-slate-300">Code : {profileToDisplay.userCode}</li>
+                            <li>Email : {profileToDisplay.personalEmail}</li>
+                            <li className="bg-slate-300">Numéro : {profileToDisplay.phoneNumber}</li>
+                            <li>Relevés scolaires : rs</li>
+                            <li className="bg-slate-300">Pièce d'identification : pi</li>
+                        </ul>
+                    </div>
                     <Button className="mt-8 justify-self-center" onClick={initUpdForm}><HiOutlinePencilAlt className="mr-2 h-5 w-5" />Modifier votre profil</Button>
                 </div>
             </div>
@@ -248,4 +267,4 @@ const AdminProfile = ({employeeCo, setemployeeCo}) => {
     </>)
 }
 
-export default AdminProfile;
+export default EmployeeDetails;
