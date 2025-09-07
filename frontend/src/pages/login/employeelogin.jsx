@@ -50,9 +50,10 @@ function EmployeeLogin ({ setEmployeeCo}) {
 
           if (result.success) {
             await setEmployeeCo((prevEmployeeCo) => ({
-                    ...prevEmployeeCo,
-                    ...result.userConnected
-                }));
+                ...prevEmployeeCo,
+                ...result.userConnected
+            }));
+            localStorage.setItem('justLoggedIn', 'true');
             if (result.userConnected.userRole.toLowerCase() == "admin") {
                 navigate('/adminspace');
             } else {

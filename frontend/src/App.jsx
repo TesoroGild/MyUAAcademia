@@ -101,22 +101,29 @@ const App = () => {
   //Functions
   const getUserBySession = async () => {
     try {
-      const response = getUserBySessionS();
-      if (response.success) {
-        console.log(response.userConnected);
-        if (response.userConnecte.UserRole === "student") {
-          seStudentCo(response.userConnecte);
-        }
-        if (response.userConnecte.UserRole === "employee") {
-          setEmployeeCo(response.userConnecte);
-          navigate('/employeespace');
-        }
-        if (response.userConnecte.UserRole === "Admin") {
-          setEmployeeCo(response.userConnecte);
-          navigate('/adminspace');
+      if (localStorage.getItem('justLoggedIn') != null) {
+        const response = await getUserBySessionS();
+  
+        if (response.success) {
+          if (response.userConnected.userRole === "student") {
+            seStudentCo(response.userConnected);
+          }
+          if (response.userConnected.userRole === "employee") {
+            setEmployeeCo(response.userConnected);
+            //navigate('/employeespace');
+          }
+          if (response.userConnected.userRole === "Admin") {
+            setEmployeeCo(response.userConnected);
+            //navigate('/adminspace');
+          }
+        } else {
+          console.log("AFF1")
+          console.log(response.success)
+          navigate('/login/employee');
         }
       }
     } catch (error) {
+      console.log("AFF2")
       console.log(error);
     }
   }

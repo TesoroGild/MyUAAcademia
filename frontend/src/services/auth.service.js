@@ -57,16 +57,23 @@ export const employeeLogin = async (credentials) => {
 export const getUserBySessionS = async () => {
   console.log("AUTH SERVICE : GET USER LOGEDIN");
   try {
-    // if () {
-    //   //appel api sur get employe
-    //   return { 
-    //     success: true, 
-    //     userConnected: response.data 
-    //   };
-    // }
-    return { succes: false }
-  } catch (error) {
+    const response = await axios.get(`${backend_url}/Auth/reconnect`, {withCredentials: true});
     
+    return { 
+      success: true, 
+      userConnected: response.data 
+    };
+  } catch (error) {
+    console.error('Erreur :', error.response.data);
+    
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data
+      };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur" };
   } 
 }
 
