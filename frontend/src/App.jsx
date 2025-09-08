@@ -4,8 +4,9 @@ import './App.css'
 
 //Routes
 import Home from './pages/home/home.jsx'
-import Admission from './pages/admission/admission.jsx'
+import AdmissionForm from './pages/admission/admission.jsx'
 import PaymentAdmission from './pages/payment/paymentadmission.jsx'
+import AdmissionVerify from './pages/verify/verify.jsx';
 
 //Student pages
 import Bill from './pages/bill/bill'
@@ -133,13 +134,14 @@ const App = () => {
         <Routes>
           
           <Route path="/" element={<Navigate replace to="/home"/>} />
-          <Route path="/admission" element={<Admission />} />
-          {/*<Route path="/admission" element={<Admission setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
+          <Route path="/admission" element={<AdmissionForm />} />
+          {/*<Route path="/admission" element={<AdmissionForm setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
           <Route path="/admission/bill" element={<AdmissionBill />} />
           <Route path="/home" element={<Home />} />
           {/*<Route path="/home" element={<Home setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
           <Route path="/login/employee" element={<EmployeeLogin setEmployeeCo = {setEmployeeCo}/>} />
           <Route path="/admission/payment" element={<PaymentAdmission />} />
+          <Route path='/admission/verify' element={<AdmissionVerify />} />
 
           {/*Student routes*/}
           <Route path="/bill/courses" element={<Bill userCo= {userCo} userPermanentCode = {userCo.permanentCode}/>} />

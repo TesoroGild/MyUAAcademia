@@ -16,9 +16,9 @@ import { useForm, Controller } from "react-hook-form";
 //Services
 import { admissionS } from "../../services/user.service";
 import { getProgramsS } from "../../services/program.service";
-import { fi } from "date-fns/locale";
+import { da, fi } from "date-fns/locale";
 
-const Admission = () => {
+const AdmissionForm = () => {
     //States
     const {
         register,
@@ -59,7 +59,6 @@ const Admission = () => {
         getPrograms();
     }, []);
 
-    const MAX_FILE_SIZE = 2 * 1024 * 1024;
     const navigate = useNavigate();
 
     const apply = async (datas) => {
@@ -69,7 +68,8 @@ const Admission = () => {
             studentToRegister.append("firstname", datas.firstname);
             studentToRegister.append("identityProof", datas.identityProof[0]);
             studentToRegister.append("lastname", datas.lastname);
-            studentToRegister.append("nas", datas.nas);
+            if (datas.nas != "")
+                studentToRegister.append("nas", datas.nas);
             studentToRegister.append("nationality", datas.nationality);
             studentToRegister.append("personalEmail", datas.personalEmail);
             studentToRegister.append("phoneNumber", datas.phoneNumber);
@@ -282,11 +282,8 @@ const Admission = () => {
                         <div className="w-1/3">
                             <input type="text" id="nas" name="nas"
                                 className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                {...register("nas", { required: "Le numéro d'assurance sociale est requis!" })}
+                                {...register("nas")}
                             />
-                            {errors.nas && (
-                                <p className="text-red-500 text-sm">{errors.nas.message}</p>   
-                            )}
                         </div>
                     </div>
                     <div className="w-full flex p-4">
@@ -372,4 +369,4 @@ const Admission = () => {
     </>)
 }
 
-export default Admission;
+export default AdmissionForm;

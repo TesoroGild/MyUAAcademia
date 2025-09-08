@@ -1,5 +1,3 @@
-import "./admission.css";
-
 //Icons
 import { HiOutlineArrowLeft, HiOutlineArrowRight } from "react-icons/hi";
 
@@ -8,17 +6,18 @@ import logo2 from '../../assets/img/UA_Logo2.jpg';
 
 //React
 import { Button } from "flowbite-react";
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 //Services
 import { admissionS } from "../../services/user.service";
 
-const Verify = () => {
+const AdmissionVerify = () => {
     //States
-
+    const navigate = useNavigate();
+    const location = useLocation();
+    const userInProcess = location.state?.userInProcess;
 
     //Functions
-    const navigate = useNavigate();
 
     const apply = async (datas) => {
         try {
@@ -120,7 +119,7 @@ const Verify = () => {
                             Formulaire d'admission
                         </Button>
                         <Button className="w-1/2" color="red">
-                            Payment
+                            Paiment
                             <HiOutlineArrowRight className="ml-2 h-5 w-5" />
                         </Button>
                     </div>
@@ -130,4 +129,4 @@ const Verify = () => {
     </>)
 }
 
-export default Verify;
+export default AdmissionVerify;
