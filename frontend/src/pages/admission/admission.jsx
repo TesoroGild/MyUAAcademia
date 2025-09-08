@@ -1,22 +1,19 @@
 import "./admission.css";
 
 //Icons
-import { HiCheck, HiExclamation, HiInformationCircle, HiOutlineArrowLeft, HiOutlineArrowRight, HiX } from "react-icons/hi";
+import { HiCheck, HiExclamation, HiOutlineArrowLeft, HiOutlineArrowRight, HiX } from "react-icons/hi";
 
 //Pictures
 import logo2 from '../../assets/img/UA_Logo2.jpg';
 
 //React
-import Header from "../header/header";
 import { Button, Datepicker, Dropdown, FileInput, Label, Toast, ToastToggle, Tooltip } from "flowbite-react";
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm, Controller } from "react-hook-form";
 
 //Services
-import { admissionS } from "../../services/user.service";
 import { getProgramsS } from "../../services/program.service";
-import { da, fi } from "date-fns/locale";
 
 const AdmissionForm = () => {
     //States
@@ -44,13 +41,6 @@ const AdmissionForm = () => {
             streetAddress: ""
         }
     });
-    // const [schoolTranscript, setSchoolTranscript] = useState(null);
-    // const [picture, setPicture] = useState(null);
-    // const [identification, setIdentification] = useState(null);
-    const [showSuccesToast, setShowSuccesToast] = useState(false);
-    const [showErrorToast, setShowErrorToast] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [showWarningToast, setShowWarningToast] = useState(false);
     const [programs, setPrograms] = useState([]);
 
 
@@ -61,49 +51,8 @@ const AdmissionForm = () => {
 
     const navigate = useNavigate();
 
-    const apply = async (datas) => {
-        try {
-            const studentToRegister = new FormData();
-            studentToRegister.append("birthDay", datas.birthDay);
-            studentToRegister.append("firstname", datas.firstname);
-            studentToRegister.append("identityProof", datas.identityProof[0]);
-            studentToRegister.append("lastname", datas.lastname);
-            if (datas.nas != "")
-                studentToRegister.append("nas", datas.nas);
-            studentToRegister.append("nationality", datas.nationality);
-            studentToRegister.append("personalEmail", datas.personalEmail);
-            studentToRegister.append("phoneNumber", datas.phoneNumber);
-            studentToRegister.append("picture", datas.picture[0]);
-            studentToRegister.append("schoolTranscript", datas.schoolTranscript[0]);
-            studentToRegister.append("sexe", datas.sexe);
-            studentToRegister.append("streetAddress", datas.streetAddress);
-            studentToRegister.append("programTitle", datas.programTitle);
-            studentToRegister.append("userRole", "student");
-
-            const result = await admissionS(studentToRegister);
-            
-            if (result.success) {
-                setShowSuccesToast(true);
-                reset();
-                setTimeout(() => setShowSuccesToast(false), 5000);
-                const userInProcess = {
-                    firstName: result.studentRegistered.firstName,
-                    lastName: result.studentRegistered.lastName,
-                    email: result.studentRegistered.personalEmail,
-                    sexe: result.studentRegistered.sexe,
-                    program: result.studentRegistered.userProgramEnrollments[0].title
-                }
-                navigate("/admission/payment", { state: { userInProcess: userInProcess } });
-            } else {
-                setErrorMessage(result.message);
-                setShowErrorToast(true);
-                setTimeout(() => setShowErrorToast(false), 5000);
-            }
-        } catch (error) {
-            console.log(error);
-            setShowWarningToast(true);
-            setTimeout(() => setShowWarningToast(false), 5000);
-        }
+    const verify = async (datas) => {
+        navigate("/admission/verify", { state: { studentToRegister: datas } });
     }
 
     const handleProgramChange = (event) => {
@@ -132,41 +81,7 @@ const AdmissionForm = () => {
             </div>
 
             <div>
-                {showSuccesToast && (
-                    <Toast>
-                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                            <HiCheck className="h-5 w-5" />
-                        </div>
-                        <div className="ml-3 text-sm font-normal">Utilisateur ajouté.</div>
-                        <div className="ml-auto flex items-center space-x-2">
-                            <a href="#"
-                                className="rounded-lg p-1.5 text-sm font-medium text-primary-600 hover:bg-primary-100 dark:text-primary-500 dark:hover:bg-gray-700"
-                            >
-                                Voir
-                            </a>
-                            <ToastToggle />
-                        </div>
-                    </Toast>
-                )}
-                {showWarningToast && (
-                    <Toast>
-                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
-                            <HiExclamation className="h-5 w-5" />
-                        </div>
-                        <div className="ml-3 text-sm font-normal">Impossible de contacter le serveur. Veuillez essayer plus tard.</div>
-                        <ToastToggle />
-                    </Toast>
-                )}
-                {showErrorToast && (
-                    <Toast>
-                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                            <HiX className="h-5 w-5" />
-                        </div>
-                        <div className="ml-3 text-sm font-normal">{errorMessage}</div>
-                        <ToastToggle />
-                    </Toast>
-                )}
-                <form onSubmit={handleSubmit(apply)}>
+                <form onSubmit={handleSubmit(verify)}>
                     <div className="w-full flex p-4">
                         <label htmlFor="lastname" className="w-1/3">Nom :</label>
                         <div className="w-1/3">
@@ -361,6 +276,7 @@ const AdmissionForm = () => {
                         <button type="submit"
                             className="w-1/2 flex text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
                             Continuer
+                            <HiOutlineArrowRight className="ml-2 h-5 w-5" />
                         </button>
                     </div>
                 </form>
