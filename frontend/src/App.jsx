@@ -51,7 +51,7 @@ import { getUserBySessionS } from './services/auth.service.js';
 const App = () => {
   //States
   useEffect(() => {
-    getUserBySession();
+    //getUserBySession();
   }, [])
   const navigate = useNavigate();
 

@@ -59,6 +59,7 @@ const Admission = () => {
         getPrograms();
     }, []);
 
+    const MAX_FILE_SIZE = 2 * 1024 * 1024;
     const navigate = useNavigate();
 
     const apply = async (datas) => {
@@ -308,24 +309,51 @@ const Admission = () => {
                         <Label className="mb-2 block w-1/3" htmlFor="file-upload">
                             Relevés scolaires :
                         </Label>
-                        <FileInput id="file-upload" className="w-1/3" 
-                            {...register("schoolTranscript")}
+                        <FileInput id="file-upload" className="w-1/3"
+                            //onChange={handleFileChange}
+                            {...register("schoolTranscript", {
+                                onChange: (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file && file.size > 2 * 1024 * 1024) {
+                                        alert("Le fichier doit faire moins de 2 Mo !");
+                                        e.target.value = "";
+                                    }
+                                }
+                            })}
                         />
                     </div>
                     <div className="w-full flex p-4">
                         <Label className="mb-2 block w-1/3" htmlFor="file-upload">
                             Photos :
                         </Label>
-                        <FileInput id="multiple-file-upload" multiple className="w-1/3" 
-                            {...register("picture")}
+                        <FileInput id="multiple-file-upload" multiple className="w-1/3"
+                            //onChange={handleFileChange}
+                            {...register("picture", {
+                                onChange: (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file && file.size > 2 * 1024 * 1024) {
+                                        alert("Le fichier doit faire moins de 2 Mo !");
+                                        e.target.value = "";
+                                    }
+                                }
+                            })}
                         />
                     </div>
                     <div className="w-full flex p-4">
                         <Label className="mb-2 block w-1/3" htmlFor="file-upload">
                             Pièce d'identité :
                         </Label>
-                        <FileInput id="file-upload" className="w-1/3" 
-                            {...register("identityProof")}
+                        <FileInput id="file-upload" className="w-1/3"
+                            //onChange={handleFileChange}
+                            {...register("identityProof", {
+                                onChange: (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file && file.size > 2 * 1024 * 1024) {
+                                        alert("Le fichier doit faire moins de 2 Mo !");
+                                        e.target.value = "";
+                                    }
+                                }
+                            })}
                         />
                     </div>
                     <div className="w-full flex p-4">
@@ -335,8 +363,7 @@ const Admission = () => {
                         </Button>
                         <button type="submit"
                             className="w-1/2 flex text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                            Frais de traitement
-                            <HiOutlineArrowRight className="ml-2 h-5 w-5" />
+                            Continuer
                         </button>
                     </div>
                 </form>
