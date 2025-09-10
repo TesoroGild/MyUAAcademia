@@ -8,6 +8,7 @@ import AdminHeader from "../../header/adminheader";
 //React
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from 'react-router-dom';
+import { Button } from "flowbite-react";
 
 //Services
 import { getStudentS } from "../../../services/user.service";
@@ -79,6 +80,10 @@ const StudentDetails = ({studentCo}) => {
         } catch (error) {
             console.log(error);
         }
+    }
+
+    const registerToAProgram = async (programTitle) => {
+
     }
     
     
@@ -187,6 +192,26 @@ const StudentDetails = ({studentCo}) => {
                     ) : (
                         <div>Aucun étudiant trouvé.</div>
                     )}
+                </div>
+
+                <div className="flex mt-8 justify-center">
+                    {student.department != null ? (
+                            <div>
+                                
+                            </div>
+                        ):(
+                            <div className="flex w-1/2">
+                                <div>
+                                    <select name="" id="">
+                                        <option value="">1</option>
+                                        <option value="">2</option>
+                                        <option value="">3</option>
+                                    </select>
+                                </div>
+                                <Button onClick={() => registerToAProgram("me")}>Admettre dans ce programme</Button>
+                            </div>
+                    )}
+                    <Button>Activer le compte de cet étudiant</Button>
                 </div>
             </div>
         </div>

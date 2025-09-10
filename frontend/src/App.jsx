@@ -4,9 +4,9 @@ import './App.css'
 
 //Routes
 import Home from './pages/home/home.jsx'
-import AdmissionForm from './pages/admission/admission.jsx'
-import PaymentAdmission from './pages/payment/paymentadmission.jsx'
-import AdmissionVerify from './pages/verify/verify.jsx';
+import AdmissionForm from './pages/admission/form.jsx'
+import PaymentAdmission from './pages/admission/payment.jsx'
+import AdmissionVerify from './pages/admission/verify.jsx';
 
 //Student pages
 import Bill from './pages/bill/bill'
@@ -39,7 +39,7 @@ import Registration from './pages/registration/registration.jsx'
 import Student from './pages/student/student'
 
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom'
-import AdmissionBill from './pages/bill/admissionbill.jsx'
+import AdmissionBill from './pages/admission/bill.jsx'
 import EmployeeLogin from './pages/login/employeelogin.jsx'
 import Employee from './pages/employee/employee.jsx'
 import EmployeeCreate from './pages/employee/add/employeecreate.jsx'

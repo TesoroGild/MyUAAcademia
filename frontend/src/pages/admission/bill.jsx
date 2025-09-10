@@ -1,5 +1,3 @@
-import "./bill.css";
-
 //React
 import { Button, Table } from "flowbite-react"
 import React, { useEffect, useState } from "react";

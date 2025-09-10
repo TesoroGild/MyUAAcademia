@@ -1,10 +1,6 @@
-import Dashboard from "../dashboard/dashboard";
-import "./payment.css";
-
 //React
-import { Button, Table } from "flowbite-react"
+import { Table } from "flowbite-react"
 import { useLocation, useNavigate } from 'react-router-dom';
-import React, { useEffect, useState } from "react";
 
 
 const PaymentAdmission = () => {
