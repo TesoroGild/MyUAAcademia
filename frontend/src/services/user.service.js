@@ -61,6 +61,17 @@ export const getStudentS = async (permanentCode) => {
     }
 }
 
+// export const getStudent1S = async (permanentCode) => {
+//     console.log("USER SERVICE : GET STUDENT");
+//     try {
+//         const response = await axios.get(`${backend_url}/User/students1/${permanentCode}`);
+//         return response.data;
+//     } catch (error) {
+//         console.error('Erreur :', error);
+//         throw error;
+//     }
+// }
+
 export const getStudentsS = async () => {
     console.log("USER SERVICE : GET STUDENTS");
     try {

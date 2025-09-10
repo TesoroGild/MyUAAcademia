@@ -73,7 +73,7 @@ const StudentsList = ({employeeCo}) => {
     };
 
     const navigateToFiles = (permanentCode) => {
-        navigate(`/users/${permanentCode}`);
+        navigate(`/student/${permanentCode}`);
     }
 
     //Return

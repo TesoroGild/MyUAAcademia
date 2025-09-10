@@ -45,10 +45,7 @@ const AdmissionVerify = () => {
             const result = await admissionS(studentToRegister);
             
             if (result.success) {
-                setShowSuccesToast(true);
-                reset();
                 console.log(result.studentRegistered);
-                setTimeout(() => setShowSuccesToast(false), 5000);
                 const userInProcess = {
                     firstName: result.studentRegistered.firstName,
                     lastName: result.studentRegistered.lastName,
