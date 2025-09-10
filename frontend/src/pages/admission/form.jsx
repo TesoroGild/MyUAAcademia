@@ -9,7 +9,7 @@ import logo2 from '../../assets/img/UA_Logo2.jpg';
 //React
 import { Button, Datepicker, Dropdown, FileInput, Label, Toast, ToastToggle, Tooltip } from "flowbite-react";
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from "react-hook-form";
 
 //Services
@@ -17,6 +17,9 @@ import { getProgramsS } from "../../services/program.service";
 
 const AdmissionForm = () => {
     //States
+    const location = useLocation();
+    const progT = location.state?.progT;
+
     const {
         register,
         setValue,

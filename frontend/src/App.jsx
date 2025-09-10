@@ -7,6 +7,7 @@ import Home from './pages/home/home.jsx'
 import AdmissionForm from './pages/admission/form.jsx'
 import PaymentAdmission from './pages/admission/payment.jsx'
 import AdmissionVerify from './pages/admission/verify.jsx';
+import ProgramsByGrade from './pages/program/progs-by-grade/progsbygrade.jsx'
 
 //Student pages
 import Bill from './pages/bill/bill'
@@ -162,6 +163,7 @@ const App = () => {
           <Route path="/adminplanning" element={<AdminPlanning employeeCo = {employeeCo} />} />
           <Route path="/message" element={<Message employeeCo = {employeeCo} />} />
           <Route path='/program' element={<Program employeeCo = {employeeCo} />} />
+          <Route path='/programs/:grade' element={<ProgramsByGrade />}></Route>
             <Route path='/employee/program/class' element={<Class employeeCo = {employeeCo} />} />
             <Route path='/employee/program/classroom' element={<Classroom employeeCo= {employeeCo}  />} />
           <Route path="/registration" element={<Registration setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />

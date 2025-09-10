@@ -45,6 +45,20 @@ export const getProgramsS = async () => {
     }
 }
 
+export const getProgramsByGradeS = async (grade) => {
+    console.log("PROGRAM SERVICE : GET PROGRAM BY GRADE");
+    try {
+        const response = await axios.get(`${backend_url}/Program/programs/${grade}`);
+        return {
+            success: true, 
+            programs: response.data
+        }
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
 //Update
 
 //Delete
