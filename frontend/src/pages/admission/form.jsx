@@ -8,12 +8,14 @@ import logo2 from '../../assets/img/UA_Logo2.jpg';
 
 //React
 import { Button, Datepicker, Dropdown, FileInput, Label, Toast, ToastToggle, Tooltip } from "flowbite-react";
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm, Controller } from "react-hook-form";
+import Select from 'react-select';
 
 //Services
 import { getProgramsS } from "../../services/program.service";
+import { da } from "date-fns/locale";
 
 const AdmissionForm = () => {
     //States
@@ -38,7 +40,7 @@ const AdmissionForm = () => {
             personalEmail: "",
             phoneNumber: "",
             picture: null,
-            programTitle: "",
+            programTitle: [progT],
             schoolTranscript: null,
             sexe: "",
             streetAddress: ""
@@ -55,16 +57,12 @@ const AdmissionForm = () => {
     const navigate = useNavigate();
 
     const verify = async (datas) => {
+        const p = datas.programTitle;
+        datas.programTitle = [];
+        p.forEach(program => {
+            datas.programTitle.push(program.value);
+        });
         navigate("/admission/verify", { state: { studentToRegister: datas } });
-    }
-
-    const handleProgramChange = (event) => {
-        const program = event.target.value;
-        const progFounded = programs.find(prog => prog.title === program);
-
-        if (progFounded !== undefined) {
-            setValue("programTitle", program);
-        }
     }
 
     const getPrograms = async () => {
@@ -76,6 +74,13 @@ const AdmissionForm = () => {
         }
     }
 
+    const programOptions = programs.map((element) => ({
+        value: element.title,
+        label: `${element.title} | ${element.grade} : ${element.programName}`
+    }));
+
+
+
     //Return
     return (<>
         <div>
@@ -84,7 +89,7 @@ const AdmissionForm = () => {
             </div>
 
             <div>
-                <form onSubmit={handleSubmit(verify)}>
+                <form onSubmit={(handleSubmit(verify))}>
                     <div className="w-full flex p-4">
                         <label htmlFor="lastname" className="w-1/3">Nom :</label>
                         <div className="w-1/3">
@@ -206,19 +211,20 @@ const AdmissionForm = () => {
                     </div>
                     <div className="w-full flex p-4">
                         <label htmlFor="program" className="w-1/3">Programme :</label>
-                        <div className="w-1/3">
-                            <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                id="program" name="program" 
-                                onChange={handleProgramChange}
-                            >
-                                <option value="">Sélectionnez un programme</option>
-                                {programs.map((element, index) => (
-                                    <option key={index} value={element.title}>
-                                        {element.title} | {element.grade} : {element.programName}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        <Controller
+                            name="programTitle"
+                            control={control}
+                            render={({ field }) => (
+                                <Select
+                                    {...field}
+                                    options={programOptions}
+                                    isMulti
+                                    onChange={(selected) => field.onChange(selected)}
+                                    className="basic-multi-select bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    classNamePrefix="select"
+                                />
+                            )}
+                        />
                     </div>
                     <div className="w-full flex p-4">
                         <Label className="mb-2 block w-1/3" htmlFor="file-upload">

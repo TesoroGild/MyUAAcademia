@@ -27,8 +27,11 @@ const ProgramsByGrade = () => {
     //Functions
     const navigate = useNavigate();
     
-    const navigateToAdmission = (programTitle) => {
-        navigate('/admission', { state: { progT: programTitle } });
+    const navigateToAdmission = (pgr) => {
+        navigate('/admission', { state: { progT: {
+            value: pgr.title,
+            label: `${pgr.title} | ${pgr.grade} : ${pgr.programName}`
+        }}});
     }
     
     const getProgramsByGrade = async () => {
@@ -79,7 +82,7 @@ const ProgramsByGrade = () => {
                                     </div>
                                 )}
                             </div>
-                            <Button className='w-1/5 mx-2' onClick={() => navigateToAdmission(program.title)}>Admission</Button>
+                            <Button className='w-1/5 mx-2' onClick={() => navigateToAdmission(program)}>Admission</Button>
                     </div>
                     ))}
                 </div>
