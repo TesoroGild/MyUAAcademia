@@ -39,9 +39,12 @@ const AdmissionVerify = () => {
             studentToRegister.append("schoolTranscript", str.schoolTranscript[0]);
             studentToRegister.append("sexe", str.sexe);
             studentToRegister.append("streetAddress", str.streetAddress);
-            studentToRegister.append("programTitle", str.programTitle);
+            str.programTitle.forEach(element => {
+                console.log(element);
+                studentToRegister.append("programTitle", element);
+            });
             studentToRegister.append("userRole", "student");
-            
+
             const result = await admissionS(studentToRegister);
             
             if (result.success) {
@@ -51,7 +54,9 @@ const AdmissionVerify = () => {
                     lastName: result.studentRegistered.lastName,
                     email: result.studentRegistered.personalEmail,
                     sexe: result.studentRegistered.sexe,
-                    program: result.studentRegistered.userProgramEnrollments[0].title
+                    program: result.studentRegistered.userProgramEnrollments
+                        .map(p => p.title)
+                        .join(', ')
                 }
                 navigate("/admission/payment", { state: { userInProcess: userInProcess } });
             } else {
@@ -107,31 +112,31 @@ const AdmissionVerify = () => {
                     Date de naissance : {str.birthDay}
                 </div>
                 <div className="w-full flex p-4">
-                    Nationalité :{str.nationality}
+                    Nationalité : {str.nationality}
                 </div>
                 <div className="w-full flex p-4">
-                    Adresse :{str.streetAddress}
+                    Adresse : {str.streetAddress}
                 </div>
                 <div className="w-full flex p-4">
-                    Email :{str.personalEmail}
+                    Email : {str.personalEmail}
                 </div>
                 <div className="w-full flex p-4">
-                    Téléphone :{str.phoneNumber}
+                    Téléphone : {str.phoneNumber}
                 </div>
                 <div className="w-full flex p-4">
-                    NAS :{str.nas}
+                    NAS : {str.nas}
                 </div>
                 <div className="w-full flex p-4">
-                    Programme :{str.programTitle}
+                    Programme : {str.programTitle.join('; ')}
                 </div>
                 <div className="w-full flex p-4">
-                        Relevés scolaires :{str.schoolTranscript[0]?.name}
+                        Relevés scolaires : {str.schoolTranscript[0]?.name}
                 </div>
                 <div className="w-full flex p-4">
-                        Photos :{str.picture[0]?.name}
+                        Photos : {str.picture[0]?.name}
                 </div>
                 <div className="w-full flex p-4">
-                        Pièce d'identité :{str.identityProof[0]?.name}
+                        Pièce d'identité : {str.identityProof[0]?.name}
                 </div>
                 <div className="w-full flex p-4">
                     <Button className="w-1/2" color="red">

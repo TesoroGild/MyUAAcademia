@@ -59,6 +59,20 @@ export const getProgramsByGradeS = async (grade) => {
     }
 }
 
+export const getStudentProgramsS = async (permanentcode) => {
+    console.log("PROGRAM SERVICE : GET ADMISSION PROGRAMS");
+    try {
+        const response = await axios.get(`${backend_url}/Program/${permanentcode}`);
+        return {
+            success: true, 
+            programs: response.data
+        };
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
 //Update
 
 //Delete
