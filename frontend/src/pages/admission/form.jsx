@@ -219,12 +219,18 @@ const AdmissionForm = () => {
                                     {...field}
                                     options={programOptions}
                                     isMulti
-                                    onChange={(selected) => field.onChange(selected)}
+                                    onChange={(selected) => {
+                                        if (selected.length <= 2)
+                                            field.onChange(selected)
+                                    }}
                                     className="basic-multi-select bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     classNamePrefix="select"
                                 />
                             )}
                         />
+                        <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                            Pas plus de 2 programmes sélectionnables.
+                        </p>
                     </div>
                     <div className="w-full flex p-4">
                         <Label className="mb-2 block w-1/3" htmlFor="file-upload">
