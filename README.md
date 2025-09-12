@@ -37,3 +37,6 @@ npm run dev
 
 
 # Troubbleshouting
+
+# TODOS
+* Permettre à l'utilisateur d'entrer d'autres fichiers pour un autre programme.
