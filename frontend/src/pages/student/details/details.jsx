@@ -1,5 +1,5 @@
 //Icons
-import { HiFire, HiOutlineDownload } from "react-icons/hi";
+import { HiCheck, HiX, HiFire, HiOutlineDownload } from "react-icons/hi";
 
 //Reusable
 import AdminDashboard from "../../dashboard/admindashboard";
@@ -14,6 +14,7 @@ import { Button, Card, Toast, ToastToggle } from "flowbite-react";
 import { getStudentS } from "../../../services/user.service";
 import { downloadStudentFileS, getFilesS } from "../../../services/files.service";
 import { getStudentProgramsS } from "../../../services/program.service";
+import { set } from "date-fns";
 
 const StudentDetails = ({studentCo}) => {
     const { permanentcode } = useParams();
@@ -36,7 +37,18 @@ const StudentDetails = ({studentCo}) => {
     });
     const [files, setFiles] = useState([]);
     const [programsEnrolled, setProgramsEnrolled] = useState([]);
-    const [programsNotEnrolled, setProgramsNotEnrolled] = useState([]);
+    const [programsNotEnrolled, setProgramsNotEnrolled] = useState([
+        {
+            department: "",
+            descriptions: "",
+            faculty: "",
+            grade: "",
+            programName: "",
+            title: "",
+            isEnrolled: false
+        }
+    ]);
+    const [decisions, setDecisions] = useState({});
 
 
     //Function
@@ -77,8 +89,10 @@ const StudentDetails = ({studentCo}) => {
                     if (element.IsEnrolled)
                         enrolledPrograms.push(element);
                     else
-                        if (!element.hasFinished)
+                        if (!element.hasFinished) {
                             notEnrolledPrograms.push(element);
+                            notEnrolledPrograms[notEnrolledPrograms.length-1].isEnrolled = null;
+                        }
                 });
                 setProgramsEnrolled(enrolledPrograms);
                 setProgramsNotEnrolled(notEnrolledPrograms);
@@ -109,8 +123,16 @@ const StudentDetails = ({studentCo}) => {
         }
     }
 
-    const registerToAProgram = async (programTitle) => {
-
+    const registerToAProgram = async () => {
+        const t1 = [];
+        programsNotEnrolled.forEach(program => {
+            t1.push({progs : program.title, decisions : program.isEnrolled});
+        });
+        const test = {
+            studentCode : permanentcode,
+            finalDecisions: t1
+        }
+        console.log(test);
     }
     
     
@@ -211,16 +233,34 @@ const StudentDetails = ({studentCo}) => {
                                                 <p>Niveau: {program.grade}</p>
                                                         <p>Faculté: {program.faculty}</p>
                                                         <p>Département: {program.department}</p>
-                                                <Button onClick={() => navigateToAdmission(program)}>
-                                                    Accepter
-                                                    <svg className="-mr-1 ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                                                    <path
-                                                        fillRule="evenodd"
-                                                        d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                                                        clipRule="evenodd"
-                                                    />
-                                                    </svg>
-                                                </Button>
+                                                <div className="flex space-x-4">
+                                                        <button
+                                                            onClick={() => {
+                                                                program.isEnrolled = false, 
+                                                                setDecisions((prev) => ({
+                                                                    ...prev,
+                                                                    [program.title]: false,
+                                                                }))
+                                                            }}
+                                                            className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors
+                                                            ${decisions[program.title] === false ? "bg-red-500 text-white" : "bg-gray-200 text-gray-500"}`}
+                                                        >
+                                                            <HiX className="h-5 w-5" />
+                                                        </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            program.isEnrolled = true,
+                                                            setDecisions((prev) => ({
+                                                                ...prev,
+                                                                [program.title]: true,
+                                                            }))
+                                                        }}
+                                                        className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors
+                                                        ${decisions[program.title] === true ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"}`}
+                                                    >
+                                                        <HiCheck className="h-5 w-5" />
+                                                    </button>
+                                                </div>
                                             </Card>
                                         ))}
                                     </div>
@@ -237,6 +277,7 @@ const StudentDetails = ({studentCo}) => {
                                             <p>Aucun fichier trouvé!</p>
                                         )}
                                     </div>
+                                    <Button className="mt-8" onClick={registerToAProgram}>Confirmer</Button>
                                 </div>
                             )}
                         </div>
