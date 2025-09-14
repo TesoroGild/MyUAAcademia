@@ -4,7 +4,7 @@ import "./space.css";
 import Dashboard from "../dashboard/dashboard";
 import Header from "../header/header";
 
-const StudentSpace = ({userCo}) => {
+const EmployeeSpace = ({userCo}) => {
     return (<>
         <div>
             <div>
@@ -13,15 +13,15 @@ const StudentSpace = ({userCo}) => {
 
             <div className="flex">
                 <div className="dash-div">
-                    <Dashboard/>
+                    <Dashboard userCo = {userCo}/>
                 </div>
                 
                 <div>
-                    emloye espace
+                    employee space
                 </div>
             </div>
         </div>
     </>)
 }
 
-export default StudentSpace;
+export default EmployeeSpace;

@@ -13,11 +13,11 @@ const ProfessorSpace = ({userCo}) => {
 
             <div className="flex">
                 <div className="dash-div">
-                    <Dashboard/>
+                    <Dashboard userCo = {userCo}/>
                 </div>
                 
                 <div>
-                    prof espace
+                    professor space
                 </div>
             </div>
         </div>

@@ -38,6 +38,11 @@ const AdminSpace = ({employeeCo}) => {
                         Heures supplementaires
                     </div>
                 </div>
+
+                <div className="border-2 border-sky-500">
+                    TODO : ADMIN FEATURES
+                </div>
+
             </div>
         </div>
     </>)

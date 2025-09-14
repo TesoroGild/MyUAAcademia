@@ -7,7 +7,7 @@ import { Link, Route, Routes } from 'react-router-dom';
 import { Sidebar } from "flowbite-react";
 import { HiArrowSmRight, HiChartPie, HiInbox, HiShoppingBag, HiTable, HiUser } from "react-icons/hi";
 
-const Dashboard = () => {
+const Dashboard = ({userCo}) => {
   return (
     <Sidebar aria-label="Sidebar with multi-level dropdown example">
       <Sidebar.Items>
@@ -20,8 +20,8 @@ const Dashboard = () => {
           </div>
           
           <div className="flex">
-            <Sidebar.Item href="profile" icon={HiUser}/>
-            <Link to="/profile">
+            <Sidebar.Item href="/student/:`${userCo.permanentCode}`" icon={HiUser}/>
+            <Link to="/student/:`${userCo.permanentCode}`">
               <div className="dashboard-name">Profil</div>
             </Link> 
           </div>

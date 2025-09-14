@@ -17,7 +17,6 @@ import Contact from './pages/contact/contact'
 import Login from './pages/login/login'
 import Notfound from './pages/not-found/notfound'
 import PaymentCourse from './pages/payment/paymentcourse.jsx'
-import Profile from './pages/profile/profile'
 import Planning from './pages/planning/planning'
 import Progress from './pages/progress/progress'
 import UserSpace from './pages/space/userspace'
@@ -152,7 +151,6 @@ const App = () => {
           <Route path="/userspace" element={<UserSpace userCo = {userCo} />} />
           <Route path="/login/user" element={<Login setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
           <Route path="/payment/courses" element={<PaymentCourse bill = {bill} />}/>
-          <Route path="/profile" element={<Profile userCo = {userCo} setUserCo = {setUserCo} />} />
           <Route path="/planning" element={<Planning userCo = {userCo} />} />
           <Route path="/progress" element={<Progress userCo = {userCo} />} />
           <Route path="/subscribe" element={<Subscribe userCo = {userCo}/>} />

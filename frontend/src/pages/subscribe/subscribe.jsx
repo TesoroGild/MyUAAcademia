@@ -209,7 +209,7 @@ function Subscribe ({userCo}) {
 
             <div className="flex">
                 <div className="dash-div">
-                    <Dashboard/>
+                    <Dashboard userCo = {userCo}/>
                 </div>
                 
                 <div className="w-full">
