@@ -1,20 +1,21 @@
 //Icons
-import { HiCheck, HiX, HiFire, HiOutlineDownload } from "react-icons/hi";
+import { HiCheck, HiX, HiFire, HiOutlineDownload, HiExclamation, HiOutlinePencilAlt, HiOutlineQuestionMarkCircle } from "react-icons/hi";
+import logo from '../../../assets/img/UA_Logo.png';
 
 //Reusable
 import AdminDashboard from "../../dashboard/admindashboard";
 import AdminHeader from "../../header/adminheader";
 
 //React
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useParams } from 'react-router-dom';
-import { Button, Card, Toast, ToastToggle } from "flowbite-react";
+import { Avatar, Button, Card, Label, Modal, TextInput, Toast, ToastToggle, Tooltip } from "flowbite-react";
 
 //Services
 import { getStudentS } from "../../../services/user.service";
 import { downloadStudentFileS, getFilesS } from "../../../services/files.service";
-import { getStudentProgramsS } from "../../../services/program.service";
-import { set } from "date-fns";
+import { getStudentProgramsS, registerToAProgramS } from "../../../services/program.service";
+import { update } from '../../../services/profile.service';
 
 const StudentDetails = ({studentCo}) => {
     const { permanentcode } = useParams();
@@ -49,7 +50,24 @@ const StudentDetails = ({studentCo}) => {
         }
     ]);
     const [decisions, setDecisions] = useState({});
-
+    const [showErrorToast, setShowErrorToast] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showWarningToast, setShowWarningToast] = useState(false);
+    const [showSuccessToast, setShowSuccessToast] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const firstNameInputRef = useRef("");
+    const lastNameInputRef = useRef("");
+    const sexeInputRef = useRef("");
+    const phoneNumberInputRef = useRef("");
+    const nasInputRef = useRef("");
+    const pwdInputRef = useRef("");
+    const [profileModForm, setProfileModForm] = useState({
+        permanentCode: "",
+        phoneNumber: "",
+        nas: "",
+        pwd: ""
+    });
 
     //Function
     useEffect(() => {
@@ -86,7 +104,7 @@ const StudentDetails = ({studentCo}) => {
                 const enrolledPrograms = [];
                 const notEnrolledPrograms = [];
                 result.programs.forEach(element => {
-                    if (element.IsEnrolled)
+                    if (element.isEnrolled)
                         enrolledPrograms.push(element);
                     else
                         if (!element.hasFinished) {
@@ -97,7 +115,6 @@ const StudentDetails = ({studentCo}) => {
                 setProgramsEnrolled(enrolledPrograms);
                 setProgramsNotEnrolled(notEnrolledPrograms);
             }
-            
         } catch (error) {
             console.log(error);
         }
@@ -126,14 +143,80 @@ const StudentDetails = ({studentCo}) => {
     const registerToAProgram = async () => {
         const t1 = [];
         programsNotEnrolled.forEach(program => {
-            t1.push({progs : program.title, decisions : program.isEnrolled});
+            t1.push({title : program.title, isAccepted : program.isEnrolled});
         });
         const test = {
-            studentCode : permanentcode,
+            permanentCode : permanentcode,
             finalDecisions: t1
         }
-        console.log(test);
+        
+        try {
+            const result = await registerToAProgramS(test);
+            
+            if (result.success) {
+                setShowSuccessToast(true);
+                setTimeout(() => setShowSuccessToast(false), 5000);
+                getStudentPrograms();
+            } else {
+                setErrorMessage(result.message);
+                setShowErrorToast(true);
+                setTimeout(() => setShowErrorToast(false), 5000);
+            }
+        } catch (error) {
+            console.log(error);
+            setShowWarningToast(true);
+            setTimeout(() => setShowWarningToast(false), 5000);
+        }
     }
+
+    const initUpdForm = () => {
+        setProfileModForm({
+            phoneNumber: student.phoneNumber || "",
+            nas: student.nas || "",
+            pwd: ""
+        });
+
+        setOpenModal(true);
+    }
+
+    const updateProfile = async (event) => {
+            event.preventDefault();
+            console.log(profileModForm)
+            try {
+                const profileToModify = {
+                    //permanentCode: student.permanentCode,
+                    permanentCode: student.permanentCode,
+                    phoneNumber: profileModForm.phoneNumber,
+                    nas: profileModForm.nas,
+                    pwd: profileModForm.pwd
+                }
+    
+                const profileModified = await update(profileToModify);
+    
+                if (profileModified !== null && profileModified !== undefined) {
+                    setOpenModal(false);
+                    setStudent((prev) => ({
+                        ...prev,
+                        ...profileModified
+                    }));
+                    setstudent((prevProf) => ({
+                        ...prevProf,
+                        ...profileModified
+                    }));
+                    navigate('/profile');
+                } else {
+                    console.log("moi?");
+                    setShowAlert(true);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        const handleModifyChange = (event) => {
+        setProfileModForm({ ...profileModForm, [event.target.name]: event.target.value });
+        console.log(profileModForm);
+    };
     
     
     //Retrun
@@ -157,75 +240,124 @@ const StudentDetails = ({studentCo}) => {
                                 </div>
                             </div>
 
-                            <div className="flex w-full mt-8 px-4">
-                                <div className="w-1/2 border-2 border-sky-500 mr-2">
-                                    <div>
-                                        Nom complet : {student.lastName} {student.firstName}
+                            <div className="mt-8 mx-4 page-div">
+                                <div className="w-full flex border-2 border-sky-500">
+                                    <div className="left-div ml-40">
+                                        <Avatar img={logo} bordered size="xl"/>
+                                        {student.firstName} {student.lastName}
+                                        <br />
+                                        {student.permanentCode}
+                                        <br />
+                                        {/* Pencil pour boutton modifier */}
+                                        
+                                        <Modal show={openModal} size="md" popup onClose={() => setOpenModal(false)} initialFocus={firstNameInputRef}>
+                                            <Modal.Header />
+                                            <Modal.Body>
+                                            <form onSubmit={updateProfile}>
+                                                <div className="space-y-6">
+                                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white">Effectuez vos modification</h3>
+                                                    <div>
+                                                        <div className="mb-2 block">
+                                                            <Label htmlFor="phoneNumber" value="Numéro" />
+                                                        </div>
+                                                        <TextInput id="phoneNumber" name="phoneNumber" 
+                                                            ref={phoneNumberInputRef}
+                                                            value={profileModForm.phoneNumber} 
+                                                            onChange={handleModifyChange}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <div className="mb-2 block">
+                                                            <Label htmlFor="nas" value="NAS" />
+                                                        </div>
+                                                        <TextInput id="nas" name="nas" 
+                                                            ref={nasInputRef} 
+                                                            value={profileModForm.nas}  
+                                                            onChange={handleModifyChange}
+                                                            required
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <div className="mb-2 flex">
+                                                            <Label htmlFor="pwd" value="Mot de passe  " />
+                                                            <Tooltip content="Garder ce champ vide si vous ne désirez pas changer votre mot de passe actuel!">
+                                                                <HiOutlineQuestionMarkCircle  />
+                                                            </Tooltip>
+                                                        </div>
+                                                        <TextInput id="pwd" name="pwd" type="password" 
+                                                            onChange={handleModifyChange}
+                                                        />
+                                                    </div>
+                                                    <div className="w-full">
+                                                        <Button type="submit">Modifier</Button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            </Modal.Body>
+                                            { showAlert && (
+                                                <Toast>
+                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
+                                                    <HiExclamation className="h-5 w-5" />
+                                                    </div>
+                                                    <div className="ml-3 text-sm font-normal">Erreur serveur.</div>
+                                                    <Toast.Toggle />
+                                                </Toast>
+                                            )}
+                                        </Modal>
                                     </div>
-
-                                    <div>
-                                        Date de naissance : {student.birthDay}
-                                    </div>
-
-                                    <div>
-                                        Sexe : {student.sexe}
-                                    </div>
-
-                                    <div>
-                                        Email personel : {student.personalEmail}
-                                    </div>
-
-                                    <div>
-                                        Nationalité : {student.nationality}
-                                    </div>
-                                </div>
-
-                                <div className="w-1/2 border-2 border-sky-500 ml-2">
-                                    <div>
-                                        Profession : {student.userRole}
-                                    </div>
-
-                                    <div>
-                                        Code permanent : {student.permanentCode}
-                                    </div>
-
-                                    <div>
-                                        Email scolaire : {student.professionalEmail}
-                                    </div>
-
-                                    <div>
-                                        Téléphone : {student.phoneNumber}
-                                    </div>
-
-                                    <div>
-                                        NAS : {student.nas}
+                                    <div className="w-full">
+                                        <div className="right-div">
+                                            <ul>
+                                                <li className="bg-slate-300">Sexe : {student.sexe}</li>
+                                                <li>Email personel : {student.personalEmail}</li>
+                                                <li className="bg-slate-300">Rôle : {student.userRole}</li>
+                                                <li>Numéro : {student.phoneNumber}</li>
+                                                <li className="bg-slate-300">NAS : {student.nas}</li>
+                                                <li>Date de naissance : {student.birthDay}</li>
+                                                <li className="bg-slate-300">Nationalité : {student.nationality}</li>
+                                                <li>Adresse : {student.streetAddress}</li>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <div className="w-full mt-6 mx-4 border-2 border-sky-500">
+                                <div className="right-div left-space">
+                                    <ul>
+                                        <li className="bg-slate-300">Profession : {student.userRole}</li>
+                                        <li>Email scolaire : {student.professionalEmail}</li>
+                                        <li className="bg-slate-300">Téléphone : {student.phoneNumber}</li>
+                                        <li>NAS : {student.nas}</li>
+                                    </ul>
+                                </div>
+                            </div>
 
+                            <Button className="justify-self-center mt-4" onClick={initUpdForm}><HiOutlinePencilAlt className="mr-2 h-5 w-5" />Modifier votre profil</Button>
                             
                             {programsEnrolled.map((program, index) => (
-                                <Card key={index} className="max-w-sm">
-                                    <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                        {program.title} : {program.programName}
-                                    </h5>
-                                    <p>Niveau: {program.grade}</p>
-                                            <p>Faculté: {program.faculty}</p>
-                                            <p>Département: {program.department}</p>
-                                    <Toast>
-                                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-cyan-500 dark:bg-cyan-800 dark:text-cyan-200">
-                                            <HiFire className="h-5 w-5" />
-                                        </div>
-                                        <div className="ml-3 text-sm font-normal">En cours...</div>
-                                        <ToastToggle />
-                                    </Toast>
-                                </Card>
+                                <div className="mt-8 px-4">
+                                    <Card key={index} className="max-w-sm">
+                                        <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                            {program.title} : {program.programName}
+                                        </h5>
+                                        <p>Niveau: {program.grade}</p>
+                                                <p>Faculté: {program.faculty}</p>
+                                                <p>Département: {program.department}</p>
+                                        <Toast className="bg-green-100">
+                                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-cyan-500 dark:text-cyan-200">
+                                                <HiFire className="h-5 w-5" />
+                                            </div>
+                                            <div className="ml-3 text-sm font-normal">En cours d'obtention</div>
+                                        </Toast>
+                                    </Card>
+                                </div>
                             ))}
 
                             {programsNotEnrolled && (
                                 <div>
-                                    <div className="flex mt-8">
-                                        {programsNotEnrolled.map((program, idx) => (
+                                    {programsNotEnrolled.map((program, idx) => (
+                                        <div className="mt-8">
                                             <Card key={idx} className="max-w-sm mx-4">
                                                 <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                                                     {program.title} : {program.programName}
@@ -262,22 +394,52 @@ const StudentDetails = ({studentCo}) => {
                                                     </button>
                                                 </div>
                                             </Card>
-                                        ))}
-                                    </div>
-                                    <div className="w-1/2 border-2 border-sky-500 mt-8 ml-4">
-                                        {files && files.length > 0 ? (
-                                            <div>
-                                                {files.map((file, index) => (
-                                                    <div key={index} className="flex cursor-pointer" onClick={() =>downloadStudentFile(file.fileName)}>
-                                                        {file.fileName} <HiOutlineDownload />
+
+                                            <div className="w-1/2 border-2 border-sky-500 mt-8 ml-4">
+                                                {files && files.length > 0 ? (
+                                                    <div>
+                                                        {files.map((file, index) => (
+                                                            <div key={index} className="flex cursor-pointer" onClick={() =>downloadStudentFile(file.fileName)}>
+                                                                {file.fileName} <HiOutlineDownload />
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                ))}
+                                                ):(
+                                                    <p>Aucun fichier trouvé!</p>
+                                                )}
                                             </div>
-                                        ):(
-                                            <p>Aucun fichier trouvé!</p>
-                                        )}
-                                    </div>
-                                    <Button className="mt-8" onClick={registerToAProgram}>Confirmer</Button>
+                                            <div className="flex">
+                                                <Button className="mt-8" onClick={registerToAProgram}>Confirmer</Button>
+                                                {showSuccessToast && (
+                                                    <Toast>
+                                                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                                            <HiCheck className="h-5 w-5" />
+                                                        </div>
+                                                        <div className="ml-3 text-sm font-normal">Programme(s) ajouté(s).</div>
+                                                        <ToastToggle />
+                                                    </Toast>
+                                                )}
+                                                {showWarningToast && (
+                                                    <Toast>
+                                                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
+                                                            <HiExclamation className="h-5 w-5" />
+                                                        </div>
+                                                        <div className="ml-3 text-sm font-normal">Impossible de contacter le serveur. Veuillez essayer plus tard.</div>
+                                                        <ToastToggle />
+                                                    </Toast>
+                                                )}
+                                                {showErrorToast && (
+                                                    <Toast>
+                                                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                                            <HiX className="h-5 w-5" />
+                                                        </div>
+                                                        <div className="ml-3 text-sm font-normal">{errorMessage}</div>
+                                                        <ToastToggle />
+                                                    </Toast>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>

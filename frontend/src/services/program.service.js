@@ -73,6 +73,21 @@ export const getStudentProgramsS = async (permanentcode) => {
     }
 }
 
+
 //Update
+export const registerToAProgramS = async (requestParams) => {
+    console.log("PROGRAM SERVICE : REGISTER TO A PROGRAM");
+    try {
+        const response = await axios.put(`${backend_url}/UserProgram/programs-admitted`, requestParams);
+        return {
+            success: true, 
+            isEnrolleed: response.data
+        }
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
 
 //Delete
