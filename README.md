@@ -39,4 +39,17 @@ npm run dev
 # Troubbleshouting
 
 # TODOS
+## Features
 * Permettre à l'utilisateur d'entrer d'autres fichiers pour un autre programme.
+* Mettre dans le lien envoyé à l'utilisateur un coockie valide pour modifier son mot de passe.
+* Messagerie.
+* Emploi du temps.
+* Espace étudiant & employé.
+
+## UI/UX
+* Messagerie.
+* Emploi du temps.
+
+## Architecture
+* Choisir entre des fichiers regroupés dans des dossiers et des fichiers regroupés qui ne le sont pas.
+* Réorganisation des fichiers.

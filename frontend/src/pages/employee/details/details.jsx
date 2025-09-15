@@ -128,6 +128,25 @@ const EmployeeDetails = ({employeeCo}) => {
         }
     }
 
+    const sendEmail = (e) => {
+    e.preventDefault();
+
+    emailjs.sendForm(
+      'YOUR_SERVICE_ID',     // ex: 'contact_service'
+      'YOUR_TEMPLATE_ID',    // ex: 'contact_form'
+      form.current,
+      'YOUR_PUBLIC_KEY'      // ex: 'user_xxxxxxxx'
+    )
+    .then(() => {
+      alert('Message envoyé avec succès !');
+    })
+    .catch((error) => {
+      console.error('Erreur lors de l’envoi :', error);
+      alert('Échec de l’envoi du message.');
+    });
+  };
+
+
     //Return
     return (<>
         <div className="flex">

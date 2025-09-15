@@ -1,3 +1,5 @@
+import emailjs from '@emailjs/browser';
+
 //Icons
 import { HiCheck, HiX, HiFire, HiOutlineDownload, HiExclamation, HiOutlinePencilAlt, HiOutlineQuestionMarkCircle } from "react-icons/hi";
 import logo from '../../../assets/img/UA_Logo.png';
@@ -16,6 +18,10 @@ import { getStudentS } from "../../../services/user.service";
 import { downloadStudentFileS, getFilesS } from "../../../services/files.service";
 import { getStudentProgramsS, registerToAProgramS } from "../../../services/program.service";
 import { update } from '../../../services/profile.service';
+
+const your_service_id = import.meta.env.VITE_YOUR_SERVICE_ID;
+const your_template_id = import.meta.env.VITE_YOUR_TEMPLATE_ID;
+const your_public_key = import.meta.env.VITE_YOUR_PUBLIC_KEY;
 
 const StudentDetails = ({studentCo}) => {
     const { permanentcode } = useParams();
@@ -68,6 +74,7 @@ const StudentDetails = ({studentCo}) => {
         nas: "",
         pwd: ""
     });
+
 
     //Function
     useEffect(() => {
@@ -157,6 +164,16 @@ const StudentDetails = ({studentCo}) => {
                 setShowSuccessToast(true);
                 setTimeout(() => setShowSuccessToast(false), 5000);
                 getStudentPrograms();
+
+                var t2 = "";
+                t1.forEach(element => {
+                    if (element.isAccepted)
+                        t2 += element.title + ", ";
+                });
+                t2.slice(0, -2);
+                t2 += ".";
+                if (t2.trim().length > 0)
+                    sendUserCredentialsEmail(t2);
             } else {
                 setErrorMessage(result.message);
                 setShowErrorToast(true);
@@ -180,43 +197,69 @@ const StudentDetails = ({studentCo}) => {
     }
 
     const updateProfile = async (event) => {
-            event.preventDefault();
-            console.log(profileModForm)
-            try {
-                const profileToModify = {
-                    //permanentCode: student.permanentCode,
-                    permanentCode: student.permanentCode,
-                    phoneNumber: profileModForm.phoneNumber,
-                    nas: profileModForm.nas,
-                    pwd: profileModForm.pwd
-                }
-    
-                const profileModified = await update(profileToModify);
-    
-                if (profileModified !== null && profileModified !== undefined) {
-                    setOpenModal(false);
-                    setStudent((prev) => ({
-                        ...prev,
-                        ...profileModified
-                    }));
-                    setstudent((prevProf) => ({
-                        ...prevProf,
-                        ...profileModified
-                    }));
-                    navigate('/profile');
-                } else {
-                    console.log("moi?");
-                    setShowAlert(true);
-                }
-            } catch (error) {
-                console.log(error);
+        event.preventDefault();
+        console.log(profileModForm)
+        try {
+            const profileToModify = {
+                //permanentCode: student.permanentCode,
+                permanentCode: student.permanentCode,
+                phoneNumber: profileModForm.phoneNumber,
+                nas: profileModForm.nas,
+                pwd: profileModForm.pwd
             }
-        }
 
-        const handleModifyChange = (event) => {
+            const profileModified = await update(profileToModify);
+
+            if (profileModified !== null && profileModified !== undefined) {
+                setOpenModal(false);
+                setStudent((prev) => ({
+                    ...prev,
+                    ...profileModified
+                }));
+                setStudent((prevProf) => ({
+                    ...prevProf,
+                    ...profileModified
+                }));
+                navigate('/profile');
+            } else {
+                console.log("moi?");
+                setShowAlert(true);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleModifyChange = (event) => {
         setProfileModForm({ ...profileModForm, [event.target.name]: event.target.value });
         console.log(profileModForm);
     };
+
+    const sendUserCredentialsEmail = (progsAccepted) => {
+        const templateParams = {
+            email: "qwerty01@yopmail.com",
+            permanentCode: student.permanentCode,
+            pwd: "motDePasseSecret",
+            lastName: student.lastName,
+            firstName: student.firstName,
+            link: 'http://localhost:5173/employee/resetpwd',
+            programs: progsAccepted
+        };
+
+        emailjs.send(
+            your_service_id,
+            your_template_id,
+            templateParams,
+            your_public_key
+        )
+        .then(() => {
+            console.log("Email envoyé !");
+        })
+        .catch((error) => {
+            console.error("Erreur :", error);
+        });
+    };
+
     
     
     //Retrun
@@ -234,66 +277,59 @@ const StudentDetails = ({studentCo}) => {
                 <div>
                     { student.permanentCode != "" ? (
                         <div>
-                            <div className="flex w-full border-2 border-sky-500 justify-center">
-                                <div className="">
-                                    Picture
-                                </div>
-                            </div>
-
                             <div className="mt-8 mx-4 page-div">
                                 <div className="w-full flex border-2 border-sky-500">
-                                    <div className="left-div ml-40">
+                                    <div className="left-div ml-40 mr-4">
                                         <Avatar img={logo} bordered size="xl"/>
                                         {student.firstName} {student.lastName}
                                         <br />
                                         {student.permanentCode}
                                         <br />
                                         {/* Pencil pour boutton modifier */}
-                                        
                                         <Modal show={openModal} size="md" popup onClose={() => setOpenModal(false)} initialFocus={firstNameInputRef}>
                                             <Modal.Header />
                                             <Modal.Body>
-                                            <form onSubmit={updateProfile}>
-                                                <div className="space-y-6">
-                                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white">Effectuez vos modification</h3>
-                                                    <div>
-                                                        <div className="mb-2 block">
-                                                            <Label htmlFor="phoneNumber" value="Numéro" />
+                                                <form onSubmit={updateProfile}>
+                                                    <div className="space-y-6">
+                                                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">Effectuez vos modification</h3>
+                                                        <div>
+                                                            <div className="mb-2 block">
+                                                                <Label htmlFor="phoneNumber" value="Numéro" />
+                                                            </div>
+                                                            <TextInput id="phoneNumber" name="phoneNumber" 
+                                                                ref={phoneNumberInputRef}
+                                                                value={profileModForm.phoneNumber} 
+                                                                onChange={handleModifyChange}
+                                                                required
+                                                            />
                                                         </div>
-                                                        <TextInput id="phoneNumber" name="phoneNumber" 
-                                                            ref={phoneNumberInputRef}
-                                                            value={profileModForm.phoneNumber} 
-                                                            onChange={handleModifyChange}
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <div className="mb-2 block">
-                                                            <Label htmlFor="nas" value="NAS" />
+                                                        <div>
+                                                            <div className="mb-2 block">
+                                                                <Label htmlFor="nas" value="NAS" />
+                                                            </div>
+                                                            <TextInput id="nas" name="nas" 
+                                                                ref={nasInputRef} 
+                                                                value={profileModForm.nas}  
+                                                                onChange={handleModifyChange}
+                                                                required
+                                                            />
                                                         </div>
-                                                        <TextInput id="nas" name="nas" 
-                                                            ref={nasInputRef} 
-                                                            value={profileModForm.nas}  
-                                                            onChange={handleModifyChange}
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <div className="mb-2 flex">
-                                                            <Label htmlFor="pwd" value="Mot de passe  " />
-                                                            <Tooltip content="Garder ce champ vide si vous ne désirez pas changer votre mot de passe actuel!">
-                                                                <HiOutlineQuestionMarkCircle  />
-                                                            </Tooltip>
+                                                        <div>
+                                                            <div className="mb-2 flex">
+                                                                <Label htmlFor="pwd" value="Mot de passe  " />
+                                                                <Tooltip content="Garder ce champ vide si vous ne désirez pas changer votre mot de passe actuel!">
+                                                                    <HiOutlineQuestionMarkCircle  />
+                                                                </Tooltip>
+                                                            </div>
+                                                            <TextInput id="pwd" name="pwd" type="password" 
+                                                                onChange={handleModifyChange}
+                                                            />
                                                         </div>
-                                                        <TextInput id="pwd" name="pwd" type="password" 
-                                                            onChange={handleModifyChange}
-                                                        />
+                                                        <div className="w-full">
+                                                            <Button type="submit">Modifier</Button>
+                                                        </div>
                                                     </div>
-                                                    <div className="w-full">
-                                                        <Button type="submit">Modifier</Button>
-                                                    </div>
-                                                </div>
-                                            </form>
+                                                </form>
                                             </Modal.Body>
                                             { showAlert && (
                                                 <Toast>
@@ -322,28 +358,35 @@ const StudentDetails = ({studentCo}) => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="w-full mt-6 mx-4 border-2 border-sky-500">
-                                <div className="right-div left-space">
-                                    <ul>
-                                        <li className="bg-slate-300">Profession : {student.userRole}</li>
-                                        <li>Email scolaire : {student.professionalEmail}</li>
-                                        <li className="bg-slate-300">Téléphone : {student.phoneNumber}</li>
-                                        <li>NAS : {student.nas}</li>
-                                    </ul>
+                            <div className="mt-8 mx-4 page-div">
+                                <div className="w-full flex border-2 border-sky-500">
+                                    <div className="left-div ml-40 mr-4">
+                                        <Avatar img={logo} bordered size="xl"/>
+                                    </div>
+                                    <div className="w-full">
+                                        <div className="right-div">
+                                            <ul>
+                                                <li className="bg-slate-300">Profession : {student.userRole}</li>
+                                                <li>Email scolaire : {student.professionalEmail}</li>
+                                                <li className="bg-slate-300">Téléphone : {student.phoneNumber}</li>
+                                                <li>NAS : {student.nas}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             <Button className="justify-self-center mt-4" onClick={initUpdForm}><HiOutlinePencilAlt className="mr-2 h-5 w-5" />Modifier votre profil</Button>
                             
-                            {programsEnrolled.map((program, index) => (
+                            {programsEnrolled.map((program) => (
                                 <div className="mt-8 px-4">
-                                    <Card key={index} className="max-w-sm">
+                                    <Card key={program.title} className="max-w-sm">
                                         <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                                             {program.title} : {program.programName}
                                         </h5>
                                         <p>Niveau: {program.grade}</p>
-                                                <p>Faculté: {program.faculty}</p>
-                                                <p>Département: {program.department}</p>
+                                        <p>Faculté: {program.faculty}</p>
+                                        <p>Département: {program.department}</p>
                                         <Toast className="bg-green-100">
                                             <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-cyan-500 dark:text-cyan-200">
                                                 <HiFire className="h-5 w-5" />
@@ -356,9 +399,9 @@ const StudentDetails = ({studentCo}) => {
 
                             {programsNotEnrolled && (
                                 <div>
-                                    {programsNotEnrolled.map((program, idx) => (
+                                    {programsNotEnrolled.map((program) => (
                                         <div className="mt-8">
-                                            <Card key={idx} className="max-w-sm mx-4">
+                                            <Card key={program.title} className="max-w-sm mx-4">
                                                 <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                                                     {program.title} : {program.programName}
                                                 </h5>
@@ -398,8 +441,8 @@ const StudentDetails = ({studentCo}) => {
                                             <div className="w-1/2 border-2 border-sky-500 mt-8 ml-4">
                                                 {files && files.length > 0 ? (
                                                     <div>
-                                                        {files.map((file, index) => (
-                                                            <div key={index} className="flex cursor-pointer" onClick={() =>downloadStudentFile(file.fileName)}>
+                                                        {files.map((file) => (
+                                                            <div key={file.fileName} className="flex cursor-pointer" onClick={() =>downloadStudentFile(file.fileName)}>
                                                                 {file.fileName} <HiOutlineDownload />
                                                             </div>
                                                         ))}
@@ -447,7 +490,6 @@ const StudentDetails = ({studentCo}) => {
                         <div>Aucun étudiant trouvé.</div>
                     )}
                 </div>
-
             </div>
         </div>
     </>)

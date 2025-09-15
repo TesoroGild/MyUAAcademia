@@ -11,6 +11,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "antd": "^5.20.2",
     "axios": "^1.7.2",
     "date-fns": "^3.6.0",
