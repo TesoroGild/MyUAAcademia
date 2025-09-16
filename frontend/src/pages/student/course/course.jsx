@@ -99,9 +99,9 @@ const Course = ({employeeCo}) => {
                 permanentCodes: studentsPermanentCodes
             }
 
-            const registrationResponse = await enrollStudentsInCoursesS(registrationToCreate);
+            const response = await enrollStudentsInCoursesS(registrationToCreate);
 
-            if (registrationResponse) {
+            if (response.success) {
                 setStudentsPermanentCodes([]);
                 setClassesCoursesIds([]);
                 setProgramTitle("");
@@ -110,7 +110,7 @@ const Course = ({employeeCo}) => {
                     setShowStudentsClassesAdded(false);
                 }, 5000);
             } else {
-                console.log("Erreur");
+                console.log(response.message);
             }
         } catch (error) {
             console.log(error);

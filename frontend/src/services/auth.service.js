@@ -80,8 +80,11 @@ export const getUserBySessionS = async () => {
 export const userLogin = async (credentials) => {
   console.log("AUTH SERVICE : LOGIN");
   try {
-    const response = await axios.post(`${backend_url}/User/login`, credentials, {withCredentials: true});
-    return response.data.user;
+    const response = await axios.post(`${backend_url}/Auth/login2`, credentials, {withCredentials: true});
+    return {
+      success: true, 
+      userConnected: response.data
+    };
   } catch (error) {
     console.error('Erreur :', error);
     throw error;

@@ -17,7 +17,12 @@ const StudentSpace = ({userCo}) => {
                 </div>
                 
                 <div>
-                    espace etudiant
+                    <div>Important</div>
+                    <div>
+                        <p>Dossier Académique</p>
+                        <div>Total de crédits</div>
+                        <div>Evènements</div>
+                    </div>
                 </div>
             </div>
         </div>

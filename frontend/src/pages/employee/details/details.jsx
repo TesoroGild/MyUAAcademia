@@ -48,10 +48,7 @@ const EmployeeDetails = ({employeeCo}) => {
     const navigate = useNavigate();
     
     useEffect(() => {
-        console.log(employeeCo);
-        if (employeeCo) {
-            getEmployee(employeeCo.code);
-        }
+        if (employeeCo) getEmployee(employeeCo.code);
     }, [employeeCo]);
 
     const getEmployee = async (code) => {

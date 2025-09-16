@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 //Services
 import { userLogin } from '../../services/auth.service';
 
-function Login ({setUserCo, setEmployeeCo}) {
+function Login ({ setUserCo }) {
     //States
     const [loginForm, setLoginForm] = useState({
         permanentCode: "",
@@ -46,11 +46,12 @@ function Login ({setUserCo, setEmployeeCo}) {
           const result = await userLogin(userCredentials);
 
           if (result.success) {
-            console.log(result.userConnected);
-            await setEmployeeCo((prevEmployeeCo) => ({
-                    ...prevEmployeeCo,
-                    ...result.userConnected
-                }));
+            await setUserCo((prev) => ({
+                ...prev,
+                ...result.userConnected
+            }));
+            localStorage.setItem('justLoggedIn', 'true');
+            localStorage.setItem('userRole', result.userConnected.userRole);
             if (result.userConnected.userRole.toLowerCase() == "professor") {
                 navigate('/professorspace');
             } else {

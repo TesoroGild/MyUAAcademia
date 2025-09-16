@@ -24,23 +24,23 @@ export const enrollStudentsInCoursesS = async (requestParams) => {
     console.log("COURSE SERVICE : CREATE COURSE-REGISTRATIONS");
     try {
         const response = await axios.post(`${backend_url}/UserCourse/students-courses`, requestParams);
-        return response.data;
+        return {
+            success: true, 
+            response: response.data
+        };
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        console.error('Erreur :', error.response.data);
+    
+        if (error.response)
+            return {
+                success: false,
+                message: error.response.data
+            };
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
-export const register = async (userCourses) => {
-    console.log("COURSE SERVICE : REGISTER");
-    try {
-        const response = await axios.post(`${backend_url}/UserCourse/register-student-for-a-course`, userCourses);
-        return response.data;
-    } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
-    }
-}
 
 //Read
 export const getAvailableCoursesS = async (availablePeriods) => {
@@ -76,14 +76,49 @@ export const getProgramCoursesS = async (programTitle) => {
     }
 }
 
-export const getStudentCoursesS = async (requestParams) => {
+export const getStudentCoursesS = async (permanentCode) => {
     console.log("COURSE SERVICE : GET STUDENT COURSES");
     try {
-        const response = await axios.post(`${backend_url}/UserCourse/student-courses`, requestParams);
-        return response.data;
+        console.log(permanentCode);
+        const response = await axios.get(`${backend_url}/UserCourse/student-courses/${permanentCode}`);
+        return {
+            success: true, 
+            courses: response.data
+        }
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        console.error('Erreur :', error.response.data);
+    
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
+    }
+}
+
+export const getStudentSessionCoursesS = async (requestParams) => {
+    console.log("COURSE SERVICE : GET STUDENT SESSION COURSES");
+    try {
+        console.log(permanentCode);
+        const response = await axios.get(`${backend_url}/ClasseCourse/student-session-courses`, requestParams);
+        return {
+            success: true, 
+            courses: response.data
+        }
+    } catch (error) {
+        console.error('Erreur :', error.response.data);
+    
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 

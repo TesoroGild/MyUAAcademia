@@ -7,6 +7,8 @@ import logo from '../../../assets/img/UA_Logo.png';
 //Reusable
 import AdminDashboard from "../../dashboard/admindashboard";
 import AdminHeader from "../../header/adminheader";
+import Dashboard from '../../dashboard/dashboard';
+import Header from '../../header/header';
 
 //React
 import React, { useEffect, useRef, useState } from "react";
@@ -23,7 +25,7 @@ const your_service_id = import.meta.env.VITE_YOUR_SERVICE_ID;
 const your_template_id = import.meta.env.VITE_YOUR_TEMPLATE_ID;
 const your_public_key = import.meta.env.VITE_YOUR_PUBLIC_KEY;
 
-const StudentDetails = ({studentCo}) => {
+const StudentDetails = ({userCo}) => {
     const { permanentcode } = useParams();
     const location = useLocation();
     const user = location.state?.userInProcess;
@@ -266,17 +268,17 @@ const StudentDetails = ({studentCo}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
-                <AdminDashboard studentCo = {studentCo} />
+                {userCo.userRole == "admin" ? <AdminDashboard employeeCo = {userCo} /> : <Dashboard userCo = {userCo}/>}
             </div>
                 
             <div className="w-full">
                 <div>
-                    <AdminHeader/>
+                    {userCo.userRole == "admin" ? <AdminHeader/> : <Header userCo = {userCo}/>}
                 </div>
 
                 <div>
                     { student.permanentCode != "" ? (
-                        <div>
+                        <div key={student.permanentCode}>
                             <div className="mt-8 mx-4 page-div">
                                 <div className="w-full flex border-2 border-sky-500">
                                     <div className="left-div ml-40 mr-4">
@@ -397,7 +399,7 @@ const StudentDetails = ({studentCo}) => {
                                 </div>
                             ))}
 
-                            {programsNotEnrolled && (
+                            {programsNotEnrolled && (userCo.userRole.toLowerCase() === "admin" || userCo.userRole.toLowerCase() === "employee") && (
                                 <div>
                                     {programsNotEnrolled.map((program) => (
                                         <div className="mt-8">

@@ -23,7 +23,6 @@ const AdminDashboard = ({employeeCo}) => {
       const result = await logoutS();
 
       if (result.success) {
-        //setEmployeeCo("");
         window.location.href = "/login/employee";
       }
     } catch (error) {
@@ -39,38 +38,10 @@ const AdminDashboard = ({employeeCo}) => {
           { !employeeCo ? (
             <div>
               <Card className="max-w-sm">
-                  <div className="flex justify-end px-4 pt-4">
-                    <Dropdown inline label="">
-                      <Dropdown.Item>
-                        <a
-                          href="#"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
-                        >
-                          Edit
-                        </a>
-                      </Dropdown.Item>
-                      <Dropdown.Item>
-                        <a
-                          href="#"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
-                        >
-                          Export Data
-                        </a>
-                      </Dropdown.Item>
-                      <Dropdown.Item>
-                        <a
-                          href="#"
-                          className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white"
-                        >
-                          Delete
-                        </a>
-                      </Dropdown.Item>
-                    </Dropdown>
-                  </div>
-                  <div className="flex flex-col items-center pb-10">
-                    <Avatar img={Admin} bordered size="xl"/>
-                  </div>
-                </Card>
+                <div className="flex flex-col items-center pb-10">
+                  <Avatar img={Admin} bordered size="xl"/>
+                </div>
+              </Card>
             </div>
           ) : (
             <div>

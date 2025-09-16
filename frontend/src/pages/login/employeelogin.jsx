@@ -11,7 +11,7 @@ import { employeeLogin } from '../../services/auth.service';
 //Icons
 import { HiExclamation, HiX  } from "react-icons/hi";
 
-function EmployeeLogin ({ setEmployeeCo}) {
+function EmployeeLogin ({ setEmployeeCo }) {
     //States
     const [loginForm, setLoginForm] = useState({
         code: "",
@@ -54,6 +54,7 @@ function EmployeeLogin ({ setEmployeeCo}) {
                 ...result.userConnected
             }));
             localStorage.setItem('justLoggedIn', 'true');
+            localStorage.setItem('userRole', result.userConnected.userRole);
             if (result.userConnected.userRole.toLowerCase() == "admin") {
                 navigate('/adminspace');
             } else {

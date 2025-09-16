@@ -10,6 +10,7 @@ import AdmissionVerify from './pages/admission/verify.jsx';
 import ProgramsByGrade from './pages/program/progs-by-grade/progsbygrade.jsx'
 
 //Student pages
+import StudentSpace from './pages/space/studentspace.jsx';
 import Bill from './pages/bill/bill'
 import Bulletin from './pages/bulletin/bulletin'
 import Calendar from './pages/calendar/calendar'
@@ -19,7 +20,7 @@ import Notfound from './pages/not-found/notfound'
 import PaymentCourse from './pages/payment/paymentcourse.jsx'
 import Planning from './pages/planning/planning'
 import Progress from './pages/progress/progress'
-import UserSpace from './pages/space/userspace'
+import UserSpace from './pages/space/studentspace.jsx'
 import Subscribe from './pages/subscribe/subscribe'
 
 //Admin pages
@@ -52,31 +53,16 @@ import { getUserBySessionS } from './services/auth.service.js';
 const App = () => {
   //States
   useEffect(() => {
-    //getUserBySession();
+    getUserBySession();
   }, [])
   const navigate = useNavigate();
 
   //Moedls
-  const [studentCo, seStudentCo] = useState({
-    firstName: "",
-    lastName: "",
-    permanentCode: ""
-  });
-
   const [userCo, setUserCo] = useState({
     firstName: "",
     lastName: "",
     permanentCode: "",
-    sexe: "",
-    email: "",
-    userRole: "",
-    department: "",
-    faculty: "",
-    lvlDegree: "",
-    phoneNumber: "",
-    birthDay: "",
-    nas: "",
-    program: ""
+    userRole: ""
   });
 
   const [employeeCo, setEmployeeCo] = useState({
@@ -102,12 +88,14 @@ const App = () => {
   //Functions
   const getUserBySession = async () => {
     try {
-      if (localStorage.getItem('justLoggedIn') != null) {
+      const justLoggedIn = localStorage.getItem('justLoggedIn');
+      const userRole = localStorage.getItem('userRole');
+      if (justLoggedIn != null) {
         const response = await getUserBySessionS();
   
         if (response.success) {
           if (response.userConnected.userRole === "student") {
-            seStudentCo(response.userConnected);
+            setUserCo(response.userConnected);
           }
           if (response.userConnected.userRole === "employee") {
             setEmployeeCo(response.userConnected);
@@ -118,13 +106,12 @@ const App = () => {
             //navigate('/adminspace');
           }
         } else {
-          console.log("AFF1")
-          console.log(response.success)
-          navigate('/login/employee');
+          console.log(response.message);
+          if (userRole === "student" || userRole === "professor") navigate('/login/user');
+          else navigate('/login/employee');
         }
       }
     } catch (error) {
-      console.log("AFF2")
       console.log(error);
     }
   }
@@ -149,11 +136,12 @@ const App = () => {
           <Route path="/calendar" element={<Calendar userCo= {userCo}/>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/userspace" element={<UserSpace userCo = {userCo} />} />
-          <Route path="/login/user" element={<Login setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />
+          <Route path="/login/user" element={<Login setUserCo = {setUserCo} />} />
           <Route path="/payment/courses" element={<PaymentCourse bill = {bill} />}/>
           <Route path="/planning" element={<Planning userCo = {userCo} />} />
           <Route path="/progress" element={<Progress userCo = {userCo} />} />
           <Route path="/subscribe" element={<Subscribe userCo = {userCo}/>} />
+          <Route path='/studentspace' element={<StudentSpace userCo = {userCo} />}/>
 
           {/*Admin routes*/}
           <Route path='/employee/resetpwd' element={<ChangePassword employeeTRC = {employeeTRC} />}></Route>
@@ -174,7 +162,7 @@ const App = () => {
           <Route path='/employee/:usercode' element={<EmployeeDetails employeeCo = {employeeCo} />} />
           
           <Route path='/employee/students' element={<Student employeeCo = {employeeCo} />} />
-            <Route path="/student/:permanentcode" element={<StudentDetails studentCo = {studentCo} />} />
+            <Route path='/student/:permanentcode' element={<StudentDetails userCo = {userCo} />} />
             <Route path='/employee/student/course' element={<Course employeeCo = {employeeCo} />} />
             <Route path='/employee/student/create' element={<Create employeeCo = {employeeCo} />} />
             <Route path='/employee/student/list' element={<StudentList employeeCo = {employeeCo} />} />

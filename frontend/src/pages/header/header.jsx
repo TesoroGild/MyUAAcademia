@@ -9,10 +9,24 @@ import { Avatar, Dropdown, Navbar } from "flowbite-react";
 import logo from '../../assets/img/UA_Logo.png';
 import logo2 from '../../assets/img/UA_Logo2.jpg';
 
+//Services
+import { logoutS } from '../../services/auth.service';
+
 function Header({userCo}) {
   //States
     
   //Functions
+  const logout = async () => {
+    try {
+      const result = await logoutS();
+
+      if (result.success) {
+        window.location.href = "/login/user";
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   //Return
   return (
@@ -32,10 +46,10 @@ function Header({userCo}) {
           }
         >
           <Dropdown.Header>
-            { userCo.email ? 
+            { userCo ? 
               (<>
                 <span className="block text-sm">{userCo.firstName} {userCo.lastName}</span>
-                <span className="block truncate text-sm font-medium">{userCo.email}</span>
+                <span className="block truncate text-sm font-medium">{userCo.professionalEmail}</span>
               </>) : (
                 <span className="block text-sm">Nobody</span>
               )
@@ -63,7 +77,9 @@ function Header({userCo}) {
             </Link>
           </Dropdown.Item>
           <Dropdown.Divider />
-          <Dropdown.Item>Déconnexion</Dropdown.Item>
+          { userCo && (
+            <Dropdown.Item onClick={logout}>Déconnexion</Dropdown.Item>
+          )}
         </Dropdown>
         <Navbar.Toggle />
       </div>
