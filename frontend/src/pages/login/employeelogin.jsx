@@ -11,7 +11,7 @@ import { employeeLogin } from '../../services/auth.service';
 //Icons
 import { HiExclamation, HiX  } from "react-icons/hi";
 
-function EmployeeLogin ({ setEmployeeCo }) {
+function EmployeeLogin ({ setEmployeeCo, setUserCo }) {
     //States
     const [loginForm, setLoginForm] = useState({
         code: "",
@@ -53,6 +53,10 @@ function EmployeeLogin ({ setEmployeeCo }) {
                 ...prevEmployeeCo,
                 ...result.userConnected
             }));
+            await setUserCo((prevUserCo) => ({
+                ...prevUserCo,
+                ...result.userConnected
+            }))
             localStorage.setItem('justLoggedIn', 'true');
             localStorage.setItem('userRole', result.userConnected.userRole);
             if (result.userConnected.userRole.toLowerCase() == "admin") {
@@ -69,6 +73,7 @@ function EmployeeLogin ({ setEmployeeCo }) {
             setTimeout(() => setShowErrorToast(false), 5000);
           }
         } catch (error) {
+            console.log(error);
             setShowWarningToast(true);
             setTimeout(() => setShowWarningToast(false), 5000);
         }

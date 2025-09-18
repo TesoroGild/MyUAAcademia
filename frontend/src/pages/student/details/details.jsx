@@ -268,12 +268,12 @@ const StudentDetails = ({userCo}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
-                {userCo.userRole == "admin" ? <AdminDashboard employeeCo = {userCo} /> : <Dashboard userCo = {userCo}/>}
+                {userCo.userRole.toLowerCase() == "admin" ? <AdminDashboard employeeCo = {userCo} /> : <Dashboard userCo = {userCo}/>}
             </div>
                 
             <div className="w-full">
                 <div>
-                    {userCo.userRole == "admin" ? <AdminHeader/> : <Header userCo = {userCo}/>}
+                    {userCo.userRole.toLowerCase() == "admin" ? <AdminHeader/> : <Header userCo = {userCo}/>}
                 </div>
 
                 <div>
@@ -380,9 +380,10 @@ const StudentDetails = ({userCo}) => {
 
                             <Button className="justify-self-center mt-4" onClick={initUpdForm}><HiOutlinePencilAlt className="mr-2 h-5 w-5" />Modifier votre profil</Button>
                             
-                            {programsEnrolled.map((program) => (
-                                <div className="mt-8 px-4">
-                                    <Card key={program.title} className="max-w-sm">
+                            <div className='mt-8 px-4'>Programmes inscrits</div>
+                            <div className='px-4 flex'>
+                                {programsEnrolled.map((program) => (
+                                    <Card key={program.title} className="max-w-sm mr-4">
                                         <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                                             {program.title} : {program.programName}
                                         </h5>
@@ -396,50 +397,53 @@ const StudentDetails = ({userCo}) => {
                                             <div className="ml-3 text-sm font-normal">En cours d'obtention</div>
                                         </Toast>
                                     </Card>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
 
-                            {programsNotEnrolled && (userCo.userRole.toLowerCase() === "admin" || userCo.userRole.toLowerCase() === "employee") && (
+                            {(userCo.userRole.toLowerCase() === "admin" || userCo.userRole.toLowerCase() === "employee") && (
                                 <div>
-                                    {programsNotEnrolled.map((program) => (
-                                        <div className="mt-8">
-                                            <Card key={program.title} className="max-w-sm mx-4">
-                                                <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                                    {program.title} : {program.programName}
-                                                </h5>
-                                                <p>Niveau: {program.grade}</p>
-                                                        <p>Faculté: {program.faculty}</p>
-                                                        <p>Département: {program.department}</p>
-                                                <div className="flex space-x-4">
+                                    <div className='mt-8 px-4'>Inscriptions à valider</div>
+                                    {programsNotEnrolled ? (
+                                        <div className="">
+                                            {programsNotEnrolled.map((program) => (
+                                                <Card key={program.title} className="max-w-sm">
+                                                    <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                                        {program.title} : {program.programName}
+                                                    </h5>
+                                                    <p>Niveau: {program.grade}</p>
+                                                            <p>Faculté: {program.faculty}</p>
+                                                            <p>Département: {program.department}</p>
+                                                    <div className="flex space-x-4">
+                                                            <button
+                                                                onClick={() => {
+                                                                    program.isEnrolled = false, 
+                                                                    setDecisions((prev) => ({
+                                                                        ...prev,
+                                                                        [program.title]: false,
+                                                                    }))
+                                                                }}
+                                                                className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors
+                                                                ${decisions[program.title] === false ? "bg-red-500 text-white" : "bg-gray-200 text-gray-500"}`}
+                                                            >
+                                                                <HiX className="h-5 w-5" />
+                                                            </button>
                                                         <button
                                                             onClick={() => {
-                                                                program.isEnrolled = false, 
+                                                                program.isEnrolled = true,
                                                                 setDecisions((prev) => ({
                                                                     ...prev,
-                                                                    [program.title]: false,
+                                                                    [program.title]: true,
                                                                 }))
                                                             }}
                                                             className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors
-                                                            ${decisions[program.title] === false ? "bg-red-500 text-white" : "bg-gray-200 text-gray-500"}`}
+                                                            ${decisions[program.title] === true ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"}`}
                                                         >
-                                                            <HiX className="h-5 w-5" />
+                                                            <HiCheck className="h-5 w-5" />
                                                         </button>
-                                                    <button
-                                                        onClick={() => {
-                                                            program.isEnrolled = true,
-                                                            setDecisions((prev) => ({
-                                                                ...prev,
-                                                                [program.title]: true,
-                                                            }))
-                                                        }}
-                                                        className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors
-                                                        ${decisions[program.title] === true ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"}`}
-                                                    >
-                                                        <HiCheck className="h-5 w-5" />
-                                                    </button>
-                                                </div>
-                                            </Card>
-
+                                                    </div>
+                                                </Card>
+                                            ))}
+    
                                             <div className="w-1/2 border-2 border-sky-500 mt-8 ml-4">
                                                 {files && files.length > 0 ? (
                                                     <div>
@@ -484,7 +488,9 @@ const StudentDetails = ({userCo}) => {
                                                 )}
                                             </div>
                                         </div>
-                                    ))}
+                                    ):(
+                                        <div>Aucune</div>
+                                    )}
                                 </div>
                             )}
                         </div>

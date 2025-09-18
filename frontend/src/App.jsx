@@ -126,7 +126,7 @@ const App = () => {
           <Route path="/admission/bill" element={<AdmissionBill />} />
           <Route path="/home" element={<Home />} />
           {/*<Route path="/home" element={<Home setUserCo = {setUserCo} setEmployeeCo = {setEmployeeCo}/>} />*/}
-          <Route path="/login/employee" element={<EmployeeLogin setEmployeeCo = {setEmployeeCo}/>} />
+          <Route path="/login/employee" element={<EmployeeLogin setEmployeeCo = {setEmployeeCo} setUserCo = {setUserCo}/>} />
           <Route path="/admission/payment" element={<PaymentAdmission />} />
           <Route path='/admission/verify' element={<AdmissionVerify />} />
 

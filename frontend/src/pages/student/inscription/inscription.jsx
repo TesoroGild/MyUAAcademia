@@ -8,8 +8,8 @@ import { Button, Table, Toast, ToastToggle } from "flowbite-react";
 import { Tooltip } from "flowbite-react"
 
 //Services
-import { createProgramS, getProgramsS, programRegistrationS } from "../../../services/program.service";
-import { getStudentsNotInProgramS } from "../../../services/user.service";
+import { getProgramsS, programRegistrationS } from "../../../services/program.service";
+import { getStudentsS } from "../../../services/user.service";
 
 //Icons
 import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
@@ -44,15 +44,17 @@ const Inscription = ({employeeCo}) => {
 
     const getStudentsNotInProgram = async () => {
         try {
-            const result = await getStudentsNotInProgramS();
-            if (result.success) {
-                setStudents(result.studentsNotEnrolled);
-                setFilteredStudents(result.studentsNotEnrolled);
-            } else {
-                setErrorMessage(result.message);
-                setShowErrorToast(true);
-                setTimeout(() => setShowErrorToast(false), 5000);
-            }
+            const result = await getStudentsS();
+            setStudents(result);
+            setFilteredStudents(result);
+            // if (result.success) {
+            //     setStudents(result.studentsNotEnrolled);
+            //     setFilteredStudents(result.studentsNotEnrolled);
+            // } else {
+            //     setErrorMessage(result.message);
+            //     setShowErrorToast(true);
+            //     setTimeout(() => setShowErrorToast(false), 5000);
+            // }
         } catch (error) {
             console.log(error);
             setShowWarningToast(true);

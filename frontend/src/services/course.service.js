@@ -43,10 +43,10 @@ export const enrollStudentsInCoursesS = async (requestParams) => {
 
 
 //Read
-export const getAvailableCoursesS = async (availablePeriods) => {
+export const getAvailableCoursesS = async (availablePeriods, permanentCode) => {
     console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
-        const response = await axios.post(`${backend_url}/ClasseCourse/courses/sessions`, availablePeriods);
+        const response = await axios.post(`${backend_url}/ClasseCourse/courses/sessions/${permanentCode}`, availablePeriods);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
@@ -102,14 +102,13 @@ export const getStudentCoursesS = async (permanentCode) => {
 export const getStudentSessionCoursesS = async (requestParams) => {
     console.log("COURSE SERVICE : GET STUDENT SESSION COURSES");
     try {
-        console.log(permanentCode);
-        const response = await axios.get(`${backend_url}/ClasseCourse/student-session-courses`, requestParams);
+        const response = await axios.post(`${backend_url}/ClasseCourse/student-session-courses`, requestParams);
         return {
             success: true, 
             courses: response.data
         }
     } catch (error) {
-        console.error('Erreur :', error.response.data);
+        console.error('Erreur :', error.response);
     
         if (error.response) {
             return {
