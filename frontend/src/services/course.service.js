@@ -79,7 +79,6 @@ export const getProgramCoursesS = async (programTitle) => {
 export const getStudentCoursesS = async (permanentCode) => {
     console.log("COURSE SERVICE : GET STUDENT COURSES");
     try {
-        console.log(permanentCode);
         const response = await axios.get(`${backend_url}/UserCourse/student-courses/${permanentCode}`);
         return {
             success: true, 
@@ -103,6 +102,28 @@ export const getStudentSessionCoursesS = async (requestParams) => {
     console.log("COURSE SERVICE : GET STUDENT SESSION COURSES");
     try {
         const response = await axios.post(`${backend_url}/ClasseCourse/student-session-courses`, requestParams);
+        return {
+            success: true, 
+            courses: response.data
+        }
+    } catch (error) {
+        console.error('Erreur :', error.response);
+    
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
+    }
+}
+
+export const getSessionCoursePriceS = async (requestParams) => {
+    console.log("COURSE SERVICE : GET STUDENT SESSION COURSES");
+    try {
+        const response = await axios.post(`${backend_url}/Course/student-session-courses`, requestParams);
         return {
             success: true, 
             courses: response.data

@@ -77,14 +77,6 @@ const App = () => {
     code: ""
   });
 
-  const [bill, setBill] = useState({
-    dateOfIssue: "",
-    deadLine: "",
-    dateOfPaiement: "",
-    sessionStudy: "",
-    yearStudy: ""
-});
-
   //Functions
   const getUserBySession = async () => {
     try {
@@ -107,6 +99,7 @@ const App = () => {
           }
         } else {
           console.log(response.message);
+          localStorage.clear();
           if (userRole === "student" || userRole === "professor") navigate('/login/user');
           else navigate('/login/employee');
         }
@@ -137,7 +130,7 @@ const App = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/userspace" element={<UserSpace userCo = {userCo} />} />
           <Route path="/login/user" element={<Login setUserCo = {setUserCo} />} />
-          <Route path="/payment/courses" element={<PaymentCourse bill = {bill} />}/>
+          <Route path="/payment/courses" element={<PaymentCourse userCo = {userCo} />}/>
           <Route path="/planning" element={<Planning userCo = {userCo} />} />
           <Route path="/progress" element={<Progress userCo = {userCo} />} />
           <Route path="/subscribe" element={<Subscribe userCo = {userCo}/>} />

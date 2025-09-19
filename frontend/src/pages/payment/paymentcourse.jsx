@@ -2,7 +2,7 @@ import Dashboard from "../dashboard/dashboard";
 import "./payment.css";
 
 //React
-import { Button, Table } from "flowbite-react"
+import { Button, Table, Tooltip } from "flowbite-react"
 import { useLocation } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
 
@@ -15,12 +15,26 @@ import Desjardins from "../../assets/img/Payment/Desjardins.jpg";
 import BanqueN from "../../assets/img/Payment/BanqueN.png";
 import Rbc from "../../assets/img/Payment/RBC.png";
 
-const PaymentCourse = () => {
+//Icons
+import { HiInformationCircle } from "react-icons/hi";
+
+const PaymentCourse = ({userCo}) => {
     //States
     const location = useLocation();
     const [bill, setBill] = useState(location.state.billToDisplay);
+    const [expenses, setExpenses] = useState({
+            "coasts": 245,
+            "sportsfees": 50,
+            "dentalinsurance": 120,
+            "insurancefees": 250
+        });
+        const [total, setTotal] = useState(0);
      
     //Functions
+    useEffect(() => {
+        totalisation();
+    })
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return format(date, "dd MMMM yyyy 'à' HH'h'mm'mn'", { locale: fr });
@@ -28,6 +42,16 @@ const PaymentCourse = () => {
 
     const calculateBill = () => {
         return ((10000 * 4) + bill.amount);
+    }
+
+    const totalisation = () => {
+        let total = 0;
+        total += expenses.coasts;
+        total += expenses.sportsfees;
+        total += expenses.dentalinsurance;
+        total += expenses.insurancefees;
+        total += bill.amount;
+        setTotal(total);
     }
 
     //Return
@@ -52,46 +76,66 @@ const PaymentCourse = () => {
                                 <Table.Body className="divide-y">
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            Cours
+                                        Cours
                                         </Table.Cell>
                                         <Table.Cell>{bill.amount}$</Table.Cell>
-                                        <Table.Cell></Table.Cell>
+                                        <Table.Cell>
+                                            <Tooltip content="Tooltip content" placement="right">
+                                                <HiInformationCircle className="h-4 w-4" />
+                                            </Tooltip>
+                                        </Table.Cell>
                                     </Table.Row>
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Frais généraux
                                         </Table.Cell>
-                                        <Table.Cell>10 000$</Table.Cell>
-                                        <Table.Cell></Table.Cell>
+                                        <Table.Cell>{expenses.coasts}$</Table.Cell>
+                                        <Table.Cell>
+                                            <Tooltip content="Tooltip content" placement="right">
+                                                <HiInformationCircle className="h-4 w-4" />
+                                            </Tooltip>
+                                        </Table.Cell>
                                     </Table.Row>
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Frais d'administration sportive
                                         </Table.Cell>
-                                        <Table.Cell>10 000$</Table.Cell>
-                                        <Table.Cell></Table.Cell>
+                                        <Table.Cell>{expenses.sportsfees}$</Table.Cell>
+                                        <Table.Cell>
+                                            <Tooltip content="Tooltip content" placement="right">
+                                                <HiInformationCircle className="h-4 w-4" />
+                                            </Tooltip>
+                                        </Table.Cell>
                                     </Table.Row>
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Assurance dentaires
                                         </Table.Cell>
-                                        <Table.Cell>10 000$</Table.Cell>
-                                        <Table.Cell></Table.Cell>
+                                        <Table.Cell>{expenses.dentalinsurance}$</Table.Cell>
+                                        <Table.Cell>
+                                            <Tooltip content="Tooltip content" placement="right">
+                                                <HiInformationCircle className="h-4 w-4" />
+                                            </Tooltip>
+                                        </Table.Cell>
                                     </Table.Row>
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Frais d'assurances
                                         </Table.Cell>
-                                        <Table.Cell>10 000$</Table.Cell>
-                                        <Table.Cell></Table.Cell>
+                                        <Table.Cell>{expenses.insurancefees}$</Table.Cell>
+                                        <Table.Cell>
+                                            <Tooltip content="Tooltip content" placement="right">
+                                                <HiInformationCircle className="h-4 w-4" />
+                                            </Tooltip>
+                                        </Table.Cell>
                                     </Table.Row>
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Total
                                         </Table.Cell>
-                                        <Table.Cell>{calculateBill()}$</Table.Cell>
+                                        <Table.Cell>{total}$</Table.Cell>
                                         <Table.Cell></Table.Cell>
-                                    </Table.Row>                       
+                                    </Table.Row>
                                 </Table.Body>
                             </Table>
                         </div>
