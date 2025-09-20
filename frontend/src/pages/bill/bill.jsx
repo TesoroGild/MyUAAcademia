@@ -47,8 +47,10 @@ const Bill = ({userCo, userPermanentCode}) => {
 
     useEffect(() => {
         if (userPermanentCode.trim() != "") getStudentBills(userPermanentCode);
-        if (billToDisplay.amount != "") totalisation();
-    }, []);
+        if (billToDisplay) {
+            totalisation();
+        }
+    }, [billToDisplay]);
     
     const getStudentBills = async () => {
         setIsLoading(true);
@@ -74,7 +76,6 @@ const Bill = ({userCo, userPermanentCode}) => {
             const responses = await getSessionCoursePriceS(requestParams);
     
             if (responses.success) {
-                console.log(responses.courses);
                 setStudentCourses(responses.courses);
             } else console.log(responses.message)
         } catch (error) {
@@ -92,9 +93,6 @@ const Bill = ({userCo, userPermanentCode}) => {
             yearStudy: ""
         });
         for (let index = 0; index < studentBills.length; index++) {
-            if (session == "Hiver") session ="Winter";
-            if (session == "Été") session = "Summer";
-            if (session == "Automne") session = "Autumn";
             //console.log(year,  studentBills[index].yearStudy, session,studentBills[index].sessionStudy);
             if (studentBills[index].yearStudy == year && studentBills[index].sessionStudy == session) {
                 setBillToDisplay(studentBills[index]);
@@ -104,18 +102,22 @@ const Bill = ({userCo, userPermanentCode}) => {
     }
 
     const displayBillCourses = async (year, session) => {
+        setTotal(0);
         await getCourses(year, session);
         updateBillToDisplay(year, session);
+        if (billToDisplay.dateOfIssue.trim().length != 0) totalisation();
         setDisplayBill(true);
     }
 
     const totalisation = () => {
+        console.log(billToDisplay.amount)
         let total = 0;
         total += expenses.coasts;
         total += expenses.sportsfees;
         total += expenses.dentalinsurance;
         total += expenses.insurancefees;
         total += billToDisplay.amount;
+        console.log(total);
         setTotal(total);
     }
 
