@@ -19,7 +19,7 @@ function Bulletin ({userCo}) {
     const [bulletinCourses, setBulletinCourses] = useState([]);
     const [average, setAverage] = useState(0);
     const [totalCredit, setTotalCredit] = useState(0);
-    const lignes = [];
+    //const lignes = [];
     
     //Functions
     useEffect(() => {
@@ -29,76 +29,78 @@ function Bulletin ({userCo}) {
     const getStudentBulletin = async (permanentCode) => {
         const getResponse = await getStudentBulletinS(permanentCode);
         calculateTotalCredits(getResponse.bulletins);
-        var responseOrdered = await orderBy(getResponse.bulletins);
-        setBulletinCourses(responseOrdered);
+        //var responseOrdered = await orderBy(getResponse.bulletins);
+        setBulletinCourses(getResponse.bulletins);
         setAverage(getResponse.average);
     }
 
-    const orderBy = (list) => {
-        var list1 = (list.sort((a, b) => a.yearCourse - b.yearCourse));
+    // const orderBy = (list) => {
+    //     var list1 = (list.sort((a, b) => a.yearCourse - b.yearCourse));
 
-        let sessionCourante = null;
-        let rowSpan = 0;
-        let rowSpans = [];
-        let index = 0;
-        list1.forEach((element) => {
-            if (element.sessionCourse !== sessionCourante) {
-                sessionCourante = element.sessionCourse;
-                rowSpan = 1;
-            } else rowSpan++;
-            rowSpans[index] = rowSpan;
-            index++;
-        });
+    //     let sessionCourante = null;
+    //     let rowSpan = 0;
+    //     let rowSpans = [];
+    //     let index = 0;
+    //     list1.forEach((element) => {
+    //         if (element.sessionCourse !== sessionCourante) {
+    //             sessionCourante = element.sessionCourse;
+    //             rowSpan = 1;
+    //         } else rowSpan++;
+    //         rowSpans[index] = rowSpan;
+    //         index++;
+    //     });
         
-        let id = 0;
-        for (var i = 0; i < rowSpans.length-1; i++) {
-            if (rowSpans[i] != rowSpans[i+1]) {
-                for (var j = i+1; j < rowSpans.length; j++) {
-                    if (rowSpans[j] == 1) {
-                        id = j;
-                        rowSpans[i] = rowSpans[j-1];
-                        j = rowSpans.length;
-                    }
-                }
+    //     let id = 0;
+    //     for (var i = 0; i < rowSpans.length-1; i++) {
+    //         if (rowSpans[i] != rowSpans[i+1]) {
+    //             for (var j = i+1; j < rowSpans.length; j++) {
+    //                 if (rowSpans[j] == 1) {
+    //                     id = j;
+    //                     rowSpans[i] = rowSpans[j-1];
+    //                     j = rowSpans.length;
+    //                 }
+    //             }
 
-                for (var k = i+1; k < id; k++) rowSpans[k] = 0;
-                i = id-1;
-            }
-        }
+    //             for (var k = i+1; k < id; k++) rowSpans[k] = 0;
+    //             i = id-1;
+    //         }
+    //     }
 
-        index = 0;
-        list1.forEach((element) => {
-            lignes.push(
-                <tr key={element.sigle}>
-                    {rowSpans[index] === 1 ? (
-                        <td>{element.sessionCourse} {element.yearCourse}</td>
-                    ) : rowSpans[index] == 0 ? (
-                        null
-                    ) : (
-                        <td rowSpan={rowSpans[index]}>{element.sessionCourse} {element.yearCourse}</td>
-                    )}
-                    <td>{element.sigle}</td>
-                    <td>{element.fullName}</td>
-                    <td>3</td>
-                    <td>{element.grade}</td>
-                    <td>{element.mention}</td>
-                    <td></td>
-                </tr>
-            );
-            index++;
-        })
-        return lignes;
-    }
+    //     index = 0;
+    //     list1.forEach((element) => {
+    //         lignes.push(
+    //             <tr key={element.sigle}>
+    //                 {rowSpans[index] === 1 ? (
+    //                     <td>{element.sessionCourse} {element.yearCourse}</td>
+    //                 ) : rowSpans[index] == 0 ? (
+    //                     null
+    //                 ) : (
+    //                     <td rowSpan={rowSpans[index]}>{element.sessionCourse} {element.yearCourse}</td>
+    //                 )}
+    //                 <td>{element.sigle}</td>
+    //                 <td>{element.fullName}</td>
+    //                 <td>3</td>
+    //                 <td>{element.grade}</td>
+    //                 <td>{element.mention}</td>
+    //                 <td></td>
+    //             </tr>
+    //         );
+    //         index++;
+    //     })
+    //     return lignes;
+    // }
 
     const cumulativeAverage = () => {
         return (average * 5 / 100);
     }
 
     const calculateTotalCredits = (schoolReports) => {
-        console.log(schoolReports);
+        //changer la logique de credits reussis
+        //verifier si la mention != E avant de mettre reussit
         var cred = 0;
         for (var i = 0; i < schoolReports.length; i++) {
-            cred += schoolReports[i].credits;
+            if (schoolReports[i].mention != "E" && schoolReports[i].mention != null)
+                cred += schoolReports[i].credits;
         }
         setTotalCredit(cred);
     }
@@ -116,51 +118,12 @@ function Bulletin ({userCo}) {
                 </div>
                 
                 <div>
-                    <div>
-                        <h1>{userCo.lvlDegree} {userCo.program}</h1>
-                        <Accordion>
-                            <Accordion.Panel>
-                                <Accordion.Title>What is Flowbite?</Accordion.Title>
-                                <Accordion.Content>
-                                <p className="mb-2 text-gray-500 dark:text-gray-400">
-                                    Flowbite is an open-source library of interactive components built on top of Tailwind CSS including buttons,
-                                    dropdowns, modals, navbars, and more.
-                                </p>
-                                <p className="text-gray-500 dark:text-gray-400">
-                                    Check out this guide to learn how to&nbsp;
-                                    <a
-                                    href="https://flowbite.com/docs/getting-started/introduction/"
-                                    className="text-cyan-600 hover:underline dark:text-cyan-500"
-                                    >
-                                    get started&nbsp;
-                                    </a>
-                                    and start developing websites even faster with components on top of Tailwind CSS.
-                                </p>
-                                </Accordion.Content>
-                            </Accordion.Panel>
-                        </Accordion>
-                        <Dropdown label="Dropdown" inline>
-                            <Dropdown.Item>Dashboard</Dropdown.Item>
-                            <Dropdown.Item>Settings</Dropdown.Item>
-                            <Dropdown.Item>Earnings</Dropdown.Item>
-                            <Dropdown.Item>Sign out</Dropdown.Item>
-                        </Dropdown>
-                        <Sidebar aria-label="Sidebar with multi-level dropdown example">
-                            <Sidebar.Items>
-                                <Sidebar.ItemGroup>
-                                    <Sidebar.Collapse icon={HiShoppingBag} label="E-commerce">
-                                        <Sidebar.Item href="#">Products</Sidebar.Item>
-                                        <Sidebar.Item href="#">Sales</Sidebar.Item>
-                                        <Sidebar.Item href="#">Refunds</Sidebar.Item>
-                                        <Sidebar.Item href="#">Shipping</Sidebar.Item>
-                                    </Sidebar.Collapse>
-                                </Sidebar.ItemGroup>
-                            </Sidebar.Items>
-                        </Sidebar>
-                    </div>
                     
                     {/*userCo.programActif */}
-                    <div>Statut du programme </div>
+                    <div className="flex">
+                        <p>Programme : </p>
+                        <p>Statut du programme</p> 
+                        </div>
 
                     <div>
                         <p>Aperçu du bulletin</p>
@@ -173,10 +136,18 @@ function Bulletin ({userCo}) {
                                     <Table.HeadCell>CRÉDITS</Table.HeadCell>
                                     <Table.HeadCell>NOTE</Table.HeadCell>
                                     <Table.HeadCell>MENTION</Table.HeadCell>
-                                    <Table.HeadCell>Détails</Table.HeadCell>
                                 </Table.Head>
                                 <Table.Body className="divide-y">
-                                    {bulletinCourses}
+                                    {bulletinCourses.map((report, idx) => (
+                                        <Table.Row key={idx}>
+                                            <Table.Cell>{report.sessionCourse} {report.yearCourse}</Table.Cell>
+                                            <Table.Cell>{report.sigle}</Table.Cell>
+                                            <Table.Cell>{report.fullName}</Table.Cell>
+                                            <Table.Cell>{report.credits}</Table.Cell>
+                                            <Table.Cell>{report.grade}</Table.Cell>
+                                            <Table.Cell>{report.mention}</Table.Cell>
+                                        </Table.Row>
+                                    ))}
                                 </Table.Body>
                             </Table>
                         </div>

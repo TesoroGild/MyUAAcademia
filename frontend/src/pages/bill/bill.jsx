@@ -110,14 +110,12 @@ const Bill = ({userCo, userPermanentCode}) => {
     }
 
     const totalisation = () => {
-        console.log(billToDisplay.amount)
         let total = 0;
         total += expenses.coasts;
         total += expenses.sportsfees;
         total += expenses.dentalinsurance;
         total += expenses.insurancefees;
         total += billToDisplay.amount;
-        console.log(total);
         setTotal(total);
     }
 
