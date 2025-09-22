@@ -12,7 +12,7 @@ import Header from '../../header/header';
 
 //React
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Avatar, Button, Card, Label, Modal, TextInput, Toast, ToastToggle, Tooltip } from "flowbite-react";
 
 //Services
@@ -86,6 +86,8 @@ const StudentDetails = ({userCo}) => {
         getFiles();
         getStudentPrograms();
     }, []);
+
+    const navigate = useNavigate();
 
     const getStudent = async () => {
         try {
@@ -403,7 +405,7 @@ const StudentDetails = ({userCo}) => {
                             {(userCo.userRole.toLowerCase() === "admin" || userCo.userRole.toLowerCase() === "employee") && (
                                 <div>
                                     <div className='mt-8 px-4'>Inscriptions à valider</div>
-                                    {programsNotEnrolled ? (
+                                    {programsNotEnrolled.length != 0 ? (
                                         <div className="">
                                             {programsNotEnrolled.map((program) => (
                                                 <Card key={program.title} className="max-w-sm">
@@ -489,10 +491,13 @@ const StudentDetails = ({userCo}) => {
                                             </div>
                                         </div>
                                     ):(
-                                        <div>Aucune</div>
+                                        <div className='px-4'>Aucune</div>
                                     )}
                                 </div>
                             )}
+                            <div className='flex mt-8 mb-2'>
+                                <Button onClick={() => navigate('/bulletin', { state : { studentToShow : student.permanentCode }}) }>Bulletin</Button>
+                            </div>
                         </div>
                     ) : (
                         <div>Aucun étudiant trouvé.</div>

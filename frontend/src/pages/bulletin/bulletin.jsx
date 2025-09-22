@@ -6,15 +6,15 @@ import Header from "../header/header";
 
 import { Accordion, Button, Dropdown, Modal, Sidebar, Table } from "flowbite-react";
 import React, { useEffect, useState } from "react";
-
-//Icon
-import { HiShoppingBag } from "react-icons/hi";
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 
 //Service
 import { getStudentBulletinS } from '../../services/bulletin.service';
 
 function Bulletin ({userCo}) {
     //States
+    const location = useLocation();
+    const studentDisplay = location.state?.studentToShow;
     const [openModal, setOpenModal] = useState(false);
     const [bulletinCourses, setBulletinCourses] = useState([]);
     const [average, setAverage] = useState(0);
@@ -23,7 +23,8 @@ function Bulletin ({userCo}) {
     
     //Functions
     useEffect(() => {
-        if (userCo.permanentCode != "") getStudentBulletin(userCo.permanentCode);
+        if (studentDisplay) getStudentBulletin(studentDisplay);
+        else if (userCo.permanentCode != "") getStudentBulletin(userCo.permanentCode);
     }, []);
 
     const getStudentBulletin = async (permanentCode) => {

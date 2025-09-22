@@ -65,10 +65,10 @@ export const getCoursesS = async () => {
     }
 }
 
-export const getProgramCoursesS = async (programTitle) => {
+export const getProgramCoursesS = async (programsTitles) => {
     console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
-        const response = await axios.get(`${backend_url}/Course/courses/program/${programTitle}`);///Course/courses/session-year-program
+        const response = await axios.post(`${backend_url}/Course/courses/program`, programsTitles);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
