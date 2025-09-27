@@ -83,14 +83,49 @@ export const getStudentsS = async () => {
     }
 }
 
+export const getStudentsInProgramS = async (classeCourse) => {
+    console.log("USER SERVICE : GET STUDENTS IN MY COURSE");
+    try {
+        const response = await axios.get(`${backend_url}/User/program/${classeCourse}`);
+        return { 
+            success: true, 
+            students: response.data 
+        }
+    } catch (error) {
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.title
+            };
+        }
+
+        return { 
+            success: false, 
+            message: "Impossible de contacter le serveur." 
+        };
+    }
+}
+
 export const getProgramStudentsS = async (progTitle) => {
     console.log("USER SERVICE : GET STUDENTS");
     try {
         const response = await axios.get(`${backend_url}/UserProgram/students-in-the-program/${progTitle}`);
-        return response.data;
+        return { 
+            success: true, 
+            students: response.data 
+        }
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.title
+            };
+        }
+
+        return { 
+            success: false, 
+            message: "Impossible de contacter le serveur." 
+        };
     }
 }
 

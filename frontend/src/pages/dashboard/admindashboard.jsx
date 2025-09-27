@@ -84,6 +84,14 @@ const AdminDashboard = ({employeeCo}) => {
           )}
 
           <div className="flex">
+            <Link 
+              to="/professor/grades"
+                state={{ classeCourse: { id: 6, courseSigle: "ECO2400" } }}>
+              <div className="dashboard-name">Test ajout notes bulletin</div>
+            </Link>
+          </div>
+
+          <div className="flex">
             <Sidebar.Item href="adminhome" icon={HiChartPie}/>
             <Link to="/adminspace">
               <div className="dashboard-name">Tableau de bord</div>

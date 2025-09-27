@@ -49,6 +49,7 @@ import ProgramCreate from './pages/employee/program/programcreate.jsx'
 import CourseCreate from './pages/employee/course/coursecreate.jsx'
 import ChangePassword from './pages/employee/change-pwd/changepassword.jsx'
 import { getUserBySessionS } from './services/auth.service.js';
+import AddStudentsNotes from './pages/professor/add-students-notes/addnotes.jsx';
 
 const App = () => {
   //States
@@ -122,6 +123,7 @@ const App = () => {
           <Route path="/login/employee" element={<EmployeeLogin setEmployeeCo = {setEmployeeCo} setUserCo = {setUserCo}/>} />
           <Route path="/admission/payment" element={<PaymentAdmission />} />
           <Route path='/admission/verify' element={<AdmissionVerify />} />
+          <Route path='/professor/grades' element={<AddStudentsNotes employeeCo = {employeeCo} />}></Route>
 
           {/*Student routes*/}
           <Route path="/bill/courses" element={<Bill userCo= {userCo} userPermanentCode = {userCo.permanentCode}/>} />
