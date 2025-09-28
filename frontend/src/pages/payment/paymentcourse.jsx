@@ -1,5 +1,6 @@
+//Reusable
 import Dashboard from "../dashboard/dashboard";
-import "./payment.css";
+import Header from '../header/header';
 
 //React
 import { Button, Table, Tooltip } from "flowbite-react"
@@ -11,9 +12,6 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 //Images
-import Desjardins from "../../assets/img/Payment/Desjardins.jpg";
-import BanqueN from "../../assets/img/Payment/BanqueN.png";
-import Rbc from "../../assets/img/Payment/RBC.png";
 
 //Icons
 import { HiInformationCircle } from "react-icons/hi";
@@ -40,10 +38,6 @@ const PaymentCourse = ({userCo}) => {
         return format(date, "dd MMMM yyyy 'à' HH'h'mm'mn'", { locale: fr });
     };
 
-    const calculateBill = () => {
-        return ((10000 * 4) + bill.amount);
-    }
-
     const totalisation = () => {
         let total = 0;
         total += expenses.coasts;
@@ -54,20 +48,27 @@ const PaymentCourse = ({userCo}) => {
         setTotal(total);
     }
 
+    const calculateRestToPay = () => {
+        return total - (bill?.amountPaid || 0);
+    }
+
     const pay = () => {
 
     }
 
     //Return
     return (
-        <div className="flex">
-            <div className="dash-div">
-                <Dashboard userCo = {userCo} />
+        <div>
+            <div>
+                <Header userCo = {userCo}/>
             </div>
+
+            <div className="flex">
+                <div className="dash-div">
+                    <Dashboard userCo = {userCo} />
+                </div>
             
-            <div className="w-full">
-                <div>PAIEMENT</div>
-                <div>
+                <div className="w-full mx-4 mt-2">
                     <div className="border-2 border-sky-500">
                         <div>Date d'émission : {formatDate(bill.dateOfIssue)}</div>
                         <div className="overflow-x-auto">
@@ -138,6 +139,20 @@ const PaymentCourse = ({userCo}) => {
                                         Total
                                         </Table.Cell>
                                         <Table.Cell>{total}$</Table.Cell>
+                                        <Table.Cell></Table.Cell>
+                                    </Table.Row>
+                                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                        Remboursements et ajustements
+                                        </Table.Cell>
+                                        <Table.Cell>0$</Table.Cell>
+                                        <Table.Cell></Table.Cell>
+                                    </Table.Row>
+                                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                        Solde en date du {formatDate(new Date())}
+                                        </Table.Cell>
+                                        <Table.Cell>{calculateRestToPay()}$</Table.Cell>
                                         <Table.Cell></Table.Cell>
                                     </Table.Row>
                                 </Table.Body>

@@ -1,9 +1,10 @@
 import "./bill.css";
 
-//React
+//Reusable
 import Dashboard from "../dashboard/dashboard";
 import Header from '../header/header'
 
+//React
 import { Button, Table, Tooltip } from "flowbite-react"
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
@@ -41,6 +42,7 @@ const Bill = ({userCo, userPermanentCode}) => {
         "insurancefees": 250
     });
     const [total, setTotal] = useState(0);
+    const [restToPay, setRestToPay] = useState(0);
 
     //Functions
     const navigate = useNavigate();
@@ -139,6 +141,10 @@ const Bill = ({userCo, userPermanentCode}) => {
 
     const goToPaymentPage = () => {
         navigate('/payment/courses', { state: { billToDisplay } });
+    }
+
+    const calculateRestToPay = () => {
+        return total - (billToDisplay?.amountPaid || 0);
     }
 
     //Return
@@ -266,6 +272,20 @@ const Bill = ({userCo, userPermanentCode}) => {
                                                             Total
                                                             </Table.Cell>
                                                             <Table.Cell>{total}$</Table.Cell>
+                                                            <Table.Cell></Table.Cell>
+                                                        </Table.Row>
+                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                            Remboursements et ajustements
+                                                            </Table.Cell>
+                                                            <Table.Cell>0$</Table.Cell>
+                                                            <Table.Cell></Table.Cell>
+                                                        </Table.Row>
+                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                                            Solde en date du {formatDate(new Date())}
+                                                            </Table.Cell>
+                                                            <Table.Cell>{calculateRestToPay()}$</Table.Cell>
                                                             <Table.Cell></Table.Cell>
                                                         </Table.Row>
                                                     </Table.Body>

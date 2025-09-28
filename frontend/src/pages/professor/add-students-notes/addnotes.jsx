@@ -49,7 +49,7 @@ function AddStudentsNotes ({employeeCo}) {
 
     const addNotes = async (e) => {
         e.preventDefault();
-console.log(students)
+        
         const mentions = students.map(s => s.mention);
         const hasAtLeastOne = mentions.some(m => m != null && m.trim() !== "");
         const hasEmpty = mentions.some(m => m != null && m.trim() === "");
