@@ -17,6 +17,27 @@ export const getStudentBillsS = async (permanentCode) => {
     }
 }
 
+export const payBill = async (billToPay) => {
+    console.log("BILL SERVICE : PAY BILL");
+    try {
+        const response = await axios.put(`${backend_url}/Bill/pay`, billToPay);
+        return { 
+            success: response.data
+        }
+    } catch (error) {
+    console.error('Erreur :', error.response.data);
+    
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data
+      };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur" };
+  }
+}
+
 export const update = async (billToModify) => {
     
 }

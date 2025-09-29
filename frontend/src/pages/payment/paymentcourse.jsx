@@ -4,14 +4,15 @@ import Header from '../header/header';
 
 //React
 import { Button, Table, Tooltip } from "flowbite-react"
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from "react";
 
 //Date format
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-//Images
+//Services
+import { payBill } from "../../services/bill.service.js";
 
 //Icons
 import { HiInformationCircle } from "react-icons/hi";
@@ -20,18 +21,14 @@ const PaymentCourse = ({userCo}) => {
     //States
     const location = useLocation();
     const [bill, setBill] = useState(location.state.billToDisplay);
-    const [expenses, setExpenses] = useState({
-            "coasts": 245,
-            "sportsfees": 50,
-            "dentalinsurance": 120,
-            "insurancefees": 250
-        });
-        const [total, setTotal] = useState(0);
+    const [total, setTotal] = useState(0);
      
     //Functions
     useEffect(() => {
         totalisation();
-    })
+    });
+
+    const navigate = useNavigate();
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -40,11 +37,12 @@ const PaymentCourse = ({userCo}) => {
 
     const totalisation = () => {
         let total = 0;
-        total += expenses.coasts;
-        total += expenses.sportsfees;
-        total += expenses.dentalinsurance;
-        total += expenses.insurancefees;
+        total += bill.generalExpenses;
+        total += bill.sportsAdministrationFees;
+        total += bill.dentalInsurance;
+        total += bill.insuranceFees;
         total += bill.amount;
+        total -= bill.refundsAndAdjustments;
         setTotal(total);
     }
 
@@ -52,8 +50,30 @@ const PaymentCourse = ({userCo}) => {
         return total - (bill?.amountPaid || 0);
     }
 
-    const pay = () => {
+    const pay = async (e) => {
+        e.preventDefault();
+        
+        bill.amountPaid = bill.amountPaid + 500;
 
+        try {
+            const billToUpdate = {
+                sessionStudy : bill.sessionStudy,
+                yearStudy : bill.yearStudy,
+                permanentCode : bill.permanentCode,
+                amountPaid : bill.amountPaid
+            };
+            
+            const response = await payBill(billToUpdate);
+            
+            if (response.success) {
+                alert("Paiement effectué avec succès !");
+                navigate('/bill/courses');
+            } else {
+                console.log(response.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     //Return
@@ -94,7 +114,7 @@ const PaymentCourse = ({userCo}) => {
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Frais généraux
                                         </Table.Cell>
-                                        <Table.Cell>{expenses.coasts}$</Table.Cell>
+                                        <Table.Cell>{bill.generalExpenses}$</Table.Cell>
                                         <Table.Cell>
                                             <Tooltip content="Tooltip content" placement="right">
                                                 <HiInformationCircle className="h-4 w-4" />
@@ -105,7 +125,7 @@ const PaymentCourse = ({userCo}) => {
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Frais d'administration sportive
                                         </Table.Cell>
-                                        <Table.Cell>{expenses.sportsfees}$</Table.Cell>
+                                        <Table.Cell>{bill.sportsAdministrationFees}$</Table.Cell>
                                         <Table.Cell>
                                             <Tooltip content="Tooltip content" placement="right">
                                                 <HiInformationCircle className="h-4 w-4" />
@@ -116,7 +136,7 @@ const PaymentCourse = ({userCo}) => {
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Assurance dentaires
                                         </Table.Cell>
-                                        <Table.Cell>{expenses.dentalinsurance}$</Table.Cell>
+                                        <Table.Cell>{bill.dentalInsurance}$</Table.Cell>
                                         <Table.Cell>
                                             <Tooltip content="Tooltip content" placement="right">
                                                 <HiInformationCircle className="h-4 w-4" />
@@ -127,7 +147,7 @@ const PaymentCourse = ({userCo}) => {
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Frais d'assurances
                                         </Table.Cell>
-                                        <Table.Cell>{expenses.insurancefees}$</Table.Cell>
+                                        <Table.Cell>{bill.insuranceFees}$</Table.Cell>
                                         <Table.Cell>
                                             <Tooltip content="Tooltip content" placement="right">
                                                 <HiInformationCircle className="h-4 w-4" />
@@ -145,7 +165,7 @@ const PaymentCourse = ({userCo}) => {
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                         Remboursements et ajustements
                                         </Table.Cell>
-                                        <Table.Cell>0$</Table.Cell>
+                                        <Table.Cell>{bill.refundsAndAdjustments}$</Table.Cell>
                                         <Table.Cell></Table.Cell>
                                     </Table.Row>
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
@@ -168,7 +188,7 @@ const PaymentCourse = ({userCo}) => {
                         <section className="bg-white py-8 antialiased dark:bg-gray-900 md:py-16">
                             <h2 className="text-xl font-semibold text-gray-900 dark:text-white sm:text-2xl">Méthodes de paiement</h2>
                             <div className="mt-6 sm:mt-8 lg:items-start lg:gap-12">
-                                <form action="#" className="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6 lg:max-w-xl lg:p-8">
+                                <form onSubmit={pay} className="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6 lg:max-w-xl lg:p-8">
                                     <div className="mb-6 grid grid-cols-2 gap-4">
                                         <div className="col-span-2 sm:col-span-1">
                                         <label for="full_name" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Nom complet* </label>
@@ -212,7 +232,7 @@ const PaymentCourse = ({userCo}) => {
                                         </div>
                                     </div>
 
-                                    <button onClick={pay} className="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4  focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Payer</button>
+                                    <button type="submit" className="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4  focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Payer</button>
                                 </form>
 
                                 <div className="mt-6 flex items-center justify-center gap-8">

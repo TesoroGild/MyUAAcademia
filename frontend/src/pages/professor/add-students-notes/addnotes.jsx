@@ -70,7 +70,7 @@ function AddStudentsNotes ({employeeCo}) {
             }
             studentsNotesGrades.push(studentNoteGrade);
         });
-console.log(studentsNotesGrades)
+        
         try {
             const response = await addNotesS(studentsNotesGrades);
     

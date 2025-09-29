@@ -30,19 +30,18 @@ const Bill = ({userCo, userPermanentCode}) => {
         deadLine: "",
         dateOfPaiement: "",
         sessionStudy: "",
-        yearStudy: ""
+        yearStudy: "",
+        AmountPaid: "",
+        GeneralExpenses: "",
+        SportsAdministrationFees: "",
+        DentalInsurance: "",
+        InsuranceFee: "",
+        RefundsAndAdjustments: ""
     });
     const [studentBills, setStudentBills] = useState([]);
     const [studentCourses, setStudentCourses] = useState([]);
     const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-    const [expenses, setExpenses] = useState({
-        "coasts": 245,
-        "sportsfees": 50,
-        "dentalinsurance": 120,
-        "insurancefees": 250
-    });
     const [total, setTotal] = useState(0);
-    const [restToPay, setRestToPay] = useState(0);
 
     //Functions
     const navigate = useNavigate();
@@ -92,7 +91,13 @@ const Bill = ({userCo, userPermanentCode}) => {
             deadLine: "",
             dateOfPaiement: "",
             sessionStudy: "",
-            yearStudy: ""
+            yearStudy: "",
+            AmountPaid: "",
+            GeneralExpenses: "",
+            SportsAdministrationFees: "",
+            DentalInsurance: "",
+            InsuranceFee: "",
+            RefundsAndAdjustments: ""
         });
         for (let index = 0; index < studentBills.length; index++) {
             //console.log(year,  studentBills[index].yearStudy, session,studentBills[index].sessionStudy);
@@ -113,17 +118,18 @@ const Bill = ({userCo, userPermanentCode}) => {
 
     const totalisation = () => {
         let total = 0;
-        total += expenses.coasts;
-        total += expenses.sportsfees;
-        total += expenses.dentalinsurance;
-        total += expenses.insurancefees;
-        total += billToDisplay.amount;
+        total += billToDisplay.generalExpenses || 0;
+        total += billToDisplay.sportsAdministrationFees || 0;
+        total += billToDisplay.dentalInsurance || 0;
+        total += billToDisplay.insuranceFees || 0;
+        total += billToDisplay.amount || 0;
+        total -= billToDisplay.refundsAndAdjustments || 0;
         setTotal(total);
     }
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
-        return format(date, "dd MMMM yyyy 'à' HH'h'mm'mn'", { locale: fr });
+        return format(date, "dd MMMM yyyy", { locale: fr });
     };
 
     const displayAllBills = () => {
@@ -160,8 +166,7 @@ const Bill = ({userCo, userPermanentCode}) => {
                 </div>
 
                 <div className="w-full">
-                    <div>FACTURES ET SOLDES</div>
-                    <div>
+                    <div className="mt-4">
                         <div className="flex w-full pb-2">
                             <div className="w-1/3 text-center">
                                 <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
@@ -187,7 +192,7 @@ const Bill = ({userCo, userPermanentCode}) => {
                                 ) : (
                                     <div>
                                         <div className="border-2 border-sky-500">
-                                            <div>La facture a été émise le {formatDate(billToDisplay.dateOfIssue)}</div>
+                                            <div>Date d'émission : {formatDate(billToDisplay.dateOfIssue)}</div>
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <Table.Head>
@@ -227,7 +232,7 @@ const Bill = ({userCo, userPermanentCode}) => {
                                                             <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                                             Frais généraux
                                                             </Table.Cell>
-                                                            <Table.Cell>{expenses.coasts}$</Table.Cell>
+                                                            <Table.Cell>{billToDisplay.generalExpenses}$</Table.Cell>
                                                             <Table.Cell>
                                                                 <Tooltip content="Tooltip content" placement="right">
                                                                     <HiInformationCircle className="h-4 w-4" />
@@ -238,7 +243,7 @@ const Bill = ({userCo, userPermanentCode}) => {
                                                             <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                                             Frais d'administration sportive
                                                             </Table.Cell>
-                                                            <Table.Cell>{expenses.sportsfees}$</Table.Cell>
+                                                            <Table.Cell>{billToDisplay.sportsAdministrationFees}$</Table.Cell>
                                                             <Table.Cell>
                                                                 <Tooltip content="Tooltip content" placement="right">
                                                                     <HiInformationCircle className="h-4 w-4" />
@@ -249,7 +254,7 @@ const Bill = ({userCo, userPermanentCode}) => {
                                                             <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                                             Assurance dentaires
                                                             </Table.Cell>
-                                                            <Table.Cell>{expenses.dentalinsurance}$</Table.Cell>
+                                                            <Table.Cell>{billToDisplay.dentalInsurance}$</Table.Cell>
                                                             <Table.Cell>
                                                                 <Tooltip content="Tooltip content" placement="right">
                                                                     <HiInformationCircle className="h-4 w-4" />
@@ -260,7 +265,7 @@ const Bill = ({userCo, userPermanentCode}) => {
                                                             <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
                                                             Frais d'assurances
                                                             </Table.Cell>
-                                                            <Table.Cell>{expenses.insurancefees}$</Table.Cell>
+                                                            <Table.Cell>{billToDisplay.insuranceFees}$</Table.Cell>
                                                             <Table.Cell>
                                                                 <Tooltip content="Tooltip content" placement="right">
                                                                     <HiInformationCircle className="h-4 w-4" />
@@ -269,16 +274,16 @@ const Bill = ({userCo, userPermanentCode}) => {
                                                         </Table.Row>
                                                         <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                                             <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Total
+                                                            Remboursements et ajustements
                                                             </Table.Cell>
-                                                            <Table.Cell>{total}$</Table.Cell>
+                                                            <Table.Cell>{billToDisplay.refundsAndAdjustments}$</Table.Cell>
                                                             <Table.Cell></Table.Cell>
                                                         </Table.Row>
                                                         <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                                             <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Remboursements et ajustements
+                                                            Total
                                                             </Table.Cell>
-                                                            <Table.Cell>0$</Table.Cell>
+                                                            <Table.Cell>{total}$</Table.Cell>
                                                             <Table.Cell></Table.Cell>
                                                         </Table.Row>
                                                         <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
