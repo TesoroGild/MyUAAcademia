@@ -20,15 +20,6 @@ export const modifyPasswordS = async(changePwdCredentials) => {
     return { success: false, message: "Impossible de contacter le serveur" };
   }
 }
-// await axios.post(
-        //     "http://localhost:5000/api/auth/change-password",
-        //     {
-        //     userCode,
-        //     oldPassword,
-        //     newPassword
-        //     },
-        //     { withCredentials: true }
-        // );
 
 
 //READ

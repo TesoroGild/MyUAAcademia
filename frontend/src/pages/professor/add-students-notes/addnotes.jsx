@@ -109,7 +109,7 @@ function AddStudentsNotes ({employeeCo}) {
                                     <svg
                                         className="mb-4 h-8 w-8 text-gray-500 dark:text-gray-400"
                                         aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg"
+                                        xmlns="https://www.w3.org/2000/svg"
                                         fill="none"
                                         viewBox="0 0 20 16"
                                     >
