@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+#Sonarqube
+.sonarqube/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -285,7 +288,6 @@ FakesAssemblies/
 .ntvs_analysis.dat
 node_modules/
 
-
 # Visual Studio 6 build log
 *.plg
 
@@ -398,7 +400,9 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-frontend/package-lock.json
+# C#
+src/appsettings.Development.json
+appsettings.*.json
+!appsettings.json
 
-# Mkcert files
-*.pem
+*.p12
