@@ -1,8 +1,3 @@
-//Reusable
-import AdminDashboard from "../../dashboard/admindashboard";
-import AdminHeader from "../../header/adminheader";
-
-//React
 import React, { useEffect, useState } from "react";
 import { Button, Datepicker, Table, Toast, ToastToggle } from "flowbite-react";
 import { useForm, Controller } from "react-hook-form";
@@ -47,7 +42,7 @@ const ChangePassword = ({employeeTRC}) => {
 
         const changingPwdCredentials = {
             //userCode: employeeTRC.code,
-            userCode: "emp1",
+            userCode: "CURS14151988RN0",
             newPwd: newPassword
         };
 

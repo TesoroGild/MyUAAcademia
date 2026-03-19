@@ -1,5 +1,5 @@
 //Reusable
-import AdminDashboard from "../dashboard/admindashboard";
+import Sidebar from "../sidebar/sidebar";
 import AdminHeader from "../header/adminheader";
 
 //React
@@ -10,7 +10,7 @@ const Student = ({employeeCo}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
-                <AdminDashboard employeeCo = {employeeCo} />
+                <Sidebar userCo = {employeeCo} />
             </div>
                 
             <div className="w-full">

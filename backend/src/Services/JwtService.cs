@@ -7,14 +7,23 @@ namespace MyUAAcademiaB.Services
 {
     public class JwtService
     {
-        private readonly string _secretKey = Environment.GetEnvironmentVariable("Key");
-        private readonly string _issuer = Environment.GetEnvironmentVariable("Issuer");
-        private readonly string _audience = Environment.GetEnvironmentVariable("Audience");
-        private readonly int _expiryHours = 2;
+        private readonly IConfiguration _configuration;
+        //private readonly string _secretKey = Environment.GetEnvironmentVariable("Key");
+        //private readonly string _issuer = Environment.GetEnvironmentVariable("Issuer");
+        //private readonly string _audience = Environment.GetEnvironmentVariable("Audience");
+        //private readonly int _expiryHours = 2;
+
+        public JwtService(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
 
         public string GenerateToken(string code, string userRole)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var secretKey = _configuration["Key"];
+            var issuer = _configuration["Issuer"];
+            var expiryHours = double.Parse(_configuration["ExpiryHours"] ?? "2");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var now = DateTime.UtcNow;
@@ -30,11 +39,11 @@ namespace MyUAAcademiaB.Services
 
 
             var token = new JwtSecurityToken(
-                issuer: _issuer,
-                audience: _issuer, //bonnes pratiques, mettre un diff. ici c'est le meme car c'est un seul serveur qui est utilise
+                issuer: issuer,
+                audience: issuer, //bonnes pratiques, mettre un diff. ici c'est le meme car c'est un seul serveur qui est utilise
                 claims: claims,
                 notBefore: now,
-                expires: now.AddHours(_expiryHours),
+                expires: now.AddHours(expiryHours),
                 signingCredentials: creds
             );
 

@@ -62,6 +62,7 @@ builder.Services.AddScoped<ISchoolReportService, SchoolReportService>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IUserProgramService, UserProgramService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<JwtService>();
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {

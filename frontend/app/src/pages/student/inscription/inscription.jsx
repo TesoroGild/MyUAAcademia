@@ -1,241 +1,249 @@
-//Reusable
-import AdminDashboard from "../../dashboard/admindashboard";
-import AdminHeader from "../../header/adminheader";
-
-//React
+import Sidebar from "../../sidebar/sidebar";
+import adminPicture from "../../../assets/img/Admin.jpg";
 import React, { useEffect, useState } from "react";
-import { Button, Table, Toast, ToastToggle } from "flowbite-react";
-import { Tooltip } from "flowbite-react"
-
-//Services
+import { HiCheck, HiExclamation, HiX, HiSearch, HiPlus, HiTrash } from "react-icons/hi";
 import { getProgramsS, programRegistrationS } from "../../../services/program.service";
 import { getStudentsS } from "../../../services/user.service";
 
-//Icons
-import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const GRADES = ["Certificat", "BTS", "Baccalauréat", "Master", "Doctorat"];
+const GRADE_BADGE = {
+  "Certificat":   "bg-slate-100 text-slate-600 border-slate-200",
+  "BTS":          "bg-teal-50 text-teal-700 border-teal-100",
+  "Baccalauréat": "bg-blue-50 text-blue-700 border-blue-100",
+  "Master":       "bg-violet-50 text-violet-700 border-violet-100",
+  "Doctorat":     "bg-amber-50 text-amber-700 border-amber-100",
+};
 
-const Inscription = ({employeeCo}) => {
-    //States
-    const [programs, setPrograms] = useState([]);
-    const [students, setStudents] = useState([]);
-    const [programTitle, setProgramTitle] = useState("");
-    const [studentsPermanentCode, setStudentsPermanentCode] = useState([]);
-    const [searchStudent, setSearchStudent] = useState("");
-    const [filteredStudents, setFilteredStudents] = useState([]);
-    const [showSuccesToast, setShowSuccesToast] = useState(false);
-    const [showErrorToast, setShowErrorToast] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [showWarningToast, setShowWarningToast] = useState(false);
+const Alert = ({ type, message }) => {
+  const s = { success: "bg-green-50 border-green-200 text-green-700", error: "bg-red-50 border-red-200 text-red-700", warning: "bg-amber-50 border-amber-200 text-amber-700" }[type];
+  const Icon = type === "success" ? HiCheck : type === "warning" ? HiExclamation : HiX;
+  return (
+    <div className={`flex items-center gap-2 border rounded-xl px-4 py-3 text-sm ${s}`}>
+      <Icon className="w-4 h-4 shrink-0" />{message}
+    </div>
+  );
+};
 
-    //Functions
-    useEffect(() => {
-        getPrograms();
-        getStudentsNotInProgram();
-    }, []);
+const Inscription = ({ employeeCo }) => {
+  const [programs, setPrograms]                         = useState([]);
+  const [students, setStudents]                         = useState([]);
+  const [filteredStudents, setFilteredStudents]         = useState([]);
+  const [searchStudent, setSearchStudent]               = useState("");
+  const [selectedProgram, setSelectedProgram]           = useState(null);
+  const [gradeFilter, setGradeFilter]                   = useState("");
+  const [programSearch, setProgramSearch]               = useState("");
+  const [selectedStudents, setSelectedStudents]         = useState([]); // { permanentCode, firstName, lastName }
+  const [alert, setAlert]                               = useState(null);
+  const [isLoading, setIsLoading]                       = useState(false);
 
-    const getPrograms = async () => {
-        try {
-            const programs = await getProgramsS();
-            setPrograms(programs);
-        } catch (error) {
-            console.log(error);
-        }
-    }
+  useEffect(() => { getPrograms(); getStudents(); }, []);
 
-    const getStudentsNotInProgram = async () => {
-        try {
-            const result = await getStudentsS();
-            setStudents(result);
-            setFilteredStudents(result);
-            // if (result.success) {
-            //     setStudents(result.studentsNotEnrolled);
-            //     setFilteredStudents(result.studentsNotEnrolled);
-            // } else {
-            //     setErrorMessage(result.message);
-            //     setShowErrorToast(true);
-            //     setTimeout(() => setShowErrorToast(false), 5000);
-            // }
-        } catch (error) {
-            console.log(error);
-            setShowWarningToast(true);
-            setTimeout(() => setShowWarningToast(false), 5000);
-        }
-    }
+  const showAlert = (type, message) => { setAlert({ type, message }); setTimeout(() => setAlert(null), 5000); };
 
-    const registerStudentsProgram = async (event) => {
-        event.preventDefault();
+  const getPrograms = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
+  const getStudents = async () => {
+    try {
+      const result = await getStudentsS();
+      setStudents(result);
+      setFilteredStudents(result);
+    } catch { showAlert("warning", "Impossible de contacter le serveur."); }
+  };
 
-        try {
-            const registrationToCreate = {
-                title: programTitle,
-                permanentCodes: studentsPermanentCode
-            }
+  const handleStudentSearch = (e) => {
+    const term = e.target.value;
+    setSearchStudent(term);
+    setFilteredStudents(students.filter((s) =>
+      s.permanentCode.toUpperCase().includes(term.toUpperCase()) ||
+      s.lastName?.toUpperCase().includes(term.toUpperCase()) ||
+      s.firstName?.toUpperCase().includes(term.toUpperCase())
+    ));
+  };
 
-            const registrationResponse = await programRegistrationS(registrationToCreate);
+  const addStudent = (student) => {
+    if (!selectedStudents.find((s) => s.permanentCode === student.permanentCode))
+      setSelectedStudents((prev) => [...prev, student]);
+  };
 
-            if (registrationResponse !== null && registrationResponse !== undefined) {
-                setStudentsPermanentCode([]);
-                setProgramTitle("");
-                setShowSuccesToast(true);
-                getStudentsNotInProgram();
-                setTimeout(() => setShowSuccesToast(false), 5000);
-            } else {
-                setErrorMessage(result.message);
-                setShowErrorToast(true);
-                setTimeout(() => setShowErrorToast(false), 5000);
-            }
-        } catch (error) {
-            console.log(error);
-            setShowWarningToast(true);
-            setTimeout(() => setShowWarningToast(false), 5000);
-        }
-    }
+  const removeStudent = (pc) => setSelectedStudents((prev) => prev.filter((s) => s.permanentCode !== pc));
 
-    const addStudentProgram = (pc) => {
-        setStudentsPermanentCode([...studentsPermanentCode, pc]);
-    }
-    
-    const handleCodeChange = (event) => {
-        const searchTerm = event.target.value;
-        setSearchStudent(searchTerm);
+  const filteredPrograms = programs.filter((p) => {
+    const matchGrade  = !gradeFilter || p.grade === gradeFilter;
+    const matchSearch = !programSearch || p.title.toLowerCase().includes(programSearch.toLowerCase()) || p.programName.toLowerCase().includes(programSearch.toLowerCase());
+    return matchGrade && matchSearch;
+  });
 
-        const filteredList = students.filter((student) => 
-            student.permanentCode.toUpperCase().includes(searchTerm.toUpperCase())
-        );
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedProgram || selectedStudents.length === 0) return;
+    setIsLoading(true);
+    try {
+      const result = await programRegistrationS({ title: selectedProgram.title, permanentCodes: selectedStudents.map((s) => s.permanentCode) });
+      if (result !== null && result !== undefined) {
+        showAlert("success", `${selectedStudents.length} étudiant(s) inscrit(s) au programme ${selectedProgram.title}.`);
+        setSelectedStudents([]);
+        setSelectedProgram(null);
+        await getStudents();
+      } else {
+        showAlert("error", "Une erreur est survenue.");
+      }
+    } catch { showAlert("warning", "Impossible de contacter le serveur."); }
+    finally { setIsLoading(false); }
+  };
 
-        setFilteredStudents(filteredList);
-    }
+  const canSubmit = selectedProgram && selectedStudents.length > 0;
 
-    //Return
-    return (<>
-        <div className="flex">
-            <div className="dash-div">
-                <AdminDashboard employeeCo = {employeeCo} />
-            </div>
-                
-            <div className="w-full">
-                <div>
-                    <AdminHeader/>
-                </div>
-                
-                <div className="m-4">
-                    {showSuccesToast && (
-                        <Toast>
-                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                <HiCheck className="h-5 w-5" />
-                            </div>
-                            <div className="ml-3 text-sm font-normal">Utilisateur ajouté.</div>
-                            <div className="ml-auto flex items-center space-x-2">
-                                <ToastToggle />
-                            </div>
-                        </Toast>
-                    )}
-                    {showWarningToast && (
-                        <Toast>
-                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
-                                <HiExclamation className="h-5 w-5" />
-                            </div>
-                            <div className="ml-3 text-sm font-normal">Impossible de contacter le serveur. Veuillez essayer plus tard.</div>
-                            <ToastToggle />
-                        </Toast>
-                    )}
-                    {showErrorToast && (
-                        <Toast>
-                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                <HiX className="h-5 w-5" />
-                            </div>
-                            <div className="ml-3 text-sm font-normal">{errorMessage}</div>
-                            <ToastToggle />
-                        </Toast>
-                    )}
-                    <form onSubmit={registerStudentsProgram}>
-                        <div className="flex">
-                            <div className="w-1/2 mr-2">
-                            <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                    id="program" name="program" onChange={(e) => setProgramTitle(e.target.value)}
-                                >
-                                    <option value="">Sélectionnez un programme</option>
-                                    {programs.map((element, index) => (
-                                        <option key={index} value={element.title}>
-                                            {element.title} | {element.grade} : {element.programName}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="w-1/2 ml-2">
-                                <input className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                    type="text"
-                                    value={searchStudent}
-                                    onChange={handleCodeChange}
-                                    placeholder="Chercher un code permanent" />
-                            </div>
-                        </div>
-
-                        <div className="flex my-4">
-                            <div className="w-1/2">
-                                <p>Liste des étudiants non inscrits</p>
-                                <div>
-                                    <Table>
-                                        <Table.Head>
-                                            <Table.HeadCell>Code permanent</Table.HeadCell>
-                                            <Table.HeadCell>Nom</Table.HeadCell>
-                                            <Table.HeadCell>Prénom</Table.HeadCell>
-                                            <Table.HeadCell>Ajouter au programme</Table.HeadCell>
-                                        </Table.Head>
-                                        <Table.Body className="divide-y">
-                                            { filteredStudents.map(student => 
-                                                <Table.Row key={student.permanentCode} className="bg-white dark:border-gray-700 dark:bg-gray-800 hover:bg-sky-200">
-                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                        {student.permanentCode}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {student.lastName}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        {student.firstName}
-                                                    </Table.Cell>
-                                                    <Table.Cell>
-                                                        <div className="flex self-center cursor-pointer"
-                                                            onClick={() => addStudentProgram(student.permanentCode)}
-                                                        ><HiOutlinePlusSm /></div>
-                                                    </Table.Cell>
-                                                </Table.Row>
-                                            )}
-                                        </Table.Body>
-                                    </Table>
-                                </div>
-                            </div>
-                            <div className="ml-4">
-                                <p>Etudiants à ajouter au programme {programTitle}</p>
-                                <div>
-                                    <Table>
-                                        <Table.Head>
-                                            <Table.HeadCell>Code permanent</Table.HeadCell>
-                                        </Table.Head>
-                                        <Table.Body className="divide-y">
-                                            { studentsPermanentCode.map((studentPC, index) => (
-                                                <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                        {studentPC}
-                                                    </Table.Cell>
-                                                </Table.Row>
-                                            ))}
-                                        </Table.Body>
-                                    </Table>
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="submit" disabled={!programTitle != "" || !studentsPermanentCode.length > 0 }
-                            className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                            Inscrire
-                        </button>
-                    </form>
-                </div>
-            </div>
+  return (
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <main className="flex-1 overflow-y-auto">
+        <div className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10 shrink-0">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Inscription à un programme</p>
+            <p className="text-xs text-slate-400">Inscrire un ou plusieurs étudiants à un programme</p>
+          </div>
         </div>
-    </>)
-}
+
+        <form onSubmit={onSubmit} className="p-8 max-w-6xl flex flex-col gap-6">
+          {alert && <Alert type={alert.type} message={alert.message} />}
+
+          <div className="grid lg:grid-cols-2 gap-6">
+
+            {/* ── Colonne Programme ── */}
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col">
+              <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+                <p className="text-sm font-semibold text-slate-900">Programme cible</p>
+                <p className="text-xs text-slate-400 mt-0.5">Sélectionnez le programme d'inscription</p>
+              </div>
+              <div className="p-5 flex flex-col gap-3 flex-1">
+                {selectedProgram ? (
+                  <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-xs font-semibold border px-2 py-0.5 rounded-full ${GRADE_BADGE[selectedProgram.grade] ?? "bg-slate-100 text-slate-600 border-slate-200"}`}>{selectedProgram.grade}</span>
+                        <p className="text-sm font-semibold text-slate-900">{selectedProgram.title}</p>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">{selectedProgram.programName} · {selectedProgram.faculty}</p>
+                    </div>
+                    <button type="button" onClick={() => setSelectedProgram(null)} className="text-slate-400 hover:text-red-600 transition-colors ml-3 shrink-0">
+                      <HiX className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    {/* Filtre niveau */}
+                    <div className="flex gap-2 flex-wrap">
+                      <button type="button" onClick={() => setGradeFilter("")}
+                        className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${!gradeFilter ? "bg-blue-800 text-white border-blue-800" : "bg-white text-slate-600 border-slate-200 hover:border-blue-700"}`}>
+                        Tous
+                      </button>
+                      {GRADES.map((g) => (
+                        <button type="button" key={g} onClick={() => setGradeFilter(gradeFilter === g ? "" : g)}
+                          className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${gradeFilter === g ? "bg-blue-800 text-white border-blue-800" : "bg-white text-slate-600 border-slate-200 hover:border-blue-700"}`}>
+                          {g}
+                        </button>
+                      ))}
+                    </div>
+                    {/* Recherche */}
+                    <div className="relative">
+                      <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input type="text" value={programSearch} onChange={(e) => setProgramSearch(e.target.value)}
+                        placeholder="Rechercher un programme..."
+                        className="w-full pl-9 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700 transition" />
+                    </div>
+                    {/* Liste programmes */}
+                    <div className="border border-slate-200 rounded-xl overflow-hidden max-h-64 overflow-y-auto">
+                      {filteredPrograms.length === 0 ? (
+                        <p className="text-sm text-slate-400 text-center py-6">Aucun programme trouvé.</p>
+                      ) : filteredPrograms.map((p) => (
+                        <button type="button" key={p.title} onClick={() => setSelectedProgram(p)}
+                          className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left border-b border-slate-50 last:border-0 hover:bg-blue-50 transition-colors">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs font-semibold border px-2 py-0.5 rounded-full shrink-0 ${GRADE_BADGE[p.grade] ?? "bg-slate-100 text-slate-600 border-slate-200"}`}>{p.grade}</span>
+                              <p className="text-sm font-medium text-slate-900 truncate">{p.title}</p>
+                            </div>
+                            <p className="text-xs text-slate-400 mt-0.5 truncate">{p.programName} · {p.faculty}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-slate-400">{filteredPrograms.length} programme{filteredPrograms.length > 1 ? "s" : ""}</p>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* ── Colonne Étudiants ── */}
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col">
+              <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+                <p className="text-sm font-semibold text-slate-900">Étudiants à inscrire</p>
+                <p className="text-xs text-slate-400 mt-0.5">{selectedStudents.length} étudiant(s) sélectionné(s)</p>
+              </div>
+              <div className="p-5 flex flex-col gap-3 flex-1">
+                {/* Sélectionnés */}
+                {selectedStudents.length > 0 && (
+                  <div className="flex flex-col gap-1.5 mb-1">
+                    {selectedStudents.map((s) => (
+                      <div key={s.permanentCode} className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                        <div>
+                          <p className="text-xs font-semibold text-slate-800">{s.firstName} {s.lastName}</p>
+                          <p className="text-xs text-slate-400 font-mono">{s.permanentCode}</p>
+                        </div>
+                        <button type="button" onClick={() => removeStudent(s.permanentCode)} className="text-slate-400 hover:text-red-600 transition-colors ml-2 shrink-0">
+                          <HiX className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Recherche étudiant */}
+                <div className="relative">
+                  <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input type="text" value={searchStudent} onChange={handleStudentSearch}
+                    placeholder="Rechercher par code, nom ou prénom..."
+                    className="w-full pl-9 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700 transition" />
+                </div>
+                {/* Liste étudiants */}
+                <div className="border border-slate-200 rounded-xl overflow-hidden max-h-64 overflow-y-auto">
+                  {filteredStudents.filter((s) => !selectedStudents.find((sel) => sel.permanentCode === s.permanentCode)).length === 0 ? (
+                    <p className="text-sm text-slate-400 text-center py-6">Aucun étudiant trouvé.</p>
+                  ) : (
+                    filteredStudents
+                      .filter((s) => !selectedStudents.find((sel) => sel.permanentCode === s.permanentCode))
+                      .map((student) => (
+                        <button type="button" key={student.permanentCode} onClick={() => addStudent(student)}
+                          className="w-full flex items-center justify-between px-4 py-3 text-left border-b border-slate-50 last:border-0 hover:bg-blue-50 transition-colors">
+                          <div>
+                            <p className="text-sm font-medium text-slate-900">{student.firstName} {student.lastName}</p>
+                            <p className="text-xs text-slate-400 font-mono">{student.permanentCode}</p>
+                          </div>
+                          <HiPlus className="w-4 h-4 text-slate-300 shrink-0" />
+                        </button>
+                      ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Récap + Submit */}
+          {canSubmit && (
+            <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+              <p className="text-sm text-blue-800">
+                <span className="font-semibold">{selectedStudents.length} étudiant(s)</span> seront inscrits au programme <span className="font-semibold">{selectedProgram.title}</span>.
+              </p>
+              <button type="submit" disabled={isLoading}
+                className="shrink-0 flex items-center gap-2 bg-blue-800 hover:bg-blue-900 disabled:opacity-50 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                <HiCheck className="w-4 h-4" />
+                {isLoading ? "Inscription..." : "Confirmer l'inscription"}
+              </button>
+            </div>
+          )}
+        </form>
+      </main>
+    </div>
+  );
+};
 
 export default Inscription;

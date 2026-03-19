@@ -1,373 +1,332 @@
-//React
-import AdminDashboard from "../../dashboard/admindashboard";
-import AdminHeader from "../../header/adminheader";
-
-//React
+import Sidebar from "../../sidebar/sidebar";
+import adminPicture from "../../../assets/img/Admin.jpg";
 import React, { useEffect, useState } from "react";
-import { Button, Table, TextInput, Toast, Tooltip } from "flowbite-react";
-import { useForm, Controller } from "react-hook-form";
-
-//Icons
-import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
-
-//Services
+import { HiCheck, HiExclamation, HiX, HiSearch, HiPlus } from "react-icons/hi";
 import { getProgramStudentsS } from "../../../services/user.service";
 import { enrollStudentsInCoursesS, getProgramSessionCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
-const Course = ({employeeCo}) => {
-    //States
-    const {
-        register,
-        setValue,
-        control,
-        handleSubmit,
-        reset,
-        formState: { errors }
-    } = useForm({
-        defaultValues: {
-            classeName: "",
-            courseSigle: "",
-            jours: "",
-            startTime: "",
-            endTime: "",
-            yearCourse: ""
-        }
-    });
-    const [students, setStudents] = useState([]);
-    const [programs, setPrograms] = useState([]);
-    const [classesCourses, setClassesCourses] = useState([]);
-    const [searchStudent, setSearchStudent] = useState("");
-    const [filteredStudents, setFilteredStudents] = useState([]);
-    const [classesCoursesIds, setClassesCoursesIds] = useState([]);
-    const [programTitle, setProgramTitle] = useState("");
-    const [studentsPermanentCodes, setStudentsPermanentCodes] = useState([]);
-    const [sessionCourse, setSessionCourse] = useState("");
+const GRADE_BADGE = {
+  "Certificat":   "bg-slate-100 text-slate-600 border-slate-200",
+  "BTS":          "bg-teal-50 text-teal-700 border-teal-100",
+  "Baccalauréat": "bg-blue-50 text-blue-700 border-blue-100",
+  "Master":       "bg-violet-50 text-violet-700 border-violet-100",
+  "Doctorat":     "bg-amber-50 text-amber-700 border-amber-100",
+};
 
+const Alert = ({ type, message }) => {
+  const s = { success: "bg-green-50 border-green-200 text-green-700", error: "bg-red-50 border-red-200 text-red-700", warning: "bg-amber-50 border-amber-200 text-amber-700" }[type];
+  const Icon = type === "success" ? HiCheck : type === "warning" ? HiExclamation : HiX;
+  return (
+    <div className={`flex items-center gap-2 border rounded-xl px-4 py-3 text-sm ${s}`}>
+      <Icon className="w-4 h-4 shrink-0" />{message}
+    </div>
+  );
+};
 
-    const [showStudentsClassesAdded, setShowStudentsClassesAdded] = useState(false);
-    const [displayCoursesRegistration, setDisplayCoursesRegistration] = useState(false);
+const CourseEnrollment = ({ employeeCo }) => {
+  const [programs, setPrograms]                     = useState([]);
+  const [students, setStudents]                     = useState([]);
+  const [filteredStudents, setFilteredStudents]     = useState([]);
+  const [classesCourses, setClassesCourses]         = useState([]);
+  const [filteredCourses, setFilteredCourses]       = useState([]);
+  const [searchStudent, setSearchStudent]           = useState("");
+  const [searchCourse, setSearchCourse]             = useState("");
+  const [sessionCourse, setSessionCourse]           = useState("");
+  const [programTitle, setProgramTitle]             = useState("");
+  const [selectedStudents, setSelectedStudents]     = useState([]);
+  const [selectedCourses, setSelectedCourses]       = useState([]);
+  const [alert, setAlert]                           = useState(null);
+  const [isLoading, setIsLoading]                   = useState(false);
+  const [programGradeFilter, setProgramGradeFilter] = useState("");
+  const [programSearch, setProgramSearch]           = useState("");
 
-    //Functions
-    useEffect(() => {
-        getPrograms();
+  useEffect(() => { getPrograms(); }, []);
 
-        if (sessionCourse !== "" && programTitle !== "") {
-            getProgramSessionCourses();
-        }
-    }, [sessionCourse, programTitle]);
+  useEffect(() => {
+    if (sessionCourse && programTitle) getProgramSessionCourses();
+  }, [sessionCourse, programTitle]);
 
-    const getPrograms = async () => {
-        try {
-            const programs = await getProgramsS();
-            setPrograms(programs);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+  const showAlert = (type, message) => { setAlert({ type, message }); setTimeout(() => setAlert(null), 5000); };
 
-    const getProgramSessionCourses = async () => {
-        try {
-            const sessionProgram = {
-                programTitle: programTitle,
-                sessionCourse: sessionCourse
-            }
-            const classesCourses = await getProgramSessionCoursesS(sessionProgram);
-            setClassesCourses(classesCourses);
-        } catch (error) {
-            console.log(error);
-        }
-    }
+  const getPrograms = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
 
-    const getProgramStudents = async (progTitle) => {
-        setProgramTitle(progTitle);
-        try {
-            const studentsInProgram = await getProgramStudentsS(progTitle);
-            setStudents(studentsInProgram);
-            setFilteredStudents(studentsInProgram);
-        } catch (error) {
-            console.log(error);
-        }
-    }
+  const getProgramSessionCourses = async () => {
+    try {
+        const res     = await getProgramSessionCoursesS({ programTitle, sessionCourse });
+        const courses = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
+        setClassesCourses(courses);
+        setFilteredCourses(courses);
+    } catch (e) { console.error(e); }
+  };
 
-    const enrollStudentsInCourses = async (event) => {
-        event.preventDefault();
+  const handleProgramChange = async (title) => {
+    setProgramTitle(title);
+    setSelectedStudents([]);
+    setStudents([]);
+    setFilteredStudents([]);
+    if (!title) return;
+    try {
+        const res  = await getProgramStudentsS(title);
+        // Normalise selon ce que ton API retourne
+        const list = Array.isArray(res) ? res : res?.students ?? res?.data ?? [];
+        setStudents(list);
+        setFilteredStudents(list);
+    } catch (e) { console.error(e); }
+  };
 
-        try {
-            const registrationToCreate = {
-                cCourseIds: classesCoursesIds,
-                permanentCodes: studentsPermanentCodes
-            }
+  const handleStudentSearch = (e) => {
+    const term = e.target.value;
+    setSearchStudent(term);
+    setFilteredStudents(students.filter((s) =>
+      s.permanentCode.toUpperCase().includes(term.toUpperCase()) ||
+      s.lastName?.toUpperCase().includes(term.toUpperCase()) ||
+      s.firstName?.toUpperCase().includes(term.toUpperCase())
+    ));
+  };
 
-            const response = await enrollStudentsInCoursesS(registrationToCreate);
+  const handleCourseSearch = (e) => {
+    const term = e.target.value;
+    setSearchCourse(term);
+    setFilteredCourses(classesCourses.filter((c) =>
+      c.courseSigle?.toUpperCase().includes(term.toUpperCase()) ||
+      c.classeName?.toUpperCase().includes(term.toUpperCase())
+    ));
+  };
 
-            if (response.success) {
-                setStudentsPermanentCodes([]);
-                setClassesCoursesIds([]);
-                setProgramTitle("");
-                setShowStudentsClassesAdded(true);
-                setTimeout(() => {
-                    setShowStudentsClassesAdded(false);
-                }, 5000);
-            } else {
-                console.log(response.message);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
+  const addStudent    = (s)  => { if (!selectedStudents.find((x) => x.permanentCode === s.permanentCode)) setSelectedStudents((p) => [...p, s]); };
+  const removeStudent = (pc) => setSelectedStudents((p) => p.filter((s) => s.permanentCode !== pc));
+  const addCourse     = (c)  => { if (!selectedCourses.find((x) => x.id === c.id)) setSelectedCourses((p) => [...p, c]); };
+  const removeCourse  = (id) => setSelectedCourses((p) => p.filter((c) => c.id !== id));
 
-    const handleCodeChange = (event) => {
-        const searchTerm = event.target.value;
-        setSearchStudent(searchTerm);
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedCourses.length || !selectedStudents.length) return;
+    setIsLoading(true);
+    try {
+      const res = await enrollStudentsInCoursesS({
+        cCourseIds:     selectedCourses.map((c) => c.id),
+        permanentCodes: selectedStudents.map((s) => s.permanentCode),
+      });
+      if (res.success) {
+        showAlert("success", `${selectedStudents.length} étudiant(s) inscrit(s) à ${selectedCourses.length} cours.`);
+        setSelectedStudents([]);
+        setSelectedCourses([]);
+      } else {
+        showAlert("error", res.message);
+      }
+    } catch { showAlert("warning", "Impossible de contacter le serveur."); }
+    finally { setIsLoading(false); }
+  };
 
-        const filteredList = students.filter((student) => 
-            student.permanentCode.toUpperCase().includes(searchTerm.toUpperCase())
-        );
+  const inputCls = "w-full text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700 transition";
+  const canSubmit = selectedStudents.length > 0 && selectedCourses.length > 0;
 
-        setFilteredStudents(filteredList);
-    }
-
-    const addStudentCourse = (pc) => {
-        setStudentsPermanentCodes([...studentsPermanentCodes, pc]);
-    }
-
-    const removeStudentCourse = (pc) => {
-        setStudentsPermanentCodes(studentsPermanentCodes.filter((student) => student !== pc));
-    }
-
-    const removeCourse = (id) => {
-        setClassesCoursesIds(classesCoursesIds.filter((courseId) => courseId !== id));
-    }
-
-    const addCourse = (id) => {
-        setClassesCoursesIds([...classesCoursesIds, id]);
-    }
-
-
-    //Return
-    return (<>
-        <div className="flex">
-            <div className="dash-div">
-                <AdminDashboard employeeCo = {employeeCo} />
-            </div>
-                
-            <div className="w-full">
-                <div>
-                    <AdminHeader/>
-                </div>
-
-                <div>
-                    <div>
-                        INSCRIPTIONS AUX COURS DISPONIBLES
-                    </div>
-
-                    <div className="border-2 border-red-500 mt-2 bg-red-200 mx-2 flex">
-                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center text-orange-500 dark:text-orange-200">
-                            <HiExclamation className="h-5 w-5" />
-                        </div>
-                        POUR AJOUTER PLUSIEURS COURS OU PLUSIEURS ÉTUDIANTS SIMULTANÉMENT, CHOISISSEZ EN PLUSIEURS
-                    </div>
-
-                    { showStudentsClassesAdded && (
-                        <div>
-                            <Toast>
-                                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-700 dark:text-green-200">
-                                    <HiCheck className="h-5 w-5" />
-                                </div>
-                                <div className="ml-3 text-sm font-normal">Cours ajouté.</div>
-                                <Toast.Toggle />
-                            </Toast>
-                        </div>
-                    )}
-                    
-                    <div className="mt-4">
-                        <form onSubmit={enrollStudentsInCourses}>
-                            <div className="w-full flex p-4">
-                                <label htmlFor="sessionCourse" className="w-1/3">Session :</label>
-                                <div className="w-1/3">
-                                    <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        id="sessionCourse" name="sessionCourse" onChange={(e) => setSessionCourse(e.target.value)}
-                                    >
-                                        <option value="">Sélectionnez une session...</option>
-                                        <option key="Hiver" value="Hiver">Hiver</option>
-                                        <option key="Été" value="Été">Été</option>
-                                        <option key="Automne" value="Automne">Automne</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-
-                            <div className="w-full flex p-4">
-                                <label htmlFor="titleCourse" className="w-1/3">Programme :</label>
-                                <div className="w-1/3">
-                                    <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        id="titleCourse" name="titleCourse" onChange={(e) => getProgramStudents(e.target.value)}
-                                    >
-                                        <option value="">Sélectionnez un programme...</option>
-                                        {programs.map((element, index) => (
-                                            <option key={index} value={element.title}>
-                                                {element.title} | {element.title} : {element.programName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-
-                            <div className="w-full flex p-4">
-                                <label htmlFor="sigle" className="w-1/3">Rechercher un étudiant :</label>
-                                <div className="w-1/3">
-                                    <input className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        type="text"
-                                        value={searchStudent}
-                                        onChange={handleCodeChange}
-                                        placeholder="Code permanent" />
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-
-                            <div className="flex my-4">
-                                <div className="w-1/2">
-                                    <p>Liste des étudiants</p>
-                                    <div>
-                                        <Table>
-                                            <Table.Head>
-                                                <Table.HeadCell>Code permanent</Table.HeadCell>
-                                                <Table.HeadCell>Nom</Table.HeadCell>
-                                                <Table.HeadCell>Prénom</Table.HeadCell>
-                                            </Table.Head>
-                                            <Table.Body className="divide-y">
-                                                { filteredStudents.map(student => 
-                                                    <Table.Row key={student.permanentCode} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200"
-                                                        onClick={() => addStudentCourse(student.permanentCode)}>
-                                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            {student.permanentCode}
-                                                        </Table.Cell>
-                                                        <Table.Cell>
-                                                            {student.lastName}
-                                                        </Table.Cell>
-                                                        <Table.Cell>
-                                                            {student.firstName}
-                                                        </Table.Cell>
-                                                        <Table.Cell>
-                                                            <div className="flex self-center"><HiOutlinePlusSm /></div>
-                                                        </Table.Cell>
-                                                    </Table.Row>
-                                                )}
-                                            </Table.Body>
-                                        </Table>
-                                    </div>
-                                </div>
-
-                                <div className="w-1/2">
-                                    <div className="mx-4">
-                                        <p>Etudiants à ajouter</p>
-                                        <div>
-                                            <Table>
-                                                <Table.Head>
-                                                    <Table.HeadCell>Code permanent</Table.HeadCell>
-                                                    <Table.HeadCell></Table.HeadCell>
-                                                </Table.Head>
-                                                <Table.Body className="divide-y">
-                                                    { studentsPermanentCodes.map((studentPC, index) => (
-                                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200">
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                {studentPC}
-                                                            </Table.Cell>
-                                                            <Table.Cell>
-                                                                <div onClick={() => removeStudentCourse(studentPC)} 
-                                                                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                                    <HiX className="h-5 w-5" />
-                                                                </div>
-                                                            </Table.Cell>
-                                                        </Table.Row>
-                                                    ))}
-                                                </Table.Body>
-                                            </Table>
-                                        </div>
-                                    </div>
-
-                                    <div className="ml-4">
-                                        <p>Cours disponilbes</p>
-                                        <div>
-                                            <Table>
-                                                <Table.Head>
-                                                    <Table.HeadCell>Sigle</Table.HeadCell>
-                                                    <Table.HeadCell>Salle</Table.HeadCell>
-                                                    <Table.HeadCell>Horaire</Table.HeadCell>
-                                                    <Table.HeadCell></Table.HeadCell>
-                                                </Table.Head>
-                                                <Table.Body className="divide-y">
-                                                    { classesCourses.map(element => 
-                                                        <Table.Row key={element.courseSigle} 
-                                                            className="bg-white dark:border-gray-700 dark:bg-gray-800 cursor-pointer hover:bg-sky-200"
-                                                        >
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                {element.courseSigle}
-                                                            </Table.Cell>
-                                                            <Table.Cell>
-                                                                {element.classeName}
-                                                            </Table.Cell>
-                                                            <Table.Cell>
-                                                                {element.jours} de {element.startTime} à {element.endTime}
-                                                            </Table.Cell>
-                                                            <Table.Cell>
-                                                                { classesCoursesIds.includes(element.id) ? (
-                                                                    <div onClick={() => removeCourse(element.id)} 
-                                                                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                                        <HiX className="h-5 w-5" />
-                                                                    </div>
-                                                                ) : (
-                                                                    <Button className="flex self-center" onClick={() => addCourse(element.id)}>Ajouter cours</Button>
-                                                                )}
-                                                                
-                                                            </Table.Cell>
-                                                        </Table.Row>
-                                                    )}
-                                                </Table.Body>
-                                            </Table>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                            </div>
-
-                            <button type="submit"
-                                disabled={ !classesCoursesIds || !studentsPermanentCodes.length > 0 }
-                                className="w-full m-4 text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50"
-                            >
-                                Inscrire des étudiants à des cours
-                            </button>
-                        </form>
-                    </div>
-
-                    { displayCoursesRegistration && (
-                        <div>
-                            <div>FORMULAIRE D'INSCRIPTION D'UN ÉTUDIANT À PLUSIEURS COURS</div>
-                            <form onSubmit={registerStudentCourseS}>
-                                <div>
-                                    Next form
-                                </div>
-                            </form>
-                        </div>
-                    )}
-                </div>
-            </div>
+  return (
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <main className="flex-1 overflow-y-auto">
+        <div className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10 shrink-0">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Inscription aux cours</p>
+            <p className="text-xs text-slate-400">Inscrire des étudiants à des cours de session</p>
+          </div>
         </div>
-    </>)
-}
 
-export default Course;
+        <form onSubmit={onSubmit} className="p-8 max-w-7xl flex flex-col gap-6">
+          {alert && <Alert type={alert.type} message={alert.message} />}
+
+          {/* ── Filtres contexte ── */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Contexte d'inscription</p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Session</label>
+                <select value={sessionCourse} onChange={(e) => setSessionCourse(e.target.value)}
+                  className={`${inputCls} px-3 py-2.5 bg-white`}>
+                  <option value="">Sélectionner une session</option>
+                  <option value="Hiver">Hiver</option>
+                  <option value="Été">Été</option>
+                  <option value="Automne">Automne</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Programme</label>
+                {/* Pills niveau */}
+                    <div className="flex gap-2 flex-wrap">
+                      <button type="button" onClick={() => setProgramGradeFilter("")}
+                        className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${!programGradeFilter ? "bg-blue-800 text-white border-blue-800" : "bg-white text-slate-600 border-slate-200 hover:border-blue-700"}`}>
+                        Tous
+                      </button>
+                      {[...new Set(programs.map((p) => p.grade).filter(Boolean))].map((g) => (
+                        <button type="button" key={g} onClick={() => setProgramGradeFilter(programGradeFilter === g ? "" : g)}
+                          className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${programGradeFilter === g ? "bg-blue-800 text-white border-blue-800" : "bg-white text-slate-600 border-slate-200 hover:border-blue-700"}`}>
+                          {g}
+                        </button>
+                      ))}
+                    </div>
+ 
+                    {/* Recherche */}
+                    <div className="relative">
+                      <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input type="text" value={programSearch} onChange={(e) => setProgramSearch(e.target.value)}
+                        placeholder="Rechercher un programme..."
+                        className="w-full pl-9 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-700 transition" />
+                    </div>
+                {/* Liste */}
+                    <div className="border border-slate-200 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+                      {programs
+                        .filter((p) => (!programGradeFilter || p.grade === programGradeFilter) &&
+                          (!programSearch || p.title.toLowerCase().includes(programSearch.toLowerCase()) || p.programName.toLowerCase().includes(programSearch.toLowerCase())))
+                        .map((p) => (
+                          <button type="button" key={p.title} onClick={() => handleProgramChange(p.title)}
+                            className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left border-b border-slate-50 last:border-0 hover:bg-blue-50 transition-colors">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-semibold border px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border-slate-200 shrink-0">{p.grade}</span>
+                                <p className="text-sm font-medium text-slate-900 truncate">{p.title}</p>
+                              </div>
+                              <p className="text-xs text-slate-400 mt-0.5 truncate">{p.programName}</p>
+                            </div>
+                          </button>
+                        ))}
+                    </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-6">
+
+            {/* ── Étudiants ── */}
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col">
+              <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+                <p className="text-sm font-semibold text-slate-900">Étudiants</p>
+                <p className="text-xs text-slate-400 mt-0.5">{selectedStudents.length} sélectionné(s)</p>
+              </div>
+              <div className="p-5 flex flex-col gap-3 flex-1">
+                {/* Sélectionnés */}
+                {selectedStudents.length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    {selectedStudents.map((s) => (
+                      <div key={s.permanentCode} className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                        <div>
+                          <p className="text-xs font-semibold text-slate-800">{s.firstName} {s.lastName}</p>
+                          <p className="text-xs text-slate-400 font-mono">{s.permanentCode}</p>
+                        </div>
+                        <button type="button" onClick={() => removeStudent(s.permanentCode)} className="text-slate-400 hover:text-red-600 transition-colors ml-2 shrink-0">
+                          <HiX className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="border-t border-slate-100 pt-2" />
+                  </div>
+                )}
+                {/* Recherche */}
+                <div className="relative">
+                  <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input type="text" value={searchStudent} onChange={handleStudentSearch}
+                    placeholder={programTitle ? "Rechercher dans ce programme..." : "Choisir d'abord un programme"}
+                    disabled={!programTitle}
+                    className={`${inputCls} pl-9 py-2.5 ${!programTitle ? "opacity-50 cursor-not-allowed bg-slate-50" : ""}`} />
+                </div>
+                {/* Liste */}
+                <div className="border border-slate-200 rounded-xl overflow-hidden max-h-64 overflow-y-auto">
+                  {!programTitle ? (
+                    <p className="text-sm text-slate-400 text-center py-6">Sélectionnez un programme pour voir les étudiants.</p>
+                  ) : filteredStudents.filter((s) => !selectedStudents.find((x) => x.permanentCode === s.permanentCode)).length === 0 ? (
+                    <p className="text-sm text-slate-400 text-center py-6">Aucun étudiant trouvé.</p>
+                  ) : (
+                    filteredStudents
+                      .filter((s) => !selectedStudents.find((x) => x.permanentCode === s.permanentCode))
+                      .map((student) => (
+                        <button type="button" key={student.permanentCode} onClick={() => addStudent(student)}
+                          className="w-full flex items-center justify-between px-4 py-3 text-left border-b border-slate-50 last:border-0 hover:bg-blue-50 transition-colors">
+                          <div>
+                            <p className="text-sm font-medium text-slate-900">{student.firstName} {student.lastName}</p>
+                            <p className="text-xs text-slate-400 font-mono">{student.permanentCode}</p>
+                          </div>
+                          <HiPlus className="w-4 h-4 text-slate-300 shrink-0" />
+                        </button>
+                      ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* ── Cours ── */}
+            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col">
+              <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
+                <p className="text-sm font-semibold text-slate-900">Cours disponibles</p>
+                <p className="text-xs text-slate-400 mt-0.5">{selectedCourses.length} sélectionné(s)</p>
+              </div>
+              <div className="p-5 flex flex-col gap-3 flex-1">
+                {/* Sélectionnés */}
+                {selectedCourses.length > 0 && (
+                  <div className="flex flex-col gap-1.5">
+                    {selectedCourses.map((c) => (
+                      <div key={c.id} className="flex items-center justify-between bg-blue-50 border border-blue-100 rounded-lg px-3 py-2">
+                        <div>
+                          <p className="text-xs font-semibold text-slate-800 font-mono">{c.courseSigle}</p>
+                          <p className="text-xs text-slate-400">{c.classeName} · {c.jours} {c.startTime}–{c.endTime}</p>
+                        </div>
+                        <button type="button" onClick={() => removeCourse(c.id)} className="text-slate-400 hover:text-red-600 transition-colors ml-2 shrink-0">
+                          <HiX className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="border-t border-slate-100 pt-2" />
+                  </div>
+                )}
+                {/* Recherche cours */}
+                <div className="relative">
+                  <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input type="text" value={searchCourse} onChange={handleCourseSearch}
+                    placeholder={sessionCourse && programTitle ? "Rechercher par sigle ou salle..." : "Choisir session et programme"}
+                    disabled={!sessionCourse || !programTitle}
+                    className={`${inputCls} pl-9 py-2.5 ${(!sessionCourse || !programTitle) ? "opacity-50 cursor-not-allowed bg-slate-50" : ""}`} />
+                </div>
+                {/* Liste cours */}
+                <div className="border border-slate-200 rounded-xl overflow-hidden max-h-64 overflow-y-auto">
+                  {!sessionCourse || !programTitle ? (
+                    <p className="text-sm text-slate-400 text-center py-6">Sélectionnez session + programme pour voir les cours.</p>
+                  ) : filteredCourses.filter((c) => !selectedCourses.find((x) => x.id === c.id)).length === 0 ? (
+                    <p className="text-sm text-slate-400 text-center py-6">Aucun cours trouvé.</p>
+                  ) : (
+                    filteredCourses
+                      .filter((c) => !selectedCourses.find((x) => x.id === c.id))
+                      .map((course) => (
+                        <button type="button" key={course.id} onClick={() => addCourse(course)}
+                          className="w-full flex items-center justify-between px-4 py-3 text-left border-b border-slate-50 last:border-0 hover:bg-blue-50 transition-colors">
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900 font-mono">{course.courseSigle}</p>
+                            <p className="text-xs text-slate-400">{course.classeName} · {course.jours} · {course.startTime}–{course.endTime}</p>
+                          </div>
+                          <HiPlus className="w-4 h-4 text-slate-300 shrink-0" />
+                        </button>
+                      ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Récap + Submit */}
+          {canSubmit && (
+            <div className="bg-blue-50 border border-blue-100 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+              <p className="text-sm text-blue-800">
+                <span className="font-semibold">{selectedStudents.length} étudiant(s)</span> seront inscrits à <span className="font-semibold">{selectedCourses.length} cours</span> pour la session <span className="font-semibold">{sessionCourse}</span>.
+              </p>
+              <button type="submit" disabled={isLoading}
+                className="shrink-0 flex items-center gap-2 bg-blue-800 hover:bg-blue-900 disabled:opacity-50 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+                <HiCheck className="w-4 h-4" />
+                {isLoading ? "Inscription..." : "Confirmer"}
+              </button>
+            </div>
+          )}
+        </form>
+      </main>
+    </div>
+  );
+};
+
+export default CourseEnrollment;

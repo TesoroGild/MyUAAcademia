@@ -1,427 +1,365 @@
-//React
-import AdminDashboard from "../../dashboard/admindashboard";
-import AdminHeader from "../../header/adminheader";
-
-//React
+import Sidebar from "../../sidebar/sidebar";
+import adminPicture from "../../../assets/img/Admin.jpg";
 import React, { useEffect, useState } from "react";
-import { Button, Table, TextInput, Toast, Tooltip } from "flowbite-react";
-import { useForm, Controller, set } from "react-hook-form";
-
-//Icons
-import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm, HiX  } from "react-icons/hi";
-
-//Services
-import { getStudentsS } from "../../../services/user.service";
+import { useForm } from "react-hook-form";
+import { HiCheck, HiExclamation, HiX, HiPlus } from "react-icons/hi";
 import { createClasseCourseS, getClassesCoursesS, getClassroomsS, getProgramCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
-const CourseCreate = ({employeeCo}) => {
-    //States
-    const {
-        register,
-        setValue,
-        control,
-        handleSubmit,
-        reset,
-        formState: { errors }
-    } = useForm({
-        defaultValues: {
-            classeName: "",
-            courseSigle: "",
-            jours: "",
-            startTime: "",
-            endTime: "",
-            yearCourse: ""
-        }
-    });
-    const [students, setStudents] = useState([]);
-    const [programs, setPrograms] = useState([]);
-    const [courses, setCourses] = useState([]);
-    const [classrooms, setClassrooms] = useState([]);
-    const [classCourses, setClassCourses] = useState([]);
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const inputCls = "border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition w-full bg-white";
 
-    const [searchStudent, setSearchStudent] = useState("");
-    const [filteredStudents, setFilteredStudents] = useState([]);
-    const [courseSigle, setCourseSigle] = useState("");
-    const [classesCoursesIds, setClassesCoursesIds] = useState([]);
-    const [showClasseCourseAdd, setShowClasseCourseAdd] = useState(false);
-    const [showClassCourseExist, setShowClassCourseExist] = useState(false);
+const Field = ({ label, error, children }) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</label>
+    {children}
+    {error && <p className="text-xs text-red-600">{error}</p>}
+  </div>
+);
 
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    
-    const [programTitle, setProgramTitle] = useState("");
-    const [session, setSession] = useState("");
-    const [studentsPermanentCodes, setStudentsPermanentCodes] = useState([]);
-    
-    //Functions
-    useEffect(() => {
-        getPrograms();
-        getClassrooms();
-        getClassesCourses();
-    }, []);
+const Alert = ({ type, message }) => {
+  const s = {
+    success: "bg-green-50 border-green-200 text-green-700",
+    error:   "bg-red-50 border-red-200 text-red-700",
+    warning: "bg-amber-50 border-amber-200 text-amber-700",
+  }[type];
+  const Icon = type === "success" ? HiCheck : type === "warning" ? HiExclamation : HiX;
+  return (
+    <div className={`flex items-center gap-2 border rounded-lg px-4 py-3 text-sm ${s}`}>
+      <Icon className="w-4 h-4 shrink-0" />{message}
+    </div>
+  );
+};
 
-    const getPrograms = async () => {
-        try {
-            const programs = await getProgramsS();
-            setPrograms(programs);
-        } catch (error) {
-            console.log(error);
-        }
+const JOURS   = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+const PLAGES  = ["09:30 - 12:30", "13:30 - 16:30", "18:00 - 21:00"];
+const currentYear = new Date().getFullYear();
+
+// ── Résumé d'une séance planifiée ─────────────────────────────────────────────
+const SeanceCard = ({ seance }) => (
+  <div className="bg-white border border-green-200 rounded-xl p-4 flex items-start gap-4">
+    <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+      <HiCheck className="w-4 h-4 text-green-600" />
+    </div>
+    <div className="min-w-0">
+      <p className="text-sm font-semibold text-slate-900">{seance.courseSigle}</p>
+      <p className="text-xs text-slate-500 mt-0.5">
+        {seance.sessionCourse} {seance.yearCourse} · {seance.jours} · {seance.startTime}–{seance.endTime}
+      </p>
+      <p className="text-xs text-slate-400">{seance.classeName}</p>
+    </div>
+  </div>
+);
+
+// ── Page principale ───────────────────────────────────────────────────────────
+const CourseCreate = ({ employeeCo }) => {
+  const [programs, setPrograms]       = useState([]);
+  const [courses, setCourses]         = useState([]);
+  const [classrooms, setClassrooms]   = useState([]);
+  const [classCourses, setClassCourses] = useState([]);
+  const [session, setSession]         = useState("");
+  const [programTitle, setProgramTitle] = useState("");
+  const [alert, setAlert]             = useState(null);
+  const [isLoading, setIsLoading]     = useState(false);
+  const [recentSeances, setRecentSeances] = useState([]); // séances ajoutées cette session
+
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
+    defaultValues: {
+      yearCourse: "", classeName: "", courseSigle: "",
+      jours: "", horaire: "", startTime: "", endTime: "",
+    },
+  });
+
+  const watchYear    = watch("yearCourse");
+  const watchCourse  = watch("courseSigle");
+  const watchJour    = watch("jours");
+  const watchHoraire = watch("horaire");
+
+  useEffect(() => { getPrograms(); getClassrooms(); getClassesCourses(); }, []);
+
+  const showAlert = (type, message) => {
+    setAlert({ type, message });
+    setTimeout(() => setAlert(null), 5000);
+  };
+
+  const getPrograms    = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
+  const getClassrooms  = async () => { try { setClassrooms(await getClassroomsS()); } catch (e) { console.error(e); } };
+  const getClassesCourses = async () => { try { setClassCourses(await getClassesCoursesS(programTitle)); } catch (e) { console.error(e); } };
+
+  const handleProgramChange = async (title) => {
+    setProgramTitle(title);
+    setValue("courseSigle", "");
+    if (!title) { setCourses([]); return; }
+    try { setCourses(await getProgramCoursesS(title)); } catch (e) { console.error(e); }
+  };
+
+  const onSubmit = async (data) => {
+    const [start, end] = data.horaire.split(" - ");
+    const payload = {
+      classeName:    data.classeName,
+      sessionCourse: session,
+      courseSigle:   data.courseSigle,
+      jours:         data.jours,
+      startTime:     start,
+      endTime:       end,
+      yearCourse:    data.yearCourse,
+      employeeCode:  employeeCo?.code,
     };
 
-    const getClassrooms = async () => {
-        try {
-            const classes = await getClassroomsS();
-            setClassrooms(classes);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    // Doublon
+    const exists = classCourses.find((c) =>
+      c.classeName    === payload.classeName    &&
+      c.sessionCourse === payload.sessionCourse &&
+      c.yearCourse    === payload.yearCourse    &&
+      c.jours         === payload.jours         &&
+      c.startTime     === payload.startTime     &&
+      c.endTime       === payload.endTime
+    );
+    if (exists) { showAlert("error", "Cette salle est déjà occupée à cette plage horaire."); return; }
 
-    const getClassesCourses = async () => {
-        try {
-            const classesCourses = await getClassesCoursesS(programTitle);
-            setClassCourses(classesCourses);
-        } catch (error) {
-            console.log(error);
-        }
+    setIsLoading(true);
+    try {
+      const result = await createClasseCourseS(payload);
+      if (result) {
+        showAlert("success", `Séance créée — ${payload.courseSigle} · ${payload.jours} ${payload.startTime}–${payload.endTime}`);
+        setRecentSeances((prev) => [{ ...payload }, ...prev]);
+        await getClassesCourses();
+        reset({ yearCourse: data.yearCourse, classeName: "", courseSigle: "", jours: "", horaire: "", startTime: "", endTime: "" });
+        // On garde année + session + programme pour enchaîner rapidement
+        setSession(session);
+        setProgramTitle(programTitle);
+        setValue("yearCourse", data.yearCourse);
+      } else {
+        showAlert("error", "Une erreur est survenue.");
+      }
+    } catch {
+      showAlert("warning", "Impossible de contacter le serveur.");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const getProgramCourses = async (progTitle) => {
-        setProgramTitle(progTitle);
-        try {
-            const courses = await getProgramCoursesS(progTitle);
-            setCourses(courses);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+  // Indicateur d'avancement du formulaire
+  const steps = [
+    { label: "Année",     done: !!watchYear },
+    { label: "Session",   done: !!session },
+    { label: "Programme", done: !!programTitle },
+    { label: "Cours",     done: !!watchCourse },
+    { label: "Jour",      done: !!watchJour },
+    { label: "Horaire",   done: !!watchHoraire },
+  ];
+  const progress = steps.filter((s) => s.done).length;
 
-    const createClasseCourse = async (newClasseCourse) => {
-        try {
-            //on ne sait pas c'est dans quel programme?
-            const classeCourseToCreate = {
-                classeName: newClasseCourse.classeName,
-                sessionCourse: session,
-                courseSigle: newClasseCourse.courseSigle,
-                jours: newClasseCourse.jours,
-                startTime: newClasseCourse.startTime,
-                endTime: newClasseCourse.endTime,
-                yearCourse: newClasseCourse.yearCourse,
-                employeeCode: employeeCo.code
-            }
+  return (
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
 
-            const exists = classCourses.find(i => i.classeName === classeCourseToCreate.classeName 
-                && i.sessionCourse === classeCourseToCreate.sessionCourse
-                && i.yearCourse === classeCourseToCreate.yearCourse
-                && i.jours === classeCourseToCreate.jours
-                && i.startTime === classeCourseToCreate.startTime
-                && i.endTime === classeCourseToCreate.endTime
-            );
+      <main className="flex-1 overflow-y-auto">
 
-            if (exists) {
-                setShowClassCourseExist(true);
-                setTimeout(() => {
-                    setShowClassCourseExist(false);
-                }, 5000);
-            } else {
-                const classeCourseCreated = await createClasseCourseS(classeCourseToCreate);
-    
-                if (classeCourseCreated != null && classeCourseCreated != undefined) {
-                    setShowClasseCourseAdd(true);
-                    setTimeout(() => {
-                        setShowClasseCourseAdd(false);
-                    }, 5000);
-                    reset();
-                } else {
-                    //erreur backend
-                }
-            }
-
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    // const registerStudentsCourse = async (event) => {
-    //     event.preventDefault();
-
-    //     try {
-    //         const registrationToCreate = {
-    //             cCourseIds: classesCoursesIds,
-    //             permanentCodes: studentsPermanentCodes
-    //         }
-
-    //         const registrationResponse = await enrollStudentsInCourseS(registrationToCreate);
-
-    //         if (registrationResponse) {
-    //             setStudentsPermanentCodes([]);
-    //             setClassesCoursesIds([]);
-    //             setProgramTitle("");
-    //             setCourseSigle("");
-    //             setShowCourseAdd(true);
-    //             setTimeout(() => {
-    //                 setShowCourseAdd(false);
-    //             }, 5000);
-    //         } else {
-    //             console.log("Erreur");
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // }
-
-    const registerStudentCourseS = async (event) => {
-        event.preventDefault();
-    }
-
-    const handleCodeChange = (event) => {
-        const searchTerm = event.target.value;
-        setSearchStudent(searchTerm);
-
-        const filteredList = students.filter((student) => 
-            student.permanentCode.toUpperCase().includes(searchTerm.toUpperCase())
-        );
-
-        setFilteredStudents(filteredList);
-    }
-
-    const addStudentCourse = (pc) => {
-        setStudentsPermanentCodes([...studentsPermanentCodes, pc]);
-    }
-
-    const removeStudentCourse = (pc) => {
-        setStudentsPermanentCodes(studentsPermanentCodes.filter((student) => student !== pc));
-    }
-
-    const addProgramCourse = (id) => {
-        setClassesCoursesIds([...classesCoursesIds, id]);
-    }
-
-    const removeCourseId = (id) => {
-        setClassesCoursesIds(classesCoursesIds.filter((courseId) => courseId !== id));
-    }
-
-    //Return
-    return (<>
-        <div className="flex">
-            <div className="dash-div">
-                <AdminDashboard employeeCo = {employeeCo} />
-            </div>
-                
-            <div className="w-full">
-                <div>
-                    <AdminHeader/>
-                </div>
-
-                <div>
-                    <div className="border-2 border-sky-500 mt-4">
-                        <div>
-                            COURS OFFERTS PAR SESSION
-                        </div>
-
-                        { showClasseCourseAdd && (
-                            <div>
-                                <Toast>
-                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-700 dark:text-green-200">
-                                        <HiCheck className="h-5 w-5" />
-                                    </div>
-                                    <div className="ml-3 text-sm font-normal">Séance ajoutée.</div>
-                                    <Toast.Toggle />
-                                </Toast>
-                            </div>
-                        )}
-
-                        { showClassCourseExist && (
-                            <div>
-                                <Toast>
-                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-700 dark:text-red-200">
-                                        <HiExclamation className="h-5 w-5" />
-                                    </div>
-                                    <div className="ml-3 text-sm font-normal">Salle de classe indisponible à cette plage horaire.</div>
-                                    <Toast.Toggle />
-                                </Toast>
-                            </div>
-                        )}
-
-                        <div>
-                            <form onSubmit={handleSubmit(createClasseCourse)}>
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="yearCourse" className="w-1/3">Année :</label>
-                                    <div className="w-1/3">
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="yearCourse" name="yearCourse"
-                                            {...register("yearCourse", { required: "Requis!" })}
-                                        >
-                                            <option value="">Sélectionnez une année...</option>
-                                            <option key={currentYear} value={currentYear}>{currentYear}</option>
-                                            <option key={currentYear+1} value={currentYear+1}>{currentYear+1}</option>
-                                        </select>
-                                        {errors.yearCourse && (
-                                            <p className="text-red-500 text-sm">{errors.yearCourse.message}</p>   
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="session" className="w-1/3">Session :</label>
-                                    <div className="w-1/3">
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="session" name="session" onChange={(e) => setSession(e.target.value)}
-                                        >
-                                            <option value="">Sélectionnez une session...</option>
-                                            <option key="Hiver" value="Hiver">Hiver</option>
-                                            <option key="Été" value="Été">Été</option>
-                                            <option key="Automne" value="Automne">Automne</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="title" className="w-1/3">Programme :</label>
-                                    <div className="w-1/3">
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="title" name="title" onChange={(e) => getProgramCourses(e.target.value)}
-                                        >
-                                            <option value="">Sélectionnez un programme...</option>
-                                            {programs.map((element, index) => (
-                                                <option key={index} value={element.title}>
-                                                    {element.title} | {element.title} : {element.programName}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="classeName" className="w-1/3">Salle de classe :</label>
-                                    <div className="w-1/3">
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="classeName" name="classeName"
-                                            {...register("classeName", { required: "Requis!" })}
-                                        >
-                                            <option value="">Sélectionnez une classe...</option>
-                                            {classrooms.map((element, index) => (
-                                                <option key={index} value={element.classeName}>
-                                                    {element.classeName} : {element.typeOfClasse} : {element.capacity} places
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.classeName && (
-                                            <p className="text-red-500 text-sm">{errors.classeName.message}</p>   
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                <label htmlFor="courseSigle" className="w-1/3">Cours :</label>
-                                    <div className="w-1/3">
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="courseSigle" name="courseSigle"
-                                            {...register("courseSigle", { required: "Requis!" })}
-                                        >
-                                            <option value="">Sélectionnez un cours...</option>
-                                            {courses.map((element, index) => (
-                                                <option key={index} value={element.sigle}>
-                                                    {element.sigle} : {element.fullName}
-                                                </option>
-                                            ))}
-                                        </select>
-                                        {errors.courseSigle && (
-                                            <p className="text-red-500 text-sm">{errors.courseSigle.message}</p>   
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="jours" className="w-1/3">Jour :</label>
-                                    <div className="w-1/3">
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="jours" name="jours"
-                                            {...register("jours", { required: "Requis!" })}
-                                        >
-                                            <option value="">Sélectionnez un jour...</option>
-                                            <option key="Lundi" value="Lundi">Lundi</option>
-                                            <option key="Mardi" value="Mardi">Mardi</option>
-                                            <option key="Mercredi" value="Mercredi">Mercredi</option>
-                                            <option key="Jeudi" value="Jeudi">Jeudi</option>
-                                            <option key="Vendredi" value="Vendredi">Vendredi</option>
-                                        </select>
-                                        {errors.jours && (
-                                            <p className="text-red-500 text-sm">{errors.jours.message}</p>   
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                        <label htmlFor="horaire" className="w-1/3">Plage horraire :</label>
-                                        <div className="w-1/3">
-                                            <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                                id="horaire" name="horaire"
-                                                {...register("horaire", { required: "Requis!" })}
-                                                onChange={(e) => {
-                                                    const [start, end] = e.target.value.split(" - ");
-                                                    setValue("startTime", start);
-                                                    setValue("endTime", end);
-                                                }}
-                                            >
-                                                <option value="">Sélectionnez une plage horraire...</option>
-                                                <option value="09h30 - 12h30">09h30 - 12h30</option>
-                                                <option value="13h30 - 16h30">13h30 - 16h30</option>
-                                                <option value="18h00 - 21h00">18h00 - 21h00</option>
-                                            </select>
-                                            {errors.horaire && (
-                                                <p className="text-red-500 text-sm">{errors.horaire.message}</p>   
-                                            )}
-                                        </div>
-                                        <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-                                
-                                <button type="submit"
-                                    className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                                    Ajouter séance de cours
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        {/* Top bar */}
+        <div className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Planification des séances</p>
+            <p className="text-xs text-slate-400">Cours offerts par session</p>
+          </div>
         </div>
-    </>)
-}
+
+        <div className="p-8 max-w-5xl grid lg:grid-cols-3 gap-6">
+
+          {/* ── Formulaire (2/3) ── */}
+          <div className="lg:col-span-2 flex flex-col gap-5">
+
+            {/* Barre de progression */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Progression</p>
+                <p className="text-xs text-slate-400">{progress} / {steps.length} champs</p>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-1.5 mb-3">
+                <div
+                  className="h-1.5 bg-blue-700 rounded-full transition-all"
+                  style={{ width: `${(progress / steps.length) * 100}%` }}
+                />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {steps.map((s) => (
+                  <span
+                    key={s.label}
+                    className={`text-xs font-medium px-2 py-0.5 rounded-full border ${
+                      s.done
+                        ? "bg-blue-50 text-blue-700 border-blue-100"
+                        : "bg-white text-slate-400 border-slate-200"
+                    }`}
+                  >
+                    {s.done && "✓ "}{s.label}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Alertes */}
+            {alert && <Alert type={alert.type} message={alert.message} />}
+
+            {/* Formulaire */}
+            <form onSubmit={handleSubmit(onSubmit)} className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col gap-5">
+
+              <p className="text-sm font-semibold text-slate-900 border-b border-slate-100 pb-3">
+                Nouvelle séance de cours
+              </p>
+
+              {/* Ligne 1 : Année + Session */}
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Année académique" error={errors.yearCourse?.message}>
+                  <select className={inputCls} {...register("yearCourse", { required: "Requis." })}>
+                    <option value="">Sélectionner</option>
+                    <option value={currentYear}>{currentYear}</option>
+                    <option value={currentYear + 1}>{currentYear + 1}</option>
+                  </select>
+                </Field>
+
+                <Field label="Session">
+                  <select
+                    className={inputCls}
+                    value={session}
+                    onChange={(e) => setSession(e.target.value)}
+                  >
+                    <option value="">Sélectionner</option>
+                    <option value="Hiver">Hiver</option>
+                    <option value="Été">Été</option>
+                    <option value="Automne">Automne</option>
+                  </select>
+                </Field>
+              </div>
+
+              {/* Ligne 2 : Programme + Cours */}
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Programme">
+                  <select
+                    className={inputCls}
+                    value={programTitle}
+                    onChange={(e) => handleProgramChange(e.target.value)}
+                  >
+                    <option value="">Sélectionner</option>
+                    {programs.map((p) => (
+                      <option key={p.title} value={p.title}>
+                        {p.title} — {p.programName}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                <Field label="Cours" error={errors.courseSigle?.message}>
+                  <select
+                    className={`${inputCls} ${!programTitle ? "opacity-50 cursor-not-allowed" : ""}`}
+                    disabled={!programTitle}
+                    {...register("courseSigle", { required: "Requis." })}
+                  >
+                    <option value="">
+                      {programTitle ? "Sélectionner" : "Choisir d'abord un programme"}
+                    </option>
+                    {courses.map((c) => (
+                      <option key={c.sigle} value={c.sigle}>
+                        {c.sigle} — {c.fullName}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+
+              {/* Salle */}
+              <Field label="Salle de classe" error={errors.classeName?.message}>
+                <select className={inputCls} {...register("classeName", { required: "Requis." })}>
+                  <option value="">Sélectionner une salle</option>
+                  {classrooms.map((r) => (
+                    <option key={r.classeName} value={r.classeName}>
+                      {r.classeName} · {r.typeOfClasse} · {r.capacity} places
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              {/* Ligne 3 : Jour + Plage horaire */}
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Jour" error={errors.jours?.message}>
+                  <select className={inputCls} {...register("jours", { required: "Requis." })}>
+                    <option value="">Sélectionner</option>
+                    {JOURS.map((j) => <option key={j} value={j}>{j}</option>)}
+                  </select>
+                </Field>
+
+                <Field label="Plage horaire" error={errors.horaire?.message}>
+                  <select
+                    className={inputCls}
+                    {...register("horaire", { required: "Requis." })}
+                    onChange={(e) => {
+                      setValue("horaire", e.target.value);
+                      const [start, end] = e.target.value.split(" - ");
+                      setValue("startTime", start);
+                      setValue("endTime",   end);
+                    }}
+                  >
+                    <option value="">Sélectionner</option>
+                    {PLAGES.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </Field>
+              </div>
+
+              {/* Récapitulatif avant soumission */}
+              {watchYear && session && programTitle && watchCourse && watchJour && watchHoraire && (
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 text-sm text-blue-800">
+                  <p className="font-semibold mb-1">Récapitulatif</p>
+                  <p>{watchCourse} · {session} {watchYear} · {watchJour} · {watchHoraire}</p>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-blue-800 hover:bg-blue-900 disabled:opacity-50 text-white font-medium rounded-lg py-2.5 text-sm transition-colors flex items-center justify-center gap-2"
+              >
+                {isLoading ? "Enregistrement..." : (
+                  <><HiPlus className="w-4 h-4" /> Créer la séance</>
+                )}
+              </button>
+            </form>
+          </div>
+
+          {/* ── Colonne droite : séances récentes ── */}
+          <div className="flex flex-col gap-4">
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Séances ajoutées</p>
+              <p className="text-xs text-slate-400 mb-4">Cette session de travail</p>
+              {recentSeances.length === 0 ? (
+                <p className="text-sm text-slate-400 text-center py-6">
+                  Aucune séance créée pour l'instant.
+                </p>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {recentSeances.map((s, i) => <SeanceCard key={i} seance={s} />)}
+                </div>
+              )}
+            </div>
+
+            {/* Rappel des salles disponibles */}
+            {classrooms.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded-xl p-5">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Salles disponibles</p>
+                <div className="flex flex-col gap-2">
+                  {classrooms.map((r) => (
+                    <div key={r.classeName} className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-slate-700">{r.classeName}</span>
+                      <span className="text-slate-400">{r.capacity} pl. · {r.typeOfClasse}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </main>
+    </div>
+  );
+};
 
 export default CourseCreate;

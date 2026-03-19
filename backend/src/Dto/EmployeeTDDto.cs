@@ -16,5 +16,6 @@
         public string LastName { get; set; }
         public string UserRole { get; set; }
         public char Sexe { get; set; }
+        public string UserStatus { get; set; }
     }
 }

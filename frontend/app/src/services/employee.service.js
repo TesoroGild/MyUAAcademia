@@ -62,4 +62,14 @@ export const activeEmployeeAccountS = async (activateAccount) => {
     }
 }
 
+export const validateEmployeeS = async (validateFile) => {
+    console.log("USER SERVICE : VALIDE EMPLOYEE FILES");
+    try {
+        const response = await axios.put(`${backend_url}/Employee/validate`, validateFile);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 //Delete

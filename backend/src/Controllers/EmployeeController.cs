@@ -36,7 +36,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("employee")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Employees>))]
         [ProducesResponseType(400)]
-        public IActionResult CreateEmployee([FromBody] EmployeeTDDto employeeTocreate)
+        public IActionResult CreateEmployee([FromBody] EmployeeTCDto employeeTocreate)
         {
             if (employeeTocreate == null) return BadRequest(ModelState);
 
@@ -73,7 +73,9 @@ namespace MyUAAcademiaB.Controllers
             var pwd = _userService.SetFirstPasssword(employeeMap.LastName, employeeMap.FirstName);
             employeeMap.Pwd = _authService.HashPassword(employeeMap.Code, pwd);
             employeeMap.ProfessionalEmail = email;
+            employeeMap.PersonalEmail = employeeTocreate.Email;
             employeeMap.Code = code;
+            employeeMap.UserStatus = "0";
             var employeeCreated = _employeeInterface.CreateEmployee(employeeMap);
 
             if (employeeCreated == null)
@@ -116,7 +118,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpGet("employee/{code}")]
         [ProducesResponseType(200, Type = typeof(EmployeeTDDto))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "Admin, Professor, admin, professor")]
         public IActionResult GetEmployee(string code)
         {
             if (!_employeeInterface.EmployeeExists(code)) return NotFound();
@@ -130,6 +132,56 @@ namespace MyUAAcademiaB.Controllers
 
 
         /*UPDATE*/
+        [HttpPut("activate")]
+        [ProducesResponseType(200, Type = typeof(bool))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult ActivateEmployeeAccount([FromBody] ActivationRequest activationRequest)
+        {
+            if (activationRequest == null) return BadRequest(ModelState);
+
+            if (!_employeeInterface.EmployeeExists(activationRequest.Code))
+            {
+                ModelState.AddModelError("", "L'employé n'existe pas.");
+                return StatusCode(400, ModelState);
+            }
+
+            var isActivated = _employeeInterface.ActivateEmployeeAccount(activationRequest);
+
+            if (!isActivated)
+            {
+                ModelState.AddModelError("", "Erreur lors de l'activation de l'employé.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok(isActivated);
+        }
+
+        [HttpPut("validate")]
+        [ProducesResponseType(200, Type = typeof(bool))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult ValidateEmployeeAccount([FromBody] ValidationRequest validationRequest)
+        {
+            if (validationRequest == null) return BadRequest(ModelState);
+
+            if (!_employeeInterface.EmployeeExists(validationRequest.Code))
+            {
+                ModelState.AddModelError("", "L'employé n'existe pas.");
+                return StatusCode(400, ModelState);
+            }
+
+            var isActivated = _employeeInterface.ValidateEmployeeAccount(validationRequest);
+
+            if (!isActivated)
+            {
+                ModelState.AddModelError("", "Erreur lors de la validation de l'employé.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok(isActivated);
+        }
+
         /*DELETE*/
     }
 }

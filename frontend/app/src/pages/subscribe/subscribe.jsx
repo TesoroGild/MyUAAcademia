@@ -1,483 +1,421 @@
-import "./subscribe.css";
-
-//Icon
-import { HiChevronDown, HiCheck, HiExclamation, HiX } from "react-icons/hi";
-
-//React
-import Dashboard from "../dashboard/dashboard";
-import Header from "../header/header";
-
+import Sidebar from "../sidebar/sidebar";
+import userPicture from "../../assets/img/User_Icon.png";
 import React, { useEffect, useState } from "react";
-import { Button, Card, Table, Toast, ToastToggle } from "flowbite-react";
-
-//Service
+import { HiCheck, HiExclamation, HiX, HiPlus, HiTrash, HiChevronDown, HiAcademicCap } from "react-icons/hi";
 import { getAvailableCoursesS, getStudentSessionCoursesS, enrollStudentsInCoursesS } from "../../services/course.service";
-import { set } from "date-fns";
+import { getStudentProgramsS } from "../../services/program.service";
 
-function Subscribe ({userCo}) {
-    //States
-    const [displayWinterDiv, setDisplayWinterDiv] = useState(false);
-    const [displaySummerDiv, setDisplaySummerDiv] = useState(false);
-    const [displayAutumnDiv, setDisplayAutumnDiv] = useState(false);
-    const [noPeriodToDisplay, setNoPeriodToDisplay] = useState(false);
+// ── Périodes d'inscription (testing) ─────────────────────────────────────────
+const today = new Date();
+const year  = today.getFullYear();
+const PERIODS = [
+  { session: "Hiver",   start: new Date("2026-01-05"), end: new Date("2026-04-27") },
+  { session: "Été",     start: new Date("2026-05-02"), end: new Date("2026-08-15") },
+  { session: "Automne", start: new Date("2025-09-02"), end: new Date("2025-12-20") },
+];
+const MAX_COURSES = 5;
 
-    const [displayTimeConflict, setDisplayTimeConflict] = useState(false);
-    const [displayMaxCourses, setDisplayMaxCourses] = useState(false);
-    const [coursesAvailables, setCoursesAvailables] = useState([]);
-    const [filteredCourses, setFilteredCourses] = useState([]);
+const getActiveSessions = () => PERIODS.filter((p) => p.start <= today && today <= p.end);
 
-    const [coursesToAdd, setCoursesToAdd] = useState([]);
-    const [coursesToAddDetails, setCoursesToAddDetails] = useState([]);
-    const [userCourses, setUserCourses] = useState([]);
-    const [programs, setPrograms] = useState([]);
+// ── Toast inline ──────────────────────────────────────────────────────────────
+const InlineAlert = ({ type, message, onClose }) => {
+  const styles = {
+    error:   "bg-red-50 border-red-200 text-red-700",
+    warning: "bg-amber-50 border-amber-200 text-amber-700",
+    success: "bg-green-50 border-green-200 text-green-700",
+  };
+  const icons = {
+    error:   <HiX className="w-4 h-4 shrink-0" />,
+    warning: <HiExclamation className="w-4 h-4 shrink-0" />,
+    success: <HiCheck className="w-4 h-4 shrink-0" />,
+  };
+  return (
+    <div className={`flex items-center gap-2 border rounded-lg px-4 py-3 text-sm ${styles[type]}`}>
+      {icons[type]}
+      <span className="flex-1">{message}</span>
+      {onClose && <button onClick={onClose} className="ml-2 opacity-60 hover:opacity-100"><HiX className="w-3.5 h-3.5" /></button>}
+    </div>
+  );
+};
 
-    const [showSuccessToast, setShowSuccessToast] = useState(false);
-    const [showErrorToast, setShowErrorToast] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [showWarningToast, setShowWarningToast] = useState(false);
-
-    let today = new Date();
-    let year = today.getFullYear();
-    //testing var
-    let startWinterPeriod = new Date("2026-01-05");
-    let endWinterPeriod = new Date("2026-04-27");
-    let startSummerPeriod = new Date("2026-05-02");
-    let endSmmerPeriod = new Date("2026-08-15");
-    let startAutumnPeriod = new Date("2025-09-02");
-    let endAutumnPeriod = new Date("2025-12-20");
-    //true var
-    // let startWinterPeriod = new Date("2025-12-01");
-    // let endWinterPeriod = new Date("2026-01-15");
-    // let startSummerPeriod = new Date("2026-04-01");
-    // let endSmmerPeriod = new Date("2026-05-15");
-    // let startAutumnPeriod = new Date("2025-08-01");
-    // let endAutumnPeriod = new Date("2025-09-15");
-    let maxCourses = false;
-    
-    
-    //Functions
-    useEffect(() => {
-        getStudentSessionCourses();
-        getAvailableCourses();
-    }, []);
-
-    const getStudentSessionCourses = async () => {
-        try {
-            var sc;
-            if (startWinterPeriod <= today && today <= endWinterPeriod){
-                sc = "Hiver";
-            }
-            if (startSummerPeriod <= today && today <= endSmmerPeriod){
-                sc = "Été";
-            }
-            if (startAutumnPeriod <= today && today <= endAutumnPeriod){
-                sc = "Automne";
-            }
-            
-            const requestParams = {
-                permanentCode: userCo.permanentCode,
-                yearCourse: year+"",
-                sessionCourse: sc
-            }
-            const response = await getStudentSessionCoursesS(requestParams);
-            
-            if (response.success) {
-                setUserCourses(response.courses);
-                if (response.courses.length >= 5) maxCourses = false;
-                else return maxCourses = true;
-            } else console.log(response.message);
-        } catch (error) {
-            console.error('Erreur :', error);
-        }
-    }
-
-    const getAvailableCourses = async () => {
-        let w = false;
-        let s = false; 
-        let a = false;
-
-        if (startWinterPeriod <= today && today <= endWinterPeriod){
-            setDisplayWinterDiv(true);
-            w = true;
-        }
-        if (startSummerPeriod <= today && today <= endSmmerPeriod){
-            setDisplaySummerDiv(true);
-            s = true;
-        }
-        if (startAutumnPeriod <= today && today <= endAutumnPeriod){
-            setDisplayAutumnDiv(true);
-            a = true;
-        }
-
-        if (!w && !s && !a)
-            setNoPeriodToDisplay(true);
-
-        const availablePeriods = {
-            winter: w,
-            summer: s,
-            autumn: a
-        };
-
-        if (!maxCourses && !noPeriodToDisplay) {
-            try {
-                const response = await getAvailableCoursesS(availablePeriods, userCo.permanentCode);
-                const prog = [...new Set(response.map(item => item.programTitle))];
-                setPrograms(prog);
-                if (prog.length <= 1) setFilteredCourses(response);
-                setCoursesAvailables(response);
-            } catch (error) {
-                console.error('Erreur :', error);
-            }
-        }
-    }
-
-    const addUserCourse = async (ccourseId, sigle, fullName, credits, day, startingTime, endTime) => {
-        if (coursesToAdd.length > 5)
-            handleShowMaxCourses();
-        else {
-            const newCourse = {
-                ccourseId: ccourseId,
-                permanentCode: userCo.permanentCode
-            }
-    
-            const detailsToAdd = {
-                id: ccourseId,
-                sigle: sigle,
-                fullName: fullName,
-                credits: credits,
-                jours: day,
-                startTime: startingTime,
-                endTime: endTime
-            }
-    
-            if (coursesToAdd.length == 0) {
-                setCoursesToAdd((prevUC) => [...prevUC, newCourse]);
-                setCoursesToAddDetails((prevUD) => [...prevUD, detailsToAdd]);
-            } else {
-                
-                var addCourse = true;
-                var i = 0;
-                var length = coursesToAdd.length;
-
-                while (addCourse && i < length) {
-                    console.log[coursesToAdd[i].jours, coursesToAdd[i].startTime]
-                    if (coursesToAddDetails[i].jours == day && coursesToAddDetails[i].startTime == startingTime) addCourse = false;
-                    i++;
-                }
-                console.log(addCourse, i, length)
-                if (addCourse) {
-                    setCoursesToAdd((prevUC) => [...prevUC, newCourse]);
-                    setCoursesToAddDetails((prevUCD) => [...prevUCD, detailsToAdd]);
-                } else handleShowToast();
-            }
-        }
-    }
-
-    const deleteUserCourse = async (ccourseId, sigle, fullName, credits, day, startingTime, endTime) => {
-        const courseToDelete = {
-            id: ccourseId,
-            sigle: sigle,
-            fullName: fullName,
-            credits: credits,
-            jours: day,
-            startTime: startingTime,
-            endTime: endTime
-        }
-
-        setCoursesToAdd(coursesToAdd.filter(i => i.ccourseId !== ccourseId));
-        setCoursesToAddDetails(coursesToAddDetails.filter(i => i.id !== courseToDelete.id));
-    }
-
-    const handleShowToast = () => {
-        setDisplayTimeConflict(true);
-    };
-
-    const handleCloseToast = () => {
-        setDisplayTimeConflict(false);
-    };
-
-    const handleShowMaxCourses = () => {
-        setDisplayMaxCourses(true);
-    }
-
-    const handleCloseMaxCourses = () => {
-        setDisplayMaxCourses(false);
-    }
-
-    const registerCourse = async () => {
-        try {
-            var classesCoursesIds = [];
-            var studentsPermanentCodes = [userCo.permanentCode];
-
-            for (const course of coursesToAdd) {
-                classesCoursesIds.push(course.ccourseId);
-            }
-            const registrationToCreate = {
-                cCourseIds: classesCoursesIds,
-                permanentCodes: studentsPermanentCodes
-            }
-            
-            const response = await enrollStudentsInCoursesS(registrationToCreate);
-            
-            if (response.success) {   
-                setShowSuccessToast(true);
-                setTimeout(() => setShowSuccessToast(false), 5000);
-                getStudentSessionCourses();
-            } else {
-                console.log(response.message);
-                setErrorMessage(response.message);
-                setShowErrorToast(true);
-                setTimeout(() => setShowErrorToast(false), 5000);
-            }
-        } catch (error) {
-            console.error('Erreur :', error);
-            setShowWarningToast(true);
-            setTimeout(() => setShowWarningToast(false), 5000);
-        }
-    }
-
-    const handleProgramClick = (program) => {
-        const fc = coursesAvailables.filter(course =>
-                course.programTitle.toLowerCase().includes(program?.toLowerCase())
-            );
-
-        setFilteredCourses(fc);
-    }
-    
-    //Return
-    return (<>
-        <div>
-            <div>
-                <Header userCo = {userCo}/>
-            </div>
-
-            <div className="flex">
-                <div className="dash-div">
-                    <Dashboard userCo = {userCo}/>
-                </div>
-                
-                <div className="w-full">
-                    {userCourses.length < 5 && (
-                        <div>
-                            <div>
-                                {displayMaxCourses && (
-                                    <div>
-                                        <Toast className="toast-container show">
-                                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                <HiX className="h-5 w-5" />
-                                            </div>
-                                            <div className="ml-3 text-sm font-normal">Maximum de cours atteint!</div>
-                                            <HiX className="h-5 w-5 cursor-pointer" onClick={() => handleCloseMaxCourses()} />
-                                        </Toast>
-                                    </div>
-                                )}
-                                <div className="flex">
-                                    {noPeriodToDisplay ? (
-                                        <div>
-                                            Les inscriptions ne se font pas actuellement!
-                                        </div>
-                                    ) : (
-                                        <div className="flex w-full">
-                                            <div className={`flex cursor-pointer mr-2 w-1/3 border-2 
-                                                ${displayWinterDiv ? "border-sky-500 bg-sky-200" : "border-gray-400 bg-gray-200"}`}
-                                            >
-                                                Hiver
-                                            </div>
-                                        
-                                        
-                                            <div className={`flex cursor-pointer mr-2 w-1/3 border-2 
-                                                ${displaySummerDiv ? "border-sky-500 bg-sky-200" : "border-gray-400 bg-gray-200"}`}
-                                            >
-                                                Été
-                                            </div>
-                                        
-                                        
-                                            <div className={`flex cursor-pointer mr-2 w-1/3 border-2 
-                                                ${displayAutumnDiv ? "border-sky-500 bg-sky-200" : "border-gray-400 bg-gray-200"}`}
-                                            >
-                                                Automne
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="my-2">
-                                    {programs.length > 1 && (
-                                        <div className="w-full flex">
-                                            <p className="w-40">Mes programmes : </p>
-                                            <div className="flex justify-center mb-4"> 
-                                                {programs.map((program, index) => (
-                                                    <Card key={index} className="w-64 cursor-pointer mx-4" onClick={() => handleProgramClick(program)}>
-                                                        <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                                            {program}
-                                                        </h5>
-                                                    </Card>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                        <Table>
-                                            <Table.Head>
-                                                <Table.HeadCell>Sigle</Table.HeadCell>
-                                                <Table.HeadCell>Cours</Table.HeadCell>
-                                                <Table.HeadCell>Crédits</Table.HeadCell>
-                                                <Table.HeadCell>Période</Table.HeadCell>
-                                                <Table.HeadCell>
-                                                    <span className="sr-only">Ajouter</span>
-                                                </Table.HeadCell>
-                                            </Table.Head>
-                                            <Table.Body className="divide-y">
-                                                { filteredCourses
-                                                    .filter(course => !userCourses.find(userCourse => userCourse.courseSigle === course.sigle))
-                                                    .map((course, index) => (
-                                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            {course.sigle}
-                                                        </Table.Cell>
-                                                        <Table.Cell>{course.fullName}</Table.Cell>
-                                                        <Table.Cell>{course.credits}</Table.Cell>
-                                                        <Table.Cell>{course.jours} de {course.startTime} à {course.endTime}</Table.Cell>
-                                                        <Table.Cell>
-                                                            <Button 
-                                                                onClick={() => addUserCourse(course.id, course.sigle, course.fullName, course.credits, course.jours, course.startTime, course.endTime)} 
-                                                                color="gray">S'inscrire</Button>
-                                                            {displayTimeConflict && (
-                                                                <Toast className="toast-container show">
-                                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                                        <HiX className="h-5 w-5" />
-                                                                    </div>
-                                                                    <div className="ml-3 text-sm font-normal">Conflit d'horaire avec l'un de vos cours!</div>
-                                                                    <HiX className="h-5 w-5 cursor-pointer" onClick={() => handleCloseToast()} />
-                                                                </Toast>
-                                                            )}
-                                                        </Table.Cell>
-                                                    </Table.Row>
-                                                ))}
-                                            </Table.Body>
-                                        </Table>
-                                </div>
-                                <div className="border-2 border-sky-500 mt-8 mb-2">
-                                    <h1>Cours à ajouter</h1>
-                                    <Table>
-                                        <Table.Head>
-                                            <Table.HeadCell>Sigle</Table.HeadCell>
-                                            <Table.HeadCell>Cours</Table.HeadCell>
-                                            <Table.HeadCell>Crédits</Table.HeadCell>
-                                            <Table.HeadCell>Période</Table.HeadCell>
-                                            <Table.HeadCell></Table.HeadCell>
-                                        </Table.Head>
-                                        <Table.Body className="divide-y">
-                                            {coursesToAdd.length == 0 ? (
-                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                    <Table.Cell colSpan={4} className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                        Aucun cours à ajouter
-                                                    </Table.Cell>
-                                                </Table.Row>
-                                            ) : (
-                                                coursesToAddDetails.map((userCourseDetails, index) => (
-                                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            {userCourseDetails.sigle}
-                                                        </Table.Cell>
-                                                        <Table.Cell>{userCourseDetails.fullName}</Table.Cell>
-                                                        <Table.Cell>{userCourseDetails.credits}</Table.Cell>
-                                                        <Table.Cell>{userCourseDetails.jours} de {userCourseDetails.startTime} à {userCourseDetails.endTime}</Table.Cell>
-                                                        <Table.Cell>
-                                                            <Button 
-                                                                onClick={() => deleteUserCourse(userCourseDetails.id, userCourseDetails.sigle, userCourseDetails.fullName, userCourseDetails.credits, userCourseDetails.jours, userCourseDetails.startTime, userCourseDetails.endTime)} 
-                                                                color="gray">Annuler</Button>
-                                                            {displayTimeConflict && (
-                                                                <Toast className="toast-container show">
-                                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                                        <HiX className="h-5 w-5" />
-                                                                    </div>
-                                                                    <div className="ml-3 text-sm font-normal">Conflit d'horaire avec l'un de vos cours!</div>
-                                                                    <HiX className="h-5 w-5 cursor-pointer" onClick={() => handleCloseToast()} />
-                                                                </Toast>
-                                                            )}
-                                                        </Table.Cell>
-                                                    </Table.Row>
-                                                ))
-                                            )}
-                                        </Table.Body>
-                                    </Table>
-                                </div>
-                            </div>
-                            {/*TOASTS*/}
-                            <div className="flex"> 
-                                <Button onClick={() => registerCourse()} color="gray">Valider</Button>
-                                {showSuccessToast && (
-                                    <Toast>
-                                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                            <HiCheck className="h-5 w-5" />
-                                        </div>
-                                        <div className="ml-3 text-sm font-normal">Cours ajouté.</div>
-                                        <ToastToggle />
-                                    </Toast>
-                                )}
-                                {showWarningToast && (
-                                    <Toast>
-                                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
-                                            <HiExclamation className="h-5 w-5" />
-                                        </div>
-                                        <div className="ml-3 text-sm font-normal">Impossible de contacter le serveur. Veuillez essayer plus tard.</div>
-                                        <ToastToggle />
-                                    </Toast>
-                                )}
-                                {showErrorToast && (
-                                    <Toast>
-                                        <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                            <HiX className="h-5 w-5" />
-                                        </div>
-                                        <div className="ml-3 text-sm font-normal">{errorMessage}</div>
-                                        <ToastToggle />
-                                    </Toast>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="mt-8 mb-2">
-                        <h1>Mes cours</h1>
-                        <Table>
-                            <Table.Head>
-                                <Table.HeadCell>Cours</Table.HeadCell>
-                                <Table.HeadCell>Salle</Table.HeadCell>
-                                <Table.HeadCell>Période</Table.HeadCell>
-                                <Table.HeadCell></Table.HeadCell>
-                            </Table.Head>
-                            <Table.Body className="divide-y">
-                                {userCourses.length == 0 ? (
-                                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <Table.Cell colSpan={4} className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            Aucun cours pris pour cette session
-                                        </Table.Cell>
-                                    </Table.Row>
-                                ) : (
-                                    userCourses.map((course, index) => (
-                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                {course.courseSigle}
-                                            </Table.Cell>
-                                            <Table.Cell>{course.classeName}</Table.Cell>
-                                            <Table.Cell>{course.jours} de {course.startTime} à {course.endTime}</Table.Cell>
-                                            <Table.Cell>
-                                                <Button 
-                                                    onClick={() => deleteUserCourse()} 
-                                                    color="gray"
-                                                >
-                                                    Annuler
-                                                </Button>
-                                            </Table.Cell>
-                                        </Table.Row>
-                                    ))
-                                )}
-                            </Table.Body>
-                        </Table>
-                    </div>
-                </div>
-            </div>
+// ── Dropdown programme ────────────────────────────────────────────────────────
+const ProgramDropdown = ({ programs, selected, onSelect }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 bg-white border border-slate-200 hover:border-blue-700 text-sm font-medium text-slate-700 px-4 py-2.5 rounded-lg transition-colors"
+      >
+        <HiAcademicCap className="w-4 h-4 text-blue-700" />
+        <span>{selected?.title ?? "Tous les programmes"}</span>
+        <HiChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-1 z-20 bg-white border border-slate-200 rounded-xl shadow-lg min-w-[240px] py-1">
+          <button
+            onClick={() => { onSelect(null); setOpen(false); }}
+            className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-slate-50 ${!selected ? "text-blue-800 font-medium" : "text-slate-700"}`}
+          >
+            Tous les programmes
+          </button>
+          {programs.map((p) => (
+            <button
+              key={p.title}
+              onClick={() => { onSelect(p); setOpen(false); }}
+              className={`w-full text-left px-4 py-3 text-sm transition-colors hover:bg-slate-50 ${selected?.title === p.title ? "text-blue-800 font-medium" : "text-slate-700"}`}
+            >
+              <p className="font-medium">{p.title}</p>
+              <p className="text-xs text-slate-400">{p.programName}</p>
+            </button>
+          ))}
         </div>
-    </>)
-}
+      )}
+    </div>
+  );
+};
+
+// ── Page principale ───────────────────────────────────────────────────────────
+const Subscribe = ({ userCo }) => {
+  const activeSessions = getActiveSessions();
+
+  const [coursesAvailable, setCoursesAvailable]     = useState([]);
+  const [filteredCourses, setFilteredCourses]       = useState([]);
+  const [userCourses, setUserCourses]               = useState([]);
+  const [programs, setPrograms]                     = useState([]); // objets { title, programName }
+  const [selectedProgram, setSelectedProgram]       = useState(null); // objet ou null
+  const [cart, setCart]                             = useState([]);      // { ccourseId, sigle, fullName, credits, jours, startTime, endTime }
+  const [alerts, setAlerts]                         = useState([]);      // { id, type, message }
+  const [isLoading, setIsLoading]                   = useState(false);
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    filterByProgram(selectedProgram);
+  }, [selectedProgram, coursesAvailable]);
+
+  const addAlert = (type, message) => {
+    const id = Date.now();
+    setAlerts((a) => [...a, { id, type, message }]);
+    setTimeout(() => setAlerts((a) => a.filter((x) => x.id !== id)), 5000);
+  };
+  const removeAlert = (id) => setAlerts((a) => a.filter((x) => x.id !== id));
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const sc = activeSessions[0]?.session;
+      if (sc) {
+        const res = await getStudentSessionCoursesS({
+          permanentCode: userCo.permanentCode,
+          yearCourse: year + "",
+          sessionCourse: sc,
+        });
+        if (res.success) setUserCourses(res.courses);
+      }
+
+      // Programmes inscrits (pour la dropdown)
+      const progRes = await getStudentProgramsS(userCo.permanentCode);
+      if (progRes.success) {
+        const enrolled = progRes.programs.filter((p) => p.isEnrolled);
+        setPrograms(enrolled);
+        // Sélectionne le premier programme par défaut si plusieurs
+        if (enrolled.length > 1) setSelectedProgram(enrolled[0]);
+      }
+
+      const availablePeriods = {
+        winter: activeSessions.some((p) => p.session === "Hiver"),
+        summer: activeSessions.some((p) => p.session === "Été"),
+        autumn: activeSessions.some((p) => p.session === "Automne"),
+      };
+
+      const response = await getAvailableCoursesS(availablePeriods, userCo.permanentCode);
+      setCoursesAvailable(response);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filterByProgram = (program) => {
+    if (!program) { setFilteredCourses(coursesAvailable); return; }
+    setFilteredCourses(
+      coursesAvailable.filter((c) =>
+        c.programTitle?.toLowerCase() === program.title?.toLowerCase()
+      )
+    );
+  };
+
+  const addToCart = (course) => {
+    if (userCourses.length + cart.length >= MAX_COURSES) {
+      addAlert("error", `Maximum de ${MAX_COURSES} cours atteint pour cette session.`);
+      return;
+    }
+    // Conflit horaire
+    const conflict = cart.find((c) => c.jours === course.jours && c.startTime === course.startTime);
+    if (conflict) {
+      addAlert("error", `Conflit d'horaire avec ${conflict.sigle} (${conflict.jours} ${conflict.startTime}).`);
+      return;
+    }
+    setCart((prev) => [...prev, {
+      ccourseId: course.id,
+      sigle: course.sigle,
+      fullName: course.fullName,
+      credits: course.credits,
+      jours: course.jours,
+      startTime: course.startTime,
+      endTime: course.endTime,
+    }]);
+  };
+
+  const removeFromCart = (ccourseId) => {
+    setCart((prev) => prev.filter((c) => c.ccourseId !== ccourseId));
+  };
+
+  const registerCourses = async () => {
+    if (cart.length === 0) return;
+    try {
+      const res = await enrollStudentsInCoursesS({
+        cCourseIds: cart.map((c) => c.ccourseId),
+        permanentCodes: [userCo.permanentCode],
+      });
+      if (res.success) {
+        addAlert("success", "Inscription confirmée avec succès.");
+        setCart([]);
+        loadData();
+      } else {
+        addAlert("error", res.message);
+      }
+    } catch {
+      addAlert("warning", "Impossible de contacter le serveur. Veuillez réessayer.");
+    }
+  };
+
+  const displayedCourses = filteredCourses.filter(
+    (c) =>
+      !userCourses.find((uc) => uc.courseSigle === c.sigle) &&
+      !cart.find((cc) => cc.sigle === c.sigle)
+  );
+
+  const totalCartCredits = cart.reduce((acc, c) => acc + (c.credits || 0), 0);
+  const canEnroll        = userCourses.length < MAX_COURSES;
+
+  return (
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Sidebar userCo={userCo} profilePic={userPicture} />
+
+      <main className="flex-1 overflow-y-auto">
+        {/* Top bar */}
+        <div className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Inscription aux cours</p>
+            <p className="text-xs text-slate-400">Session {activeSessions[0]?.session ?? "—"} {year}</p>
+          </div>
+        </div>
+
+        <div className="p-8 flex flex-col gap-6 max-w-6xl">
+
+          {/* ── Alertes ── */}
+          {alerts.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {alerts.map((a) => (
+                <InlineAlert key={a.id} type={a.type} message={a.message} onClose={() => removeAlert(a.id)} />
+              ))}
+            </div>
+          )}
+
+          {/* ── Indicateurs de session ── */}
+          <div className="flex gap-3 flex-wrap">
+            {PERIODS.map((p) => {
+              const active = p.start <= today && today <= p.end;
+              return (
+                <div
+                  key={p.session}
+                  className={`flex items-center gap-2 border rounded-lg px-4 py-2 text-sm font-medium ${
+                    active
+                      ? "bg-blue-50 border-blue-200 text-blue-800"
+                      : "bg-white border-slate-200 text-slate-400"
+                  }`}
+                >
+                  <span className={`w-2 h-2 rounded-full ${active ? "bg-blue-600" : "bg-slate-300"}`} />
+                  {p.session}
+                  {active && <span className="text-xs font-normal text-blue-600">Inscriptions ouvertes</span>}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── Hors période ── */}
+          {activeSessions.length === 0 && (
+            <InlineAlert type="warning" message="Les inscriptions aux cours ne sont pas ouvertes en ce moment." />
+          )}
+
+          {/* ── Mes cours actuels ── */}
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+              <p className="text-sm font-semibold text-slate-900">Mes cours — {activeSessions[0]?.session ?? "session en cours"}</p>
+              <span className={`text-xs font-medium border px-2 py-0.5 rounded-full ${
+                userCourses.length >= MAX_COURSES
+                  ? "bg-red-50 text-red-700 border-red-100"
+                  : "bg-slate-100 text-slate-500 border-slate-200"
+              }`}>
+                {userCourses.length} / {MAX_COURSES} cours
+              </span>
+            </div>
+            {userCourses.length === 0 ? (
+              <p className="px-5 py-4 text-sm text-slate-400">Aucun cours inscrit pour cette session.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100">
+                    <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Sigle</th>
+                    <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Cours</th>
+                    <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Salle</th>
+                    <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Horaire</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userCourses.map((c, i) => (
+                    <tr key={i} className={`border-b border-slate-50 last:border-0 ${i % 2 === 1 ? "bg-slate-50/50" : ""}`}>
+                      <td className="py-3 px-5 font-mono text-xs font-semibold text-slate-700">{c.courseSigle}</td>
+                      <td className="py-3 px-5 text-slate-700">{c.fullName}</td>
+                      <td className="py-3 px-5 text-slate-500">{c.classeName}</td>
+                      <td className="py-3 px-5 text-slate-500">{c.jours} · {c.startTime}–{c.endTime}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+
+          {/* ── Section inscription ── */}
+          {canEnroll && activeSessions.length > 0 && (
+            <>
+              {/* Filtre programme — dropdown si plusieurs programmes */}
+              {programs.length > 1 && (
+                <div className="flex items-center gap-3">
+                  <span className="text-xs text-slate-400 font-medium">Programme :</span>
+                  <ProgramDropdown
+                    programs={programs}
+                    selected={selectedProgram}
+                    onSelect={setSelectedProgram}
+                  />
+                </div>
+              )}
+
+              {/* Table cours disponibles */}
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-slate-100">
+                  <p className="text-sm font-semibold text-slate-900">Cours disponibles</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Cliquez sur + pour ajouter un cours à votre sélection.</p>
+                </div>
+                {isLoading ? (
+                  <p className="px-5 py-4 text-sm text-slate-400">Chargement...</p>
+                ) : displayedCourses.length === 0 ? (
+                  <p className="px-5 py-4 text-sm text-slate-400">Aucun cours disponible.</p>
+                ) : (
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-100">
+                        <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Sigle</th>
+                        <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Titre</th>
+                        <th className="text-center py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Crédits</th>
+                        <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Horaire</th>
+                        <th className="py-3 px-5" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {displayedCourses.map((c, i) => (
+                        <tr key={i} className={`border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors ${i % 2 === 1 ? "bg-slate-50/40" : ""}`}>
+                          <td className="py-3 px-5 font-mono text-xs font-semibold text-slate-700">{c.sigle}</td>
+                          <td className="py-3 px-5 text-slate-700">{c.fullName}</td>
+                          <td className="py-3 px-5 text-center text-slate-500">{c.credits}</td>
+                          <td className="py-3 px-5 text-slate-500 text-xs">{c.jours} · {c.startTime}–{c.endTime}</td>
+                          <td className="py-3 px-5 text-right">
+                            <button
+                              onClick={() => addToCart(c)}
+                              className="flex items-center gap-1 ml-auto text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100 hover:bg-blue-800 hover:text-white hover:border-blue-800 px-3 py-1.5 rounded-lg transition-colors"
+                            >
+                              <HiPlus className="w-3.5 h-3.5" />
+                              Ajouter
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              {/* ── Panier ── */}
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">Ma sélection</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{cart.length} cours · {totalCartCredits} crédit{totalCartCredits > 1 ? "s" : ""}</p>
+                  </div>
+                </div>
+
+                {cart.length === 0 ? (
+                  <p className="px-5 py-4 text-sm text-slate-400">Aucun cours ajouté.</p>
+                ) : (
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-100">
+                        <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Sigle</th>
+                        <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Titre</th>
+                        <th className="text-center py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Crédits</th>
+                        <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Horaire</th>
+                        <th className="py-3 px-5" />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cart.map((c, i) => (
+                        <tr key={i} className={`border-b border-slate-50 last:border-0 ${i % 2 === 1 ? "bg-slate-50/50" : ""}`}>
+                          <td className="py-3 px-5 font-mono text-xs font-semibold text-slate-700">{c.sigle}</td>
+                          <td className="py-3 px-5 text-slate-700">{c.fullName}</td>
+                          <td className="py-3 px-5 text-center text-slate-500">{c.credits}</td>
+                          <td className="py-3 px-5 text-slate-500 text-xs">{c.jours} · {c.startTime}–{c.endTime}</td>
+                          <td className="py-3 px-5 text-right">
+                            <button
+                              onClick={() => removeFromCart(c.ccourseId)}
+                              className="flex items-center gap-1 ml-auto text-xs font-medium text-red-600 hover:text-red-800 transition-colors"
+                            >
+                              <HiTrash className="w-3.5 h-3.5" />
+                              Retirer
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                <div className="px-5 py-4 border-t border-slate-100 flex justify-end">
+                  <button
+                    onClick={registerCourses}
+                    disabled={cart.length === 0}
+                    className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+                  >
+                    <HiCheck className="w-4 h-4" />
+                    Confirmer l'inscription
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {!canEnroll && (
+            <InlineAlert type="warning" message={`Vous avez atteint le maximum de ${MAX_COURSES} cours pour cette session.`} />
+          )}
+
+        </div>
+      </main>
+    </div>
+  );
+};
 
 export default Subscribe;

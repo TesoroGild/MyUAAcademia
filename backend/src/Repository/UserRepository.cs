@@ -97,7 +97,7 @@ namespace MyUAAcademiaB.Repository
         /*UPDATE*/
         public bool ActivateStudentAccount(ActivationRequest activationRequest)
         {
-            var student = GetUser(activationRequest.PermanentCode);
+            var student = GetUser(activationRequest.Code);
             var activeAccount = 0;
 
             if (activationRequest.IsActivate) activeAccount = 1;
@@ -106,6 +106,24 @@ namespace MyUAAcademiaB.Repository
             if (student != null) 
             {
                 student.IsActivated = activeAccount;
+                _context.Users.Update(student);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+
+        public bool ValidateStudentAccount(ValidationRequest validationRequest)
+        {
+            var student = GetUser(validationRequest.Code);
+            var validateAccount = 0;
+
+            if (validationRequest.IsValidated) validateAccount = 1;
+            else validateAccount = 0;
+
+            if (student != null)
+            {
+                student.UserStatus = validateAccount + "";
                 _context.Users.Update(student);
                 _context.SaveChanges();
                 return true;

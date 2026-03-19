@@ -1,310 +1,289 @@
-import "./bulletin.css";
-
-//React
-import Dashboard from "../dashboard/dashboard";
-import Header from "../header/header";
-
-import { Accordion, Button, Dropdown, Modal, Sidebar, Table } from "flowbite-react";
+import Sidebar from "../sidebar/sidebar";
+import userPicture from "../../assets/img/User_Icon.png";
 import React, { useEffect, useState } from "react";
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useLocation } from "react-router-dom";
+import { HiChevronDown, HiAcademicCap, HiInformationCircle, HiX } from "react-icons/hi";
+import { getStudentBulletinS } from "../../services/bulletin.service";
+import { getStudentProgramsS } from "../../services/program.service";
 
-//Service
-import { getStudentBulletinS } from '../../services/bulletin.service';
+// ── Table des mentions ────────────────────────────────────────────────────────
+const MENTIONS = [
+  { code: "A+, A, A-, tA", label: "Excellent" },
+  { code: "B+, B, B-, tB", label: "Très bien" },
+  { code: "C+, C, C-, tC", label: "Bien" },
+  { code: "D+, D",         label: "Passable" },
+  { code: "E",             label: "Échec" },
+  { code: "EXE",           label: "Exemption" },
+  { code: "H",             label: "Hors programme" },
+  { code: "I",             label: "Incomplet" },
+  { code: "K",             label: "Exemption (reconnaissance des acquis)" },
+  { code: "L",             label: "Échoué, repris et réussi" },
+  { code: "R",             label: "Résultat reporté" },
+  { code: "S",             label: "Exigence satisfaite" },
+  { code: "*",             label: "Résultat non disponible" },
+  { code: "**",            label: "Activité sans crédit universitaire" },
+  { code: "#",             label: "Délai autorisé pour la remise du résultat" },
+];
 
-function Bulletin ({userCo}) {
-    //States
-    const location = useLocation();
-    const studentDisplay = location.state?.studentToShow;
-    const [openModal, setOpenModal] = useState(false);
-    const [bulletinCourses, setBulletinCourses] = useState([]);
-    const [average, setAverage] = useState(0);
-    const [totalCredit, setTotalCredit] = useState(0);
-    //const lignes = [];
-    
-    //Functions
-    useEffect(() => {
-        if (studentDisplay) getStudentBulletin(studentDisplay);
-        else if (userCo.permanentCode != "") getStudentBulletin(userCo.permanentCode);
-    }, []);
+const GPA_TABLE = [
+  ["A+ = 4.3", "A = 4.0",  "A− = 3.7"],
+  ["B+ = 3.3", "B = 3.0",  "B− = 2.7"],
+  ["C+ = 2.3", "C = 2.0",  "C− = 1.7"],
+  ["D+ = 1.3", "D = 1.0",  ""],
+  ["S = Exigence satisfaite", "", ""],
+];
 
-    const getStudentBulletin = async (permanentCode) => {
-        const getResponse = await getStudentBulletinS(permanentCode);
-        calculateTotalCredits(getResponse.bulletins);
-        //var responseOrdered = await orderBy(getResponse.bulletins);
-        setBulletinCourses(getResponse.bulletins);
-        setAverage(getResponse.average);
-    }
+// ── Badge mention ─────────────────────────────────────────────────────────────
+const MentionBadge = ({ mention }) => {
+  if (!mention) return <span className="text-slate-400 text-xs">—</span>;
+  const isFailure = mention === "E";
+  const isGood    = ["A+","A","A-","B+","B","B-"].includes(mention);
+  const cls = isFailure
+    ? "bg-red-50 text-red-700 border-red-100"
+    : isGood
+    ? "bg-green-50 text-green-700 border-green-100"
+    : "bg-slate-100 text-slate-600 border-slate-200";
+  return (
+    <span className={`text-xs font-semibold border px-2 py-0.5 rounded-full ${cls}`}>{mention}</span>
+  );
+};
 
-    // const orderBy = (list) => {
-    //     var list1 = (list.sort((a, b) => a.yearCourse - b.yearCourse));
-
-    //     let sessionCourante = null;
-    //     let rowSpan = 0;
-    //     let rowSpans = [];
-    //     let index = 0;
-    //     list1.forEach((element) => {
-    //         if (element.sessionCourse !== sessionCourante) {
-    //             sessionCourante = element.sessionCourse;
-    //             rowSpan = 1;
-    //         } else rowSpan++;
-    //         rowSpans[index] = rowSpan;
-    //         index++;
-    //     });
-        
-    //     let id = 0;
-    //     for (var i = 0; i < rowSpans.length-1; i++) {
-    //         if (rowSpans[i] != rowSpans[i+1]) {
-    //             for (var j = i+1; j < rowSpans.length; j++) {
-    //                 if (rowSpans[j] == 1) {
-    //                     id = j;
-    //                     rowSpans[i] = rowSpans[j-1];
-    //                     j = rowSpans.length;
-    //                 }
-    //             }
-
-    //             for (var k = i+1; k < id; k++) rowSpans[k] = 0;
-    //             i = id-1;
-    //         }
-    //     }
-
-    //     index = 0;
-    //     list1.forEach((element) => {
-    //         lignes.push(
-    //             <tr key={element.sigle}>
-    //                 {rowSpans[index] === 1 ? (
-    //                     <td>{element.sessionCourse} {element.yearCourse}</td>
-    //                 ) : rowSpans[index] == 0 ? (
-    //                     null
-    //                 ) : (
-    //                     <td rowSpan={rowSpans[index]}>{element.sessionCourse} {element.yearCourse}</td>
-    //                 )}
-    //                 <td>{element.sigle}</td>
-    //                 <td>{element.fullName}</td>
-    //                 <td>3</td>
-    //                 <td>{element.grade}</td>
-    //                 <td>{element.mention}</td>
-    //                 <td></td>
-    //             </tr>
-    //         );
-    //         index++;
-    //     })
-    //     return lignes;
-    // }
-
-    const cumulativeAverage = () => {
-        return (average * 5 / 100);
-    }
-
-    const calculateTotalCredits = (schoolReports) => {
-        //changer la logique de credits reussis
-        //verifier si la mention != E avant de mettre reussit
-        var cred = 0;
-        for (var i = 0; i < schoolReports.length; i++) {
-            if (schoolReports[i].mention != "E" && schoolReports[i].mention != null)
-                cred += schoolReports[i].credits;
-        }
-        setTotalCredit(cred);
-    }
-
-    //Return
-    return (<>
-        <div>
-            <div>
-                <Header userCo = {userCo}/>
-            </div>
-
-            <div className="flex">
-                <div className="dash-div">
-                    <Dashboard  userCo = {userCo}/>
-                </div>
-                
-                <div>
-                    
-                    {/*userCo.programActif */}
-                    <div className="flex">
-                        <p>Programme : </p>
-                        <p>Statut du programme</p> 
-                        </div>
-
-                    <div>
-                        <p>Aperçu du bulletin</p>
-                        <div>
-                            <Table>
-                                <Table.Head>
-                                    <Table.HeadCell>TRIMESTRE</Table.HeadCell>
-                                    <Table.HeadCell>SIGLE</Table.HeadCell>
-                                    <Table.HeadCell>TITRE</Table.HeadCell>
-                                    <Table.HeadCell>CRÉDITS</Table.HeadCell>
-                                    <Table.HeadCell>NOTE</Table.HeadCell>
-                                    <Table.HeadCell>MENTION</Table.HeadCell>
-                                </Table.Head>
-                                <Table.Body className="divide-y">
-                                    {bulletinCourses.map((report, idx) => (
-                                        <Table.Row key={idx}>
-                                            <Table.Cell>{report.sessionCourse} {report.yearCourse}</Table.Cell>
-                                            <Table.Cell>{report.sigle}</Table.Cell>
-                                            <Table.Cell>{report.fullName}</Table.Cell>
-                                            <Table.Cell>{report.credits}</Table.Cell>
-                                            <Table.Cell>{report.grade}</Table.Cell>
-                                            <Table.Cell>{report.mention}</Table.Cell>
-                                        </Table.Row>
-                                    ))}
-                                </Table.Body>
-                            </Table>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-center my-4">
-                        <div className="mr-4">
-                            <div>Crédits réussis</div>
-                            <div className="border-t-2 border-sky-500 mt-2 bg-sky-200"></div>
-                            <div className="flex justify-center">{totalCredit}</div>
-                            <div className="border-t-2 border-sky-500 mt-2 bg-sky-200 mb-2"></div>
-                        </div>
-                        <div>
-                            <div>Moyenne cumulative</div>
-                            <div className="border-t-2 border-sky-500 mt-2 bg-sky-200"></div>
-                            <div className="flex justify-center">{cumulativeAverage()}/5.0</div>
-                            <div className="border-t-2 border-sky-500 mt-2 bg-sky-200 mb-2"></div>
-                        </div>
-                    </div>
-
-                    <div className="flex justify-center">
-                        <Button onClick={() => setOpenModal(true)}>Toggle modal</Button>
-                        <Modal show={openModal} onClose={() => setOpenModal(false)}>
-                            <Modal.Header>Terms of Service</Modal.Header>
-                            <Modal.Body>
-                                <div className="space-y-6">
-                                    <div>Signification des lettres</div>
-                                    <Table>
-                                        <Table.Head>
-                                            <Table.HeadCell>Note ou mention</Table.HeadCell>
-                                            <Table.HeadCell>Signification</Table.HeadCell>
-                                            <Table.HeadCell>Informations supplémentaires</Table.HeadCell>
-                                        </Table.Head>
-                                        <Table.Body className="divide-y">
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">A+, A, A-, tA</Table.Cell>
-                                                <Table.Cell>Excellent</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">B+, B, B-, tB</Table.Cell>
-                                                <Table.Cell>Très bien</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">C+, C, C-, tC</Table.Cell>
-                                                <Table.Cell>Bien</Table.Cell>
-                                                <Table.Cell>Accessories</Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">D+, D</Table.Cell>
-                                                <Table.Cell>Passable</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">E</Table.Cell>
-                                                <Table.Cell>Échec</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">EXE</Table.Cell>
-                                                <Table.Cell>Exemption</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">H</Table.Cell>
-                                                <Table.Cell>Hors programme</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">I</Table.Cell>
-                                                <Table.Cell>Incomplet</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">K</Table.Cell>
-                                                <Table.Cell>Exemption pour reconnaissance des acquis</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">L</Table.Cell>
-                                                <Table.Cell>Échoué repris et réussi</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">R</Table.Cell>
-                                                <Table.Cell>Résultat reporté</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">S</Table.Cell>
-                                                <Table.Cell>Exigence satisfaite</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">*</Table.Cell>
-                                                <Table.Cell>Résultat non disponible</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">**</Table.Cell>
-                                                <Table.Cell>Ces activités ne sont pas évaluées et ne mènent à l'obtention d'aucun crédit universitaire</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">#</Table.Cell>
-                                                <Table.Cell>Délai autorisé pour la remise du résultat</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                        </Table.Body>
-                                    </Table>
-
-                                    <div>Valeur en points des résultats</div>
-                                    <Table>
-                                        <Table.Head>
-                                            <Table.HeadCell>+</Table.HeadCell>
-                                            <Table.HeadCell></Table.HeadCell>
-                                            <Table.HeadCell>-</Table.HeadCell>
-                                        </Table.Head>
-                                        <Table.Body className="divide-y">
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">A+ = 4.3</Table.Cell>
-                                                <Table.Cell>A = 4.0</Table.Cell>
-                                                <Table.Cell>A- = 3.7</Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">B+ = 3.3</Table.Cell>
-                                                <Table.Cell>B = 3.0</Table.Cell>
-                                                <Table.Cell>B- = 2.7</Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">C+ = 2.3</Table.Cell>
-                                                <Table.Cell>C = 2.0</Table.Cell>
-                                                <Table.Cell>C- = 1.7</Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">D+ = 1.3</Table.Cell>
-                                                <Table.Cell>D = 1.0</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                            <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">S = Exigence satisfaite</Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                                <Table.Cell></Table.Cell>
-                                            </Table.Row>
-                                        </Table.Body>
-                                    </Table>
-                                </div>
-                            </Modal.Body>
-                        </Modal>
-                    </div>
-                </div>
-            </div>
+// ── Modal légende ─────────────────────────────────────────────────────────────
+const LegendModal = ({ open, onClose }) => {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 sticky top-0 bg-white z-10">
+          <h2 className="text-base font-semibold text-slate-900">Signification des notes et mentions</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 transition-colors">
+            <HiX className="w-5 h-5" />
+          </button>
         </div>
-        
-    </>)
-}
+        <div className="px-6 py-5 flex flex-col gap-6">
+          {/* Mentions */}
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Notes et mentions</p>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  <th className="text-left py-2 px-3 text-xs text-slate-500 font-medium">Code</th>
+                  <th className="text-left py-2 px-3 text-xs text-slate-500 font-medium">Signification</th>
+                </tr>
+              </thead>
+              <tbody>
+                {MENTIONS.map((m, i) => (
+                  <tr key={i} className={`border-b border-slate-50 ${i % 2 === 1 ? "bg-slate-50" : ""}`}>
+                    <td className="py-2.5 px-3 font-mono text-xs font-semibold text-slate-800">{m.code}</td>
+                    <td className="py-2.5 px-3 text-xs text-slate-600">{m.label}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* Valeur GPA */}
+          <div>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Valeur en points (GPA)</p>
+            <table className="w-full text-sm">
+              <tbody>
+                {GPA_TABLE.map((row, i) => (
+                  <tr key={i} className={i % 2 === 1 ? "bg-slate-50" : ""}>
+                    {row.map((cell, j) => (
+                      <td key={j} className="py-2 px-3 text-xs font-mono text-slate-700">{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ── Dropdown programme ────────────────────────────────────────────────────────
+const ProgramDropdown = ({ programs, selected, onSelect }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 bg-white border border-slate-200 hover:border-blue-700 text-sm font-medium text-slate-700 px-4 py-2.5 rounded-lg transition-colors"
+      >
+        <HiAcademicCap className="w-4 h-4 text-blue-700" />
+        <span>{selected ?? "Choisir un programme"}</span>
+        <HiChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-1 z-20 bg-white border border-slate-200 rounded-xl shadow-lg min-w-[220px] py-1">
+          {programs.map((p) => (
+            <button
+              key={p}
+              onClick={() => { onSelect(p); setOpen(false); }}
+              className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-slate-50 ${selected === p ? "text-blue-800 font-medium" : "text-slate-700"}`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Page principale ───────────────────────────────────────────────────────────
+const Bulletin = ({ userCo }) => {
+  const location = useLocation();
+  const studentDisplay = location.state?.studentToShow;
+
+  const [programs, setPrograms] = useState([]);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [allBulletins, setAllBulletins] = useState({}); // { programTitle: bulletins[] }
+  const [average, setAverage] = useState(0);
+  const [totalCredit, setTotalCredit] = useState(0);
+  const [legendOpen, setLegendOpen] = useState(false);
+
+  const targetCode = studentDisplay || userCo?.permanentCode;
+
+  useEffect(() => {
+    if (targetCode) fetchAll();
+  }, []);
+
+  const fetchAll = async () => {
+    try {
+      // Récupère les programmes inscrits
+      const progRes = await getStudentProgramsS(targetCode);
+      if (progRes.success) {
+        const enrolled = progRes.programs.filter((p) => p.isEnrolled).map((p) => p.title);
+        setPrograms(enrolled);
+        if (enrolled.length > 0) {
+          setSelectedProgram(enrolled[0]);
+          await loadBulletin(enrolled[0]);
+        }
+      } else {
+        // Fallback : bulletin sans filtre programme
+        await loadBulletin(null);
+      }
+    } catch {
+      await loadBulletin(null);
+    }
+  };
+
+  const loadBulletin = async (programTitle) => {
+    try {
+      const res = await getStudentBulletinS(targetCode);
+      const bulletins = res.bulletins ?? [];
+      const filtered = programTitle
+        ? bulletins.filter((b) => !b.programTitle || b.programTitle === programTitle)
+        : bulletins;
+
+      const credits = filtered.reduce((acc, b) => {
+        if (b.mention && b.mention !== "E") return acc + (b.credits || 0);
+        return acc;
+      }, 0);
+
+      setAllBulletins((prev) => ({ ...prev, [programTitle ?? "_"]: filtered }));
+      setTotalCredit(credits);
+      setAverage(res.average ?? 0);
+    } catch (e) { console.error(e); }
+  };
+
+  const handleProgramSelect = async (title) => {
+    setSelectedProgram(title);
+    if (!allBulletins[title]) await loadBulletin(title);
+  };
+
+  const currentBulletins = allBulletins[selectedProgram ?? "_"] ?? [];
+  const cumulativeAverage = (average * 5 / 100).toFixed(2);
+
+  // Regroupement par session/année
+  const grouped = currentBulletins.reduce((acc, b) => {
+    const key = `${b.sessionCourse} ${b.yearCourse}`;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(b);
+    return acc;
+  }, {});
+
+  return (
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Sidebar userCo={userCo} profilePic={userPicture} />
+
+      <main className="flex-1 overflow-y-auto">
+        {/* Top bar */}
+        <div className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Bulletin académique</p>
+            {selectedProgram && <p className="text-xs text-slate-400">{selectedProgram}</p>}
+          </div>
+          <div className="flex items-center gap-3">
+            {programs.length > 1 && (
+              <ProgramDropdown programs={programs} selected={selectedProgram} onSelect={handleProgramSelect} />
+            )}
+            <button
+              onClick={() => setLegendOpen(true)}
+              className="flex items-center gap-1.5 border border-slate-200 hover:border-blue-700 hover:text-blue-800 text-slate-600 text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+            >
+              <HiInformationCircle className="w-4 h-4" />
+              Légende
+            </button>
+          </div>
+        </div>
+
+        <div className="p-8 flex flex-col gap-6 max-w-5xl">
+
+          {/* ── Stats ── */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white border border-slate-200 rounded-xl p-5">
+              <span className="text-xs text-slate-400 uppercase tracking-wide font-medium">Crédits réussis</span>
+              <p className="text-3xl font-bold text-slate-900 mt-1">{totalCredit}</p>
+            </div>
+            <div className="bg-white border border-blue-200 rounded-xl p-5">
+              <span className="text-xs text-slate-400 uppercase tracking-wide font-medium">Moyenne cumulative</span>
+              <p className="text-3xl font-bold text-blue-800 mt-1">{cumulativeAverage} <span className="text-base font-normal text-slate-400">/ 5.0</span></p>
+            </div>
+          </div>
+
+          {/* ── Tableau bulletin ── */}
+          {Object.keys(grouped).length === 0 ? (
+            <div className="text-sm text-slate-400">Aucun résultat disponible.</div>
+          ) : (
+            Object.entries(grouped).map(([session, courses]) => (
+              <div key={session} className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <div className="px-5 py-3 border-b border-slate-100 bg-slate-50">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{session}</p>
+                </div>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Sigle</th>
+                      <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Titre</th>
+                      <th className="text-center py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Crédits</th>
+                      <th className="text-center py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Note</th>
+                      <th className="text-center py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Mention</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {courses.map((r, i) => (
+                      <tr key={i} className={`border-b border-slate-50 last:border-0 ${i % 2 === 1 ? "bg-slate-50/50" : ""}`}>
+                        <td className="py-3 px-5 font-mono text-xs font-semibold text-slate-700">{r.sigle}</td>
+                        <td className="py-3 px-5 text-slate-700">{r.fullName}</td>
+                        <td className="py-3 px-5 text-center text-slate-600">{r.credits ?? "—"}</td>
+                        <td className="py-3 px-5 text-center font-semibold text-slate-900">{r.grade ?? "—"}</td>
+                        <td className="py-3 px-5 text-center"><MentionBadge mention={r.mention} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))
+          )}
+        </div>
+      </main>
+
+      <LegendModal open={legendOpen} onClose={() => setLegendOpen(false)} />
+    </div>
+  );
+};
 
 export default Bulletin;

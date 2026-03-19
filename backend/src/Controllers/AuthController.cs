@@ -14,12 +14,13 @@ namespace MyUAAcademiaB.Controllers
     //[EnableCors("AllowSpecificOrigin")]
     //[EnableCors]
     public class AuthController(IAuthService authService, IMapper mapper, IEmployeeInterface employeeInterface,
-        IUserInterface userInterface) : ControllerBase
+        IUserInterface userInterface, JwtService jwtService) : ControllerBase
     {
         private readonly IAuthService _authService = authService;
         private readonly IMapper _mapper = mapper;
         private readonly IEmployeeInterface _employeeInterface = employeeInterface;
         private readonly IUserInterface _userInterface = userInterface;
+        private readonly JwtService _jwtService = jwtService;
 
         //CREATE
         [HttpPost("login")]
@@ -39,8 +40,8 @@ namespace MyUAAcademiaB.Controllers
             }
             else
             {
-                var jwtService = new JwtService();
-                var token = jwtService.GenerateToken(loginCredentials.Code, userConnected.UserRole);
+                //var jwtService = new JwtService();
+                var token = _jwtService.GenerateToken(loginCredentials.Code, userConnected.UserRole);
 
                 Response.Cookies.Append("SESSION_ID", token, new CookieOptions
                 {
@@ -75,8 +76,8 @@ namespace MyUAAcademiaB.Controllers
             }
             else
             {
-                var jwtService = new JwtService();
-                var token = jwtService.GenerateToken(loginCredentialsStudent.PermanentCode, userConnected.UserRole);
+                //var jwtService = new JwtService();
+                var token = _jwtService.GenerateToken(loginCredentialsStudent.PermanentCode, userConnected.UserRole);
 
                 Response.Cookies.Append("SESSION_ID", token, new CookieOptions
                 {
@@ -144,7 +145,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPut("reset-password")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "Admin, Employee")]
+        [Authorize(Roles = "Admin, Professor")]
         public async Task<IActionResult> UpdatePassword([FromBody] ResetPasswordCredentials resetPasswordCredentials)
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");

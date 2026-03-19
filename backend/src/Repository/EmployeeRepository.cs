@@ -57,6 +57,42 @@ namespace MyUAAcademiaB.Repository
             return await _context.SaveChangesAsync();
         }
 
+        public bool ActivateEmployeeAccount(ActivationRequest activationRequest)
+        {
+            var employee = GetEmployee(activationRequest.Code);
+            var activeAccount = 0;
+
+            if (activationRequest.IsActivate) activeAccount = 1;
+            else activeAccount = 0;
+
+            if (employee != null)
+            {
+                employee.IsActivated = activeAccount;
+                _context.Employees.Update(employee);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+
+        public bool ValidateEmployeeAccount(ValidationRequest validationRequest)
+        {
+            var employee = GetEmployee(validationRequest.Code);
+            var validateAccount = 0;
+
+            if (validationRequest.IsValidated) validateAccount = 1;
+            else validateAccount = 0;
+
+            if (employee != null)
+            {
+                employee.UserStatus = validateAccount+"";
+                _context.Employees.Update(employee);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
+
 
         /*DELETE*/
     }

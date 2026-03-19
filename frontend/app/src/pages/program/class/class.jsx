@@ -1,460 +1,355 @@
-//React
-import { useRef, useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
-import { Table, TextInput, Toast, ToastToggle, Tooltip } from "flowbite-react"
-import { useForm, Controller } from "react-hook-form";
-
-//pages
-import AdminDashboard from "../../dashboard/admindashboard";
-import AdminHeader from "../../header/adminheader";
-
-//Services
+import Sidebar from "../../sidebar/sidebar";
+import adminPicture from "../../../assets/img/Admin.jpg";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { HiCheck, HiX, HiPlus, HiPencil, HiExclamation } from "react-icons/hi";
 import { createCourseS, getCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
-//Icons
-import { HiCheck, HiCurrencyDollar, HiExclamation, HiInformationCircle, HiX } from "react-icons/hi";
+// ── Helpers ───────────────────────────────────────────────────────────────────
+const inputCls = "border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition w-full";
 
-const Class = ({employeeCo}) => {
-    //States
-    const {
-        register,
-        control,
-        handleSubmit,
-        reset,
-        formState: { errors }
-    } = useForm({
-        defaultValues: {
-            sigle: "",
-            fullName: "",
-            price: "",
-            credits: "",
-            autumn: "",
-            summer: "",
-            winter: ""
-        }
-    });
-    const [courseAddedSuccess, setCourseAddedSuccess] = useState(false);
-    const [displayCourseExists, setDisplayCourseExists] = useState(false);
-    const [displayForms, setDisplayForms] = useState(false);
-    const [courseList, setCourseList] = useState([]);
-    const [programs, setPrograms] = useState([]);
-    const [programTitle, setProgramTitle] = useState("");
+const Field = ({ label, error, hint, children }) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</label>
+    {children}
+    {hint  && <p className="text-xs text-slate-400">{hint}</p>}
+    {error && <p className="text-xs text-red-600">{error}</p>}
+  </div>
+);
 
-    //Functions
-    useEffect(() => {
-        getCourses();
-        getPrograms();
-    }, []);
+const Alert = ({ type, message }) => {
+  const s = {
+    success: "bg-green-50 border-green-200 text-green-700",
+    error:   "bg-red-50 border-red-200 text-red-700",
+    warning: "bg-amber-50 border-amber-200 text-amber-700",
+  }[type];
+  const Icon = type === "success" ? HiCheck : type === "warning" ? HiExclamation : HiX;
+  return (
+    <div className={`flex items-center gap-2 border rounded-lg px-4 py-3 text-sm ${s}`}>
+      <Icon className="w-4 h-4 shrink-0" />{message}
+    </div>
+  );
+};
 
-    const createCourse = async (newCourse) => {
-        const isNotInList = !courseList.some(course => course.sigle === newCourse.sigle);
+// Badge session Oui/Non
+const SessionBadge = ({ value }) =>
+  value == 1 || value === true ? (
+    <span className="inline-flex items-center gap-1 text-xs font-medium bg-green-50 text-green-700 border border-green-100 px-2 py-0.5 rounded-full">
+      <HiCheck className="w-3 h-3" /> Oui
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full">
+      <HiX className="w-3 h-3" /> Non
+    </span>
+  );
 
-        if (isNotInList) {
-            try {
-                const courseToCreate = {
-                    sigle: newCourse.sigle,
-                    fullName: newCourse.fullName,
-                    price: newCourse.price,
-                    autumn: newCourse.autumn,
-                    summer: newCourse.summer,
-                    winter: newCourse.winter,
-                    credits: newCourse.credits,
-                    employeeCode: employeeCo.code,
-                    programTitle: programTitle
-                }
-    
-                const courseCreated = await createCourseS(courseToCreate);
-    
-                if (courseCreated !== null && courseCreated !== undefined) {
-                    await getCourses();
-                    setCourseAddedSuccess(true);
-                    setTimeout(() => setCourseAddedSuccess(false), 3000);
-                    reset();
-                  } else {           
-                    //erreur backend
-                  }
-                } catch (error) {
-                console.log(error);
-            }
-        } else {
-            handleCourseExistError();
-        }
+// Toggle Oui/Non pour le formulaire
+const SessionToggle = ({ label, name, register, error }) => (
+  <div className="flex flex-col gap-1.5">
+    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</span>
+    <div className="flex gap-4">
+      <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+        <input type="radio" value="1" {...register(name, { required: "Requis" })} className="accent-blue-700" />
+        Oui
+      </label>
+      <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
+        <input type="radio" value="0" {...register(name, { required: "Requis" })} className="accent-blue-700" />
+        Non
+      </label>
+    </div>
+    {error && <p className="text-xs text-red-600">{error}</p>}
+  </div>
+);
+
+// ── Page principale ───────────────────────────────────────────────────────────
+const Class = ({ employeeCo }) => {
+  const [courseList, setCourseList]   = useState([]);
+  const [programs, setPrograms]       = useState([]);
+  const [programTitle, setProgramTitle] = useState("");
+  const [panel, setPanel]             = useState(null);   // null | "create" | "edit"
+  const [selected, setSelected]       = useState(null);
+  const [alert, setAlert]             = useState(null);
+  const [isLoading, setIsLoading]     = useState(false);
+  const [filterProgram, setFilterProgram] = useState(""); // filtre liste
+
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+    defaultValues: { sigle: "", fullName: "", price: "", credits: "", winter: "", summer: "", autumn: "" },
+  });
+
+  useEffect(() => { getCourses(); getPrograms(); }, []);
+
+  const showAlert = (type, message) => {
+    setAlert({ type, message });
+    setTimeout(() => setAlert(null), 5000);
+  };
+
+  const getCourses = async () => {
+    try { setCourseList(await getCoursesS()); } catch (e) { console.error(e); }
+  };
+
+  const getPrograms = async () => {
+    try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); }
+  };
+
+  const openCreate = () => {
+    reset({ sigle: "", fullName: "", price: "", credits: "", winter: "", summer: "", autumn: "" });
+    setProgramTitle("");
+    setSelected(null);
+    setPanel("create");
+  };
+
+  const openEdit = (course) => {
+    setSelected(course);
+    setValue("sigle",    course.sigle);
+    setValue("fullName", course.fullName);
+    setValue("price",    course.price);
+    setValue("credits",  String(course.credits));
+    setValue("winter",   String(course.winter));
+    setValue("summer",   String(course.summer));
+    setValue("autumn",   String(course.autumn));
+    setProgramTitle(course.programTitle);
+    setPanel("edit");
+  };
+
+  const closePanel = () => { setPanel(null); setSelected(null); };
+
+  const onSubmit = async (data) => {
+    // Vérif doublon sigle (création seulement)
+    if (panel === "create" && courseList.some((c) => c.sigle === data.sigle)) {
+      showAlert("error", `Le sigle "${data.sigle}" existe déjà.`);
+      return;
     }
-
-    const handleCourseExistError = () => {
-        setDisplayCourseExists(true);
-        setTimeout(() => {
-            setDisplayCourseExists(false);
-        }, 5000);
+    setIsLoading(true);
+    try {
+      const payload = { ...data, employeeCode: employeeCo?.code, programTitle };
+      const result  = await createCourseS(payload);
+      if (result) {
+        showAlert("success", panel === "create" ? `Cours "${data.sigle}" créé avec succès.` : `Cours "${data.sigle}" modifié.`);
+        await getCourses();
+        closePanel();
+      } else {
+        showAlert("error", "Une erreur est survenue.");
+      }
+    } catch {
+      showAlert("warning", "Impossible de contacter le serveur.");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const createCourses = async (event) => {
-        event.preventDefault();
-        try {
+  // Filtre liste par programme
+  const displayed = filterProgram
+    ? courseList.filter((c) => c.programTitle === filterProgram)
+    : courseList;
 
-        } catch (error) {
-            console.log(error);
-        }
-    }
+  return (
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
 
-    const getCourses = async () => {
-        try {
-            const courses = await getCoursesS();
-            setCourseList(courses);
-        } catch (error) {
-            console.log(error);
-        }
-    }
+      <main className="flex-1 flex overflow-hidden">
 
-    const getPrograms = async () => {
-        try {
-            const programs = await getProgramsS();
-            setPrograms(programs);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+        {/* ── Colonne liste ── */}
+        <div className={`flex flex-col overflow-hidden transition-all duration-200 ${panel ? "w-1/2 border-r border-slate-200" : "w-full"}`}>
 
-    const displayMultipleFormCourses = () => {
-        setDisplayForms(true);
-    }
-
-    const hiddenMultipleFormCourses = () => {
-        setDisplayForms(false);
-    }
-
-    //Return
-    return (<>
-        <div className="flex">
-            <div className="dash-div">
-                <AdminDashboard employeeCo = {employeeCo}/>
+          {/* Top bar */}
+          <div className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Cours du programme</p>
+              <p className="text-xs text-slate-400">{courseList.length} cours enregistré{courseList.length > 1 ? "s" : ""}</p>
             </div>
-                
-            <div className="w-full">
-                <div>
-                    <AdminHeader/>
-                </div>
+            <button
+              onClick={openCreate}
+              className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              <HiPlus className="w-4 h-4" />
+              Nouveau cours
+            </button>
+          </div>
 
-                <div>
-                    <div>
-                    <div className="border-2 border-red-500 mt-4">
-                        <div>
-                            CRÉER UN NOUVEAU COURS
-                        </div>
-                        { courseAddedSuccess && (
-                            <Toast>
-                                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                    <HiCheck className="h-5 w-5" />
-                                </div>
-                                <div className="ml-3 text-sm font-normal">Cours ajouté.</div>
-                                <div className="ml-auto flex items-center space-x-2">
-                                    <ToastToggle />
-                                </div>
-                            </Toast>
-                        )}
-                        <form onSubmit={handleSubmit(createCourse)}>
-                            <div className="w-full flex p-4">
-                                <label htmlFor="program" className="w-1/3">Programme :</label>
-                                <div className="w-1/3">
-                                    <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        id="program" name="program" onChange={(e) => setProgramTitle(e.target.value)}
-                                    >
-                                        <option value="">Sélectionnez un programme</option>
-                                        {programs.map((element, index) => (
-                                            <option key={index} value={element.title}>
-                                               {element.title} | {element.grade} : {element.programName}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
+          {alert && <div className="px-8 pt-4"><Alert type={alert.type} message={alert.message} /></div>}
 
-                            <div className="w-full flex p-4">
-                                <label htmlFor="sigle" className="w-1/3">Sigle :</label>
-                                <div className="w-1/3">
-                                    <input type="text" id="sigle" name="sigle"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        {...register("sigle", { required: "Le sigle est requis!" })}
-                                    />
-                                    {errors.sigle && (
-                                        <p className="text-red-500 text-sm">{errors.sigle.message}</p>   
-                                    )}
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-                            <div className="w-full flex p-4">
-                                <label htmlFor="fullName" className="w-1/3">Intitulé :</label>
-                                <div className="w-1/3">
-                                    <input type="text" id="fullName" name="fullName"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        {...register("fullName", { required: "L'intitulé est requis!" })}
-                                    />
-                                    {errors.fullName && (
-                                        <p className="text-red-500 text-sm">{errors.fullName.message}</p>   
-                                    )}
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-                            <div className="w-full flex p-4">
-                                <label htmlFor="price" className="w-1/3">Prix :</label>
-                                <div className="w-1/3">
-                                    <input type="number" id="price" name="price"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        {...register("price", { required: "Le prix est requis!" })}
-                                    />
-                                    {errors.price && (
-                                        <p className="text-red-500 text-sm">{errors.price.message}</p>   
-                                    )}
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-                            <div className="w-full flex p-4">
-                                <label htmlFor="credits" className="w-1/3">Crédits :</label>
-                                <div className="w-1/3">
-                                    <input
-                                        type="radio"
-                                        name="credits"
-                                        value="1"
-                                        {...register("credits", { required: "Le nombre de crédit est requis!" })}
-                                    />&nbsp;
-                                    <label htmlFor="1">1</label>&nbsp;&nbsp;&nbsp;
-                                    
-                                    <input
-                                        type="radio"
-                                        name="credits"
-                                        value="2"
-                                        {...register("credits", { required: "Le nombre de crédit est requis!" })}
-                                    />&nbsp;
-                                    <label htmlFor="2">2</label>&nbsp;&nbsp;&nbsp;
+          {/* Filtre programme */}
+          <div className="px-8 pt-4 shrink-0">
+            <select
+              value={filterProgram}
+              onChange={(e) => setFilterProgram(e.target.value)}
+              className="border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white w-64"
+            >
+              <option value="">Tous les programmes</option>
+              {programs.map((p) => (
+                <option key={p.title} value={p.title}>{p.title} — {p.programName}</option>
+              ))}
+            </select>
+          </div>
 
-                                    <input
-                                        type="radio"
-                                        name="credits"
-                                        value="3"
-                                        {...register("credits", { required: "Le nombre de crédit est requis!" })}
-                                    />&nbsp;
-                                    <label htmlFor="3">3</label>&nbsp;&nbsp;&nbsp;
-
-                                    <input
-                                        type="radio"
-                                        name="credits"
-                                        value="45"
-                                        {...register("credits", { required: "Le nombre de crédit est requis!" })}
-                                    />&nbsp;
-                                    <label htmlFor="45">45</label>
-
-                                    {errors.credits && (
-                                        <p className="text-red-500 text-sm">{errors.credits.message}</p>   
-                                    )}
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-                            <div className="w-full flex p-4">
-                                <label htmlFor="winter" className="w-1/3">Hiver :</label>
-                                <div className="w-1/3">
-                                    <input
-                                        type="radio"
-                                        name="winter"
-                                        value="1"
-                                        {...register("winter", { required: "Session requise!" })}
-                                    />&nbsp;
-                                    <label htmlFor="yes">Oui</label>&nbsp;&nbsp;&nbsp;
-                                    
-                                    <input
-                                        type="radio"
-                                        id="no"
-                                        name="winter"
-                                        value="0"
-                                        {...register("winter", { required: "Session requise!" })}
-                                    />&nbsp;
-                                    <label htmlFor="no">Non</label>
-
-                                    {errors.winter && (
-                                        <p className="text-red-500 text-sm">{errors.winter.message}</p>   
-                                    )}
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-                            <div className="w-full flex p-4">
-                                <label htmlFor="summer" className="w-1/3">Été :</label>
-                                <div className="w-1/3">
-                                    <input
-                                        type="radio"
-                                        name="summer"
-                                        value="1"
-                                        {...register("summer", { required: "Session requise!" })}
-                                    />&nbsp;
-                                    <label htmlFor="yes">Oui</label>&nbsp;&nbsp;&nbsp;
-                                    
-                                    <input
-                                        type="radio"
-                                        name="summer"
-                                        value="0"
-                                        {...register("summer", { required: "Session requise!" })}
-                                    />&nbsp;
-                                    <label htmlFor="no">Non</label>
-
-                                    {errors.summer && (
-                                        <p className="text-red-500 text-sm">{errors.summer.message}</p>   
-                                    )}
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-                            <div className="w-full flex p-4">
-                                <label htmlFor="autumn" className="w-1/3">Automne :</label>
-                                <div className="w-1/3">
-                                    <input
-                                        type="radio"
-                                        name="autumn"
-                                        value="1"
-                                        {...register("autumn", { required: "Session requise!" })}
-                                    />&nbsp;
-                                    <label htmlFor="yes">Oui</label>&nbsp;&nbsp;&nbsp;
-                                    
-                                    <input
-                                        type="radio"
-                                        name="autumn"
-                                        value="0"
-                                        {...register("autumn", { required: "Session requise!" })}
-                                    />&nbsp;
-                                    <label htmlFor="no">Non</label>
-
-                                    {errors.autumn && (
-                                        <p className="text-red-500 text-sm">{errors.autumn.message}</p>   
-                                    )}
-                                </div>
-                                <div>
-                                    <Tooltip content="Infos">
-                                        <HiInformationCircle className="h-4 w-4" />
-                                    </Tooltip>
-                                </div>
-                            </div>
-
-                            { displayCourseExists && (
-                                <Toast>
-                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500 dark:bg-orange-700 dark:text-orange-200">
-                                    <HiExclamation className="h-5 w-5" />
-                                    </div>
-                                    <div className="ml-3 text-sm font-normal">Ce sigle de cours existe déjà.</div>
-                                    <Toast.Toggle />
-                                </Toast>
-                            )}
-
-                            <button type="submit"
-                                className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                                Ajouter
-                            </button>
-                            <button onClick={() => displayMultipleFormCourses()}
-                                className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                                Ajouter plusieurs cours
-                            </button>
-                            {displayForms && (
-                                <div>
-                                    plusieurs cours a ajouter
-                                </div>
-                            )}
-                        </form>
-                    </div>
-                    <div className="mt-4 justify-self-center">Cours obligatoires des programmes</div>
-                        <Table>
-                            <Table.Head>
-                                <Table.HeadCell>Programme</Table.HeadCell>
-                                <Table.HeadCell>Sigle</Table.HeadCell>
-                                <Table.HeadCell>Nom</Table.HeadCell>
-                                <Table.HeadCell>Prix</Table.HeadCell>
-                                <Table.HeadCell>Crédits</Table.HeadCell>
-                                <Table.HeadCell>Hiver</Table.HeadCell>
-                                <Table.HeadCell>Été</Table.HeadCell>
-                                <Table.HeadCell>Automne</Table.HeadCell>
-                            </Table.Head>
-                            <Table.Body className="divide-y">
-                                { courseList && courseList.length > 0 ? (
-                                    courseList.map((course, index) => (
-                                        <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                            <Table.Cell>{course.programTitle}</Table.Cell>
-                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                {course.sigle}
-                                            </Table.Cell>
-                                            <Table.Cell>{course.fullName}</Table.Cell>
-                                            <Table.Cell>{course.price}$</Table.Cell>
-                                            <Table.Cell>{course.credits}</Table.Cell>
-                                            <Table.Cell>
-                                                {course.winter === 0 ? 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                        <HiX className="h-5 w-5" />
-                                                    </div> : 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                                        <HiCheck className="h-5 w-5" />
-                                                    </div>
-                                                }
-                                            </Table.Cell>
-                                            <Table.Cell>
-                                                {course.summer === 0 ? 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                        <HiX className="h-5 w-5" />
-                                                    </div> : 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                                        <HiCheck className="h-5 w-5" />
-                                                    </div>
-                                                }
-                                                </Table.Cell>
-                                            <Table.Cell>
-                                                {course.autumn === 0 ? 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
-                                                        <HiX className="h-5 w-5" />
-                                                    </div> : 
-                                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                                        <HiCheck className="h-5 w-5" />
-                                                    </div>
-                                                }
-                                                </Table.Cell>
-                                        </Table.Row>
-                                    ))
-                                ) : (
-                                    <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white col-span-7">
-                                            Aucun cours!
-                                        </Table.Cell>
-                                    </Table.Row>
-                                )}
-                            </Table.Body>
-                        </Table>
-                    </div>
-
-                </div>
-            </div>
+          {/* Table */}
+          <div className="flex-1 overflow-y-auto px-8 py-4">
+            {displayed.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-slate-400 text-sm">
+                Aucun cours trouvé.
+              </div>
+            ) : (
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      {["Programme", "Sigle", "Intitulé", "Prix", "Crédits", "Hiver", "Été", "Automne", ""].map((h) => (
+                        <th key={h} className="text-left py-3 px-4 text-xs text-slate-400 font-medium uppercase tracking-wide whitespace-nowrap">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {displayed.map((course, i) => (
+                      <tr
+                        key={course.sigle}
+                        className={`border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors ${
+                          selected?.sigle === course.sigle ? "bg-blue-50/40" : i % 2 === 1 ? "bg-slate-50/40" : ""
+                        }`}
+                      >
+                        <td className="py-3 px-4 text-xs text-slate-500 max-w-[120px] truncate">{course.programTitle}</td>
+                        <td className="py-3 px-4 font-mono text-xs font-bold text-slate-800">{course.sigle}</td>
+                        <td className="py-3 px-4 text-slate-700 max-w-[160px] truncate">{course.fullName}</td>
+                        <td className="py-3 px-4 text-slate-600 whitespace-nowrap">{course.price} $</td>
+                        <td className="py-3 px-4 text-center text-slate-600">{course.credits}</td>
+                        <td className="py-3 px-4"><SessionBadge value={course.winter} /></td>
+                        <td className="py-3 px-4"><SessionBadge value={course.summer} /></td>
+                        <td className="py-3 px-4"><SessionBadge value={course.autumn} /></td>
+                        <td className="py-3 px-4">
+                          <button
+                            onClick={() => openEdit(course)}
+                            className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-700 hover:text-blue-800 text-slate-400 transition-colors"
+                            title="Modifier"
+                          >
+                            <HiPencil className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
-    </>)
-}
+
+        {/* ── Panneau latéral ── */}
+        {panel && (
+          <div className="w-1/2 flex flex-col overflow-hidden bg-white">
+            <div className="h-16 border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+              <p className="text-sm font-semibold text-slate-900">
+                {panel === "create" ? "Nouveau cours" : `Modifier — ${selected?.sigle}`}
+              </p>
+              <button onClick={closePanel} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+                <HiX className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-8 py-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+
+                {/* Programme */}
+                <Field label="Programme">
+                  <select
+                    value={programTitle}
+                    onChange={(e) => setProgramTitle(e.target.value)}
+                    className={inputCls}
+                  >
+                    <option value="">Sélectionner un programme</option>
+                    {programs.map((p) => (
+                      <option key={p.title} value={p.title}>
+                        {p.title} — {p.grade} : {p.programName}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Sigle" error={errors.sigle?.message}>
+                    <input
+                      type="text"
+                      placeholder="ex. INF3405"
+                      className={inputCls}
+                      disabled={panel === "edit"}
+                      {...register("sigle", { required: "Le sigle est requis." })}
+                    />
+                  </Field>
+                  <Field label="Crédits" error={errors.credits?.message}>
+                    <div className="flex gap-3 flex-wrap pt-1">
+                      {[1, 2, 3, 45].map((v) => (
+                        <label key={v} className="flex items-center gap-1.5 cursor-pointer text-sm text-slate-700">
+                          <input
+                            type="radio"
+                            value={String(v)}
+                            {...register("credits", { required: "Requis." })}
+                            className="accent-blue-700"
+                          />
+                          {v}
+                        </label>
+                      ))}
+                    </div>
+                    {errors.credits && <p className="text-xs text-red-600">{errors.credits.message}</p>}
+                  </Field>
+                </div>
+
+                <Field label="Intitulé complet" error={errors.fullName?.message}>
+                  <input
+                    type="text"
+                    placeholder="ex. Réseaux informatiques"
+                    className={inputCls}
+                    {...register("fullName", { required: "L'intitulé est requis." })}
+                  />
+                </Field>
+
+                <Field label="Prix ($)" error={errors.price?.message}>
+                  <input
+                    type="number"
+                    placeholder="ex. 450"
+                    className={inputCls}
+                    {...register("price", { required: "Le prix est requis." })}
+                  />
+                </Field>
+
+                {/* Sessions — la partie clé pour la modif */}
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">
+                    Sessions disponibles
+                    {panel === "edit" && (
+                      <span className="ml-2 font-normal text-blue-700 normal-case">modifiable si le cours ne peut plus être offert</span>
+                    )}
+                  </p>
+                  <div className="grid grid-cols-3 gap-4">
+                    <SessionToggle label="Hiver"   name="winter" register={register} error={errors.winter?.message} />
+                    <SessionToggle label="Été"     name="summer" register={register} error={errors.summer?.message} />
+                    <SessionToggle label="Automne" name="autumn" register={register} error={errors.autumn?.message} />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex-1 bg-blue-800 hover:bg-blue-900 disabled:opacity-50 text-white font-medium rounded-lg py-2.5 text-sm transition-colors"
+                  >
+                    {isLoading ? "Enregistrement..." : panel === "create" ? "Créer le cours" : "Enregistrer les modifications"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closePanel}
+                    className="px-4 border border-slate-200 hover:border-slate-300 text-slate-600 rounded-lg text-sm transition-colors"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
 
 export default Class;

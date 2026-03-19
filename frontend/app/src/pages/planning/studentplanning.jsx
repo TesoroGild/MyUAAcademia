@@ -1,10 +1,9 @@
-import "./space.css";
-
 //React
-import Dashboard from "../dashboard/dashboard";
-import Header from "../header/header";
+import Sidebar from "../sidebar/sidebar";
+import Header from '../header/header'
+import userPicture from '../../assets/img/User_Icon.png';
 
-const EmployeeSpace = ({userCo}) => {
+const StudentPlanning = ({userCo}) => {
     return (<>
         <div>
             <div>
@@ -13,15 +12,15 @@ const EmployeeSpace = ({userCo}) => {
 
             <div className="flex">
                 <div className="dash-div">
-                    <Dashboard userCo = {userCo}/>
+                    <Sidebar userCo = {userCo} profilePic={userPicture} />
                 </div>
                 
                 <div>
-                    employee space
+                    Planning
                 </div>
             </div>
         </div>
     </>)
 }
 
-export default EmployeeSpace;
+export default StudentPlanning;

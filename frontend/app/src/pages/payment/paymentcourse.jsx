@@ -1,6 +1,7 @@
 //Reusable
-import Dashboard from "../dashboard/dashboard";
+import Sidebar from "../sidebar/sidebar.jsx";
 import Header from '../header/header';
+import userPicture from '../../assets/img/User_Icon.png';
 
 //React
 import { Button, Table, Tooltip } from "flowbite-react"
@@ -85,7 +86,7 @@ const PaymentCourse = ({userCo}) => {
 
             <div className="flex">
                 <div className="dash-div">
-                    <Dashboard userCo = {userCo} />
+                    <Sidebar userCo = {userCo} profilePic={userPicture}  />
                 </div>
             
                 <div className="w-full mx-4 mt-2">

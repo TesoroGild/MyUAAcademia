@@ -1,4 +1,5 @@
-﻿using MyUAAcademiaB.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using MyUAAcademiaB.Data;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 
@@ -30,6 +31,15 @@ namespace MyUAAcademiaB.Repository
         public ICollection<ClassesCourses> GetClasseCourse()
         {
             return _context.ClassesCourses.OrderBy(cc => cc.YearCourse).ToList();
+        }
+
+        public ICollection<ClassesCourses> GetClasseCoursesByProgram(string title)
+        {
+            return _context.ClassesCourses
+                .Include(cc => cc.Course) // On charge les données de la table Course
+                .Where(cc => cc.Course.ProgramTitle == title) // On filtre sur la propriété du cours
+                .OrderBy(cc => cc.YearCourse)
+                .ToList();
         }
 
         public ICollection<ClasseCourses1> GetClasseCourseById(ICollection<int> courseIds)

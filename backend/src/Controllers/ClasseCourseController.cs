@@ -72,7 +72,18 @@ namespace MyUAAcademiaB.Controllers
 
             return Ok(classesCourses);
         }
-        
+
+        [HttpGet("classe-course/{title}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ClasseCourseDto>))]
+        public IActionResult GetClasseCourseByProgram(string title)
+        {
+            var classesCourses = _mapper.Map<List<ClasseCourseDto>>(_classeCourseInterface.GetClasseCoursesByProgram(title));
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            return Ok(classesCourses);
+        }
+
         [HttpPost("student-courses-by-ids")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ClasseCourses1>))]
         public IActionResult GetClasseCourseById(ICollection<int> courseIds)

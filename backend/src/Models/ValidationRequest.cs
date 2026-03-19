@@ -2,10 +2,10 @@
 
 namespace MyUAAcademiaB.Models
 {
-    public class ActivationRequest
+    public class ValidationRequest
     {
         public string Code { get; set; }
 
-        public required bool IsActivate { get; set; }
+        public required bool IsValidated { get; set; }
     }
 }

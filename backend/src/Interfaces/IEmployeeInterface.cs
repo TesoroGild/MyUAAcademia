@@ -18,6 +18,8 @@ namespace MyUAAcademiaB.Interfaces
 
         /*UPDATE*/
         Task<int> UpdatePasswordAsync(ResetPasswordCredentials resetPasswordCredentials);
+        bool ActivateEmployeeAccount(ActivationRequest activationRequest);
+        bool ValidateEmployeeAccount(ValidationRequest validationRequest);
 
         /*DELETE*/
     }

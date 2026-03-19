@@ -1,442 +1,313 @@
-import "./bill.css";
-
-//Reusable
-import Dashboard from "../dashboard/dashboard";
-import Header from '../header/header'
-
-//React
-import { Button, Table, Tooltip } from "flowbite-react"
+import Sidebar from "../sidebar/sidebar";
+import userPicture from "../../assets/img/User_Icon.png";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { HiClipboardList, HiOutlineCash, HiInformationCircle } from "react-icons/hi";
+import { useNavigate } from "react-router-dom";
+import { HiOutlineCash, HiInformationCircle, HiChevronDown, HiChevronUp, HiExclamationCircle, HiCheckCircle } from "react-icons/hi";
+import { Tooltip } from "flowbite-react";
+import { getStudentBillsS } from "../../services/bill.service";
+import { getSessionCoursePriceS } from "../../services/course.service";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
-//Services
-import { getStudentBillsS } from '../../services/bill.service';
-import { getSessionCoursePriceS } from '../../services/course.service';
+const SESSIONS = ["Hiver", "Été", "Automne"];
 
-//Date format
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+const fmt = (dateString) => {
+  if (!dateString) return "—";
+  try { return format(new Date(dateString), "dd MMMM yyyy", { locale: fr }); }
+  catch { return dateString; }
+};
 
-const Bill = ({userCo, userPermanentCode}) => {
-    //States
-    const [isLoading, setIsLoading] = useState(false);
-    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-    const [displayBill, setDisplayBill] = useState(false);
-    const [displayBills, setDisplayBills] = useState(false);
-    const [billToDisplay, setBillToDisplay] = useState({
-        amount: "",
-        dateOfIssue: "",
-        deadLine: "",
-        dateOfPaiement: "",
-        sessionStudy: "",
-        yearStudy: "",
-        AmountPaid: "",
-        GeneralExpenses: "",
-        SportsAdministrationFees: "",
-        DentalInsurance: "",
-        InsuranceFee: "",
-        RefundsAndAdjustments: ""
-    });
-    const [studentBills, setStudentBills] = useState([]);
-    const [studentCourses, setStudentCourses] = useState([]);
-    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
-    const [total, setTotal] = useState(0);
+const fmt$ = (val) => val != null ? `${Number(val).toFixed(2)} $` : "—";
 
-    //Functions
-    const navigate = useNavigate();
+const OTHER_FEES = [
+  { key: "generalExpenses",          label: "Frais généraux",                  tip: "Frais de fonctionnement généraux de l'établissement." },
+  { key: "sportsAdministrationFees", label: "Frais d'administration sportive",  tip: "Accès aux installations sportives et services associés." },
+  { key: "dentalInsurance",          label: "Assurance dentaire",               tip: "Couverture dentaire de base incluse dans les frais de session." },
+  { key: "insuranceFees",            label: "Frais d'assurance",                tip: "Assurance santé et responsabilité civile étudiante." },
+];
 
-    useEffect(() => {
-        if (userPermanentCode.trim() != "") getStudentBills(userPermanentCode);
-        if (billToDisplay) {
-            totalisation();
-        }
-    }, [billToDisplay]);
-    
-    const getStudentBills = async () => {
-        setIsLoading(true);
-        try {
-            const bills = await getStudentBillsS(userPermanentCode);
-            setStudentBills(bills);
-        } catch (error) {
-            console.error('Erreur lors de la récupération des données', error);
-        } finally {
-            setIsLoading(false);
-        }    
-    }
+// ── Ligne de tableau ─────────────────────────────────────────────────────────
+const TRow = ({ label, value, muted, bold, tip }) => (
+  <tr className={`border-b border-slate-100 last:border-0 ${muted ? "bg-slate-50" : "bg-white"}`}>
+    <td className={`py-3 px-4 text-sm ${bold ? "font-semibold text-slate-900" : "text-slate-700"}`}>
+      <div className="flex items-center gap-1.5">
+        {label}
+        {tip && (
+          <Tooltip content={tip} placement="right">
+            <HiInformationCircle className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          </Tooltip>
+        )}
+      </div>
+    </td>
+    <td className={`py-3 px-4 text-sm text-right ${bold ? "font-semibold text-slate-900" : "text-slate-600"}`}>
+      {value}
+    </td>
+  </tr>
+);
 
-    const getCourses = async (year, session) => {
-        const requestParams = {
-            permanentCode: userPermanentCode,
-            yearCourse: year,
-            sessionCourse: session
-        }
+// ── Détail d'une facture ─────────────────────────────────────────────────────
+const BillDetail = ({ bill, courses, total, onPay }) => {
+  const restToPay = total - (bill?.amountPaid || 0);
+  const isPaid = restToPay <= 0;
 
-        try {
-            //Que voulais-tu faire en mettant requestparams
-            const responses = await getSessionCoursePriceS(requestParams);
-    
-            if (responses.success) {
-                setStudentCourses(responses.courses);
-            } else console.log(responses.message)
-        } catch (error) {
-            console.error("Erreur : ", error);
-        }
-    }
+  return (
+    <div className="flex flex-col gap-5 mt-5">
 
-    const updateBillToDisplay = (year, session) => {
-        setBillToDisplay({
-            amount: "",
-            dateOfIssue: "",
-            deadLine: "",
-            dateOfPaiement: "",
-            sessionStudy: "",
-            yearStudy: "",
-            AmountPaid: "",
-            GeneralExpenses: "",
-            SportsAdministrationFees: "",
-            DentalInsurance: "",
-            InsuranceFee: "",
-            RefundsAndAdjustments: ""
-        });
-        for (let index = 0; index < studentBills.length; index++) {
-            //console.log(year,  studentBills[index].yearStudy, session,studentBills[index].sessionStudy);
-            if (studentBills[index].yearStudy == year && studentBills[index].sessionStudy == session) {
-                setBillToDisplay(studentBills[index]);
-                break;
-            }
-        }
-    }
-
-    const displayBillCourses = async (year, session) => {
-        setTotal(0);
-        await getCourses(year, session);
-        updateBillToDisplay(year, session);
-        if (billToDisplay.dateOfIssue.trim().length != 0) totalisation();
-        setDisplayBill(true);
-    }
-
-    const totalisation = () => {
-        let total = 0;
-        total += billToDisplay.generalExpenses || 0;
-        total += billToDisplay.sportsAdministrationFees || 0;
-        total += billToDisplay.dentalInsurance || 0;
-        total += billToDisplay.insuranceFees || 0;
-        total += billToDisplay.amount || 0;
-        total -= billToDisplay.refundsAndAdjustments || 0;
-        setTotal(total);
-    }
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return format(date, "dd MMMM yyyy", { locale: fr });
-    };
-
-    const displayAllBills = () => {
-        setDisplayBills(!displayBills);
-        setDisplaySessions1(false);
-        setDisplaySessions2(false);
-        setDisplaySessions3(false);
-        setDisplayBill(false);
-    }
-
-    const handleRowClick = (index, year, session) => {
-        setSelectedRowIndex(index);
-        displayBillCourses(year, session);
-    };
-
-    const goToPaymentPage = () => {
-        navigate('/payment/courses', { state: { billToDisplay } });
-    }
-
-    const calculateRestToPay = () => {
-        return total - (billToDisplay?.amountPaid || 0);
-    }
-
-    //Return
-    return (<>
-        <div>
-            <div>
-                <Header userCo = {userCo}/>
-            </div>
-
-            <div className="flex">
-                <div className="dash-div">
-                    <Dashboard  userCo = {userCo}/>
-                </div>
-
-                <div className="w-full">
-                    <div className="mt-4">
-                        <div className="flex w-full pb-2">
-                            <div className="w-1/3 text-center">
-                                <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
-                                    onClick={() => displayBillCourses(currentYear.toString(), "Hiver")}
-                                >Hiver</button>
-                            </div>
-                            <div className="w-1/3 text-center">
-                                <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
-                                    onClick={() => displayBillCourses(currentYear.toString(), "Été")}
-                                >Été</button>
-                            </div>
-                            <div className="w-1/3 text-center">
-                                <button className="bg-gray-300 text-black rounded-lg px-4 py-2"
-                                    onClick={() => displayBillCourses(currentYear.toString(), "Automne")}
-                                >Automne</button>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            { displayBill && (
-                                billToDisplay.dateOfIssue.trim().length == 0 ? (
-                                    <div className="border-2 border-sky-500">Aucune facture</div>
-                                ) : (
-                                    <div>
-                                        <div className="border-2 border-sky-500">
-                                            <div>Date d'émission : {formatDate(billToDisplay.dateOfIssue)}</div>
-                                            <div className="overflow-x-auto">
-                                                <Table>
-                                                    <Table.Head>
-                                                        <Table.HeadCell>Cours</Table.HeadCell>
-                                                        <Table.HeadCell>Prix</Table.HeadCell>
-                                                    </Table.Head>
-                                                    <Table.Body className="divide-y">
-                                                        { studentCourses.map((course, index) => (
-                                                            <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                    {course.sigle}
-                                                                </Table.Cell>
-                                                                <Table.Cell>{course.price}$</Table.Cell>
-                                                            </Table.Row>
-                                                        ))}
-                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Total
-                                                            </Table.Cell>
-                                                            <Table.Cell>{billToDisplay.amount}$</Table.Cell>
-                                                            <Table.Cell></Table.Cell>
-                                                        </Table.Row>
-                                                    </Table.Body>
-                                                </Table>
-                                            </div>
-                                        </div>
-                                        <div className="border-2 border-sky-500 mt-2">
-                                            <div className="overflow-x-auto">
-                                            <Table>
-                                                    <Table.Head>
-                                                        <Table.HeadCell>Autres frais</Table.HeadCell>
-                                                        <Table.HeadCell>Prix</Table.HeadCell>
-                                                        <Table.HeadCell>Détails</Table.HeadCell>
-                                                    </Table.Head>
-                                                    <Table.Body className="divide-y">
-                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Frais généraux
-                                                            </Table.Cell>
-                                                            <Table.Cell>{billToDisplay.generalExpenses}$</Table.Cell>
-                                                            <Table.Cell>
-                                                                <Tooltip content="Tooltip content" placement="right">
-                                                                    <HiInformationCircle className="h-4 w-4" />
-                                                                </Tooltip>
-                                                            </Table.Cell>
-                                                        </Table.Row>
-                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Frais d'administration sportive
-                                                            </Table.Cell>
-                                                            <Table.Cell>{billToDisplay.sportsAdministrationFees}$</Table.Cell>
-                                                            <Table.Cell>
-                                                                <Tooltip content="Tooltip content" placement="right">
-                                                                    <HiInformationCircle className="h-4 w-4" />
-                                                                </Tooltip>
-                                                            </Table.Cell>
-                                                        </Table.Row>
-                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Assurance dentaires
-                                                            </Table.Cell>
-                                                            <Table.Cell>{billToDisplay.dentalInsurance}$</Table.Cell>
-                                                            <Table.Cell>
-                                                                <Tooltip content="Tooltip content" placement="right">
-                                                                    <HiInformationCircle className="h-4 w-4" />
-                                                                </Tooltip>
-                                                            </Table.Cell>
-                                                        </Table.Row>
-                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Frais d'assurances
-                                                            </Table.Cell>
-                                                            <Table.Cell>{billToDisplay.insuranceFees}$</Table.Cell>
-                                                            <Table.Cell>
-                                                                <Tooltip content="Tooltip content" placement="right">
-                                                                    <HiInformationCircle className="h-4 w-4" />
-                                                                </Tooltip>
-                                                            </Table.Cell>
-                                                        </Table.Row>
-                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Remboursements et ajustements
-                                                            </Table.Cell>
-                                                            <Table.Cell>{billToDisplay.refundsAndAdjustments}$</Table.Cell>
-                                                            <Table.Cell></Table.Cell>
-                                                        </Table.Row>
-                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Total
-                                                            </Table.Cell>
-                                                            <Table.Cell>{total}$</Table.Cell>
-                                                            <Table.Cell></Table.Cell>
-                                                        </Table.Row>
-                                                        <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                            Solde en date du {formatDate(new Date())}
-                                                            </Table.Cell>
-                                                            <Table.Cell>{calculateRestToPay()}$</Table.Cell>
-                                                            <Table.Cell></Table.Cell>
-                                                        </Table.Row>
-                                                    </Table.Body>
-                                                </Table>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Button className="mt-2" gradientMonochrome="info" onClick={() => goToPaymentPage()}>
-                                                Payer cette facture&nbsp;
-                                                <HiOutlineCash className="mr-2 h-5 w-5" />
-                                            </Button>
-                                        </div>
-                                        {/*Couleur verte et message votre solde est de 0*/}
-                                        {/*Couleur jaune avec message reste a payer ...*/}
-                                        <div className="border-2 border-red-500 my-2 bg-red-200">
-                                            <h2>PAIEMENT DU AVANT LE {formatDate(billToDisplay.deadLine)}.</h2>
-                                            <p>Des frais de 52$ seront ajoutés aux frais des prochaines sessions si le paiement est reçu après cette date.</p>
-                                        </div>
-                                    </div>
-                                )
-                            )}
-                        </div>
-                    </div>
-
-                    <div>
-                        <Button gradientDuoTone="purpleToBlue" className="w-full rounded-none mt-2"
-                            onClick={() => displayAllBills()}
-                        >
-                            Afficher toutes mes factures
-                            <HiClipboardList className="mr-2 h-5 w-5" />
-                        </Button>
-                    </div>
-
-                    <div>
-                        { displayBills && (
-                            <Table>
-                                <Table.Head>
-                                    <Table.HeadCell>Factures</Table.HeadCell>
-                                    <Table.HeadCell>Date</Table.HeadCell>
-                                </Table.Head>
-                                <Table.Body className="divide-y">
-                                    { studentBills.map((bill, index) => (
-                                        <React.Fragment key={index}>
-                                        <Table.Row onClick={() => handleRowClick(index, bill.yearStudy, bill.sessionStudy)} 
-                                            key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                            <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                {bill.sessionStudy} {bill.yearStudy}
-                                            </Table.Cell>
-                                            <Table.Cell>{formatDate(bill.dateOfIssue)}</Table.Cell>
-                                        </Table.Row>
-                                        { selectedRowIndex == index && displayBill && billToDisplay.dateOfIssue != "" && (
-                                            <div>
-                                                <div className="border-2 border-sky-500 mt-2">
-                                                    <div className="overflow-x-auto">
-                                                        <Table>
-                                                            <Table.Head>
-                                                                <Table.HeadCell>Cours</Table.HeadCell>
-                                                                <Table.HeadCell>Prix</Table.HeadCell>
-                                                                <Table.HeadCell>Détails</Table.HeadCell>
-                                                            </Table.Head>
-                                                            <Table.Body className="divide-y">
-                                                                { studentCourses.map((course, index) => (
-                                                                    <Table.Row key={index} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                            {course.courseName}
-                                                                        </Table.Cell>
-                                                                        <Table.Cell>{course.price}$</Table.Cell>
-                                                                        <Table.Cell></Table.Cell>
-                                                                    </Table.Row>
-                                                                ))}
-                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                    Total
-                                                                    </Table.Cell>
-                                                                    <Table.Cell>{billToDisplay.amount}$</Table.Cell>
-                                                                    <Table.Cell></Table.Cell>
-                                                                </Table.Row>
-                                                            </Table.Body>
-                                                        </Table>
-                                                    </div>
-                                                </div>
-                                                <div className="border-2 border-sky-500 mt-2">
-                                                    <div>Frais généraux</div>
-                                                    <div className="overflow-x-auto">
-                                                    <Table>
-                                                            <Table.Head>
-                                                                <Table.HeadCell>Intitulés</Table.HeadCell>
-                                                                <Table.HeadCell>Prix</Table.HeadCell>
-                                                                <Table.HeadCell>Détails</Table.HeadCell>
-                                                            </Table.Head>
-                                                            <Table.Body className="divide-y">
-                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                    Frais généraux
-                                                                    </Table.Cell>
-                                                                    <Table.Cell>10 000$</Table.Cell>
-                                                                    <Table.Cell></Table.Cell>
-                                                                </Table.Row>
-                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                    Frais d'administration sportive
-                                                                    </Table.Cell>
-                                                                    <Table.Cell>10 000$</Table.Cell>
-                                                                    <Table.Cell></Table.Cell>
-                                                                </Table.Row>
-                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                    Assurance dentaires
-                                                                    </Table.Cell>
-                                                                    <Table.Cell>10 000$</Table.Cell>
-                                                                    <Table.Cell></Table.Cell>
-                                                                </Table.Row>
-                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                    Frais d'assurances
-                                                                    </Table.Cell>
-                                                                    <Table.Cell>10 000$</Table.Cell>
-                                                                    <Table.Cell></Table.Cell>
-                                                                </Table.Row>
-                                                                <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                                                    <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                                                    Total
-                                                                    </Table.Cell>
-                                                                    <Table.Cell>10 000$</Table.Cell>
-                                                                    <Table.Cell></Table.Cell>
-                                                                </Table.Row>
-                                                            </Table.Body>
-                                                        </Table>
-                                                    </div>
-                                                </div>
-                                                <div className="border-2 border-red-500 my-2 bg-red-200">
-                                                    <h2>PAIEMENT DU AVANT LE {formatDate(billToDisplay.deadLine)}.</h2>
-                                                    <p>Des frais de 52$ seront ajoutés aux frais des prochaines sessions si le paiement est reçu après cette date.</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                        </React.Fragment>
-                                    ))}
-                                </Table.Body>
-                            </Table>
-                        )}
-                    </div>
-                </div>
-            </div>
+      {/* Statut paiement */}
+      {isPaid ? (
+        <div className="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 text-sm font-medium">
+          <HiCheckCircle className="w-5 h-5 shrink-0" />
+          Facture réglée — solde à zéro.
         </div>
-    </>)
-}
+      ) : (
+        <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-4">
+          <HiExclamationCircle className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="text-sm">
+            <p className="font-semibold">Paiement dû avant le {fmt(bill.deadLine)}</p>
+            <p className="text-red-600 mt-0.5">Des frais de 52 $ seront ajoutés si le paiement est reçu après cette date.</p>
+          </div>
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-2 gap-5">
+
+        {/* Cours */}
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-100">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Cours inscrits</p>
+            <p className="text-xs text-slate-400 mt-0.5">Émission : {fmt(bill.dateOfIssue)}</p>
+          </div>
+          <table className="w-full">
+            <tbody>
+              {courses.map((c, i) => (
+                <TRow key={i} label={`${c.sigle}${c.courseName ? ` — ${c.courseName}` : ""}`} value={fmt$(c.price)} muted={i % 2 === 1} />
+              ))}
+              <TRow label="Sous-total cours" value={fmt$(bill.amount)} bold />
+            </tbody>
+          </table>
+        </div>
+
+        {/* Autres frais */}
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-100">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Autres frais</p>
+          </div>
+          <table className="w-full">
+            <tbody>
+              {OTHER_FEES.map((f, i) => (
+                <TRow key={f.key} label={f.label} value={fmt$(bill[f.key])} muted={i % 2 === 1} tip={f.tip} />
+              ))}
+              {bill.refundsAndAdjustments > 0 && (
+                <TRow label="Remboursements et ajustements" value={`− ${fmt$(bill.refundsAndAdjustments)}`} muted />
+              )}
+              <TRow label="Total général" value={fmt$(total)} bold />
+              <TRow label={`Montant payé`} value={fmt$(bill.amountPaid)} muted />
+              <TRow label={`Solde au ${fmt(new Date())}`} value={fmt$(restToPay)} bold />
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {!isPaid && (
+        <div className="flex justify-end">
+          <button
+            onClick={onPay}
+            className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+          >
+            <HiOutlineCash className="w-4 h-4" />
+            Payer cette facture
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ── Page principale ──────────────────────────────────────────────────────────
+const Bill = ({ userCo, userPermanentCode }) => {
+  const navigate = useNavigate();
+  const currentYear = new Date().getFullYear().toString();
+
+  const [studentBills, setStudentBills] = useState([]);
+  const [activeSession, setActiveSession] = useState("Hiver");
+  const [studentCourses, setStudentCourses] = useState([]);
+  const [billToDisplay, setBillToDisplay] = useState(null);
+  const [total, setTotal] = useState(0);
+  const [expandedBill, setExpandedBill] = useState(null); // pour l'historique
+  const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (userPermanentCode?.trim()) getStudentBills();
+  }, []);
+
+  useEffect(() => {
+    loadSession(currentYear, activeSession);
+  }, [studentBills, activeSession]);
+
+  const getStudentBills = async () => {
+    setIsLoading(true);
+    try {
+      const bills = await getStudentBillsS(userPermanentCode);
+      setStudentBills(bills);
+    } catch (e) { console.error(e); }
+    finally { setIsLoading(false); }
+  };
+
+  const getCourses = async (year, session) => {
+    try {
+      const res = await getSessionCoursePriceS({ permanentCode: userPermanentCode, yearCourse: year, sessionCourse: session });
+      if (res.success) setStudentCourses(res.courses);
+    } catch (e) { console.error(e); }
+  };
+
+  const calcTotal = (bill) => {
+    if (!bill) return 0;
+    let t = 0;
+    t += bill.generalExpenses || 0;
+    t += bill.sportsAdministrationFees || 0;
+    t += bill.dentalInsurance || 0;
+    t += bill.insuranceFees || 0;
+    t += bill.amount || 0;
+    t -= bill.refundsAndAdjustments || 0;
+    return t;
+  };
+
+  const loadSession = async (year, session) => {
+    const found = studentBills.find((b) => b.yearStudy == year && b.sessionStudy === session);
+    if (found) {
+      setBillToDisplay(found);
+      setTotal(calcTotal(found));
+      await getCourses(year, session);
+    } else {
+      setBillToDisplay(null);
+      setStudentCourses([]);
+      setTotal(0);
+    }
+  };
+
+  const handleSessionClick = (session) => {
+    setActiveSession(session);
+  };
+
+  const handleHistoryRowClick = async (bill) => {
+    if (expandedBill?.yearStudy === bill.yearStudy && expandedBill?.sessionStudy === bill.sessionStudy) {
+      setExpandedBill(null);
+      return;
+    }
+    setExpandedBill(bill);
+    setTotal(calcTotal(bill));
+    await getCourses(bill.yearStudy, bill.sessionStudy);
+  };
+
+  return (
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Sidebar userCo={userCo} profilePic={userPicture} />
+
+      <main className="flex-1 overflow-y-auto">
+        {/* Top bar */}
+        <div className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Mes factures</p>
+            <p className="text-xs text-slate-400">Session {currentYear}</p>
+          </div>
+        </div>
+
+        <div className="p-8 flex flex-col gap-6 max-w-5xl">
+
+          {/* ── Onglets session ── */}
+          <div className="bg-white border border-slate-200 rounded-xl p-6">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-4">Session {currentYear}</p>
+            <div className="flex gap-2 mb-1">
+              {SESSIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleSessionClick(s)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    activeSession === s
+                      ? "bg-blue-800 text-white border-blue-800"
+                      : "bg-white text-slate-600 border-slate-200 hover:border-blue-700 hover:text-blue-800"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+
+            {isLoading ? (
+              <div className="mt-6 text-sm text-slate-400">Chargement...</div>
+            ) : billToDisplay ? (
+              <BillDetail
+                bill={billToDisplay}
+                courses={studentCourses}
+                total={total}
+                onPay={() => navigate("/payment/courses", { state: { billToDisplay } })}
+              />
+            ) : (
+              <div className="mt-6 text-sm text-slate-400">Aucune facture pour la session {activeSession} {currentYear}.</div>
+            )}
+          </div>
+
+          {/* ── Historique ── */}
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+            <button
+              onClick={() => setHistoryExpanded(!historyExpanded)}
+              className="w-full flex items-center justify-between px-6 py-4 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <span>Historique de toutes mes factures</span>
+              {historyExpanded ? <HiChevronUp className="w-4 h-4" /> : <HiChevronDown className="w-4 h-4" />}
+            </button>
+
+            {historyExpanded && (
+              <div className="border-t border-slate-100">
+                {studentBills.length === 0 ? (
+                  <p className="px-6 py-4 text-sm text-slate-400">Aucune facture trouvée.</p>
+                ) : (
+                  studentBills.map((bill, i) => {
+                    const isOpen = expandedBill?.yearStudy === bill.yearStudy && expandedBill?.sessionStudy === bill.sessionStudy;
+                    const restToPay = calcTotal(bill) - (bill.amountPaid || 0);
+                    return (
+                      <div key={i} className="border-b border-slate-100 last:border-0">
+                        <button
+                          onClick={() => handleHistoryRowClick(bill)}
+                          className="w-full flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors"
+                        >
+                          <div className="text-left">
+                            <p className="text-sm font-medium text-slate-900">{bill.sessionStudy} {bill.yearStudy}</p>
+                            <p className="text-xs text-slate-400">Émission : {fmt(bill.dateOfIssue)}</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`text-xs font-medium border px-2 py-0.5 rounded-full ${
+                              restToPay <= 0
+                                ? "bg-green-50 text-green-700 border-green-100"
+                                : "bg-amber-50 text-amber-700 border-amber-100"
+                            }`}>
+                              {restToPay <= 0 ? "Réglée" : `Solde : ${fmt$(restToPay)}`}
+                            </span>
+                            {isOpen ? <HiChevronUp className="w-4 h-4 text-slate-400" /> : <HiChevronDown className="w-4 h-4 text-slate-400" />}
+                          </div>
+                        </button>
+                        {isOpen && (
+                          <div className="px-6 pb-6">
+                            <BillDetail
+                              bill={bill}
+                              courses={studentCourses}
+                              total={calcTotal(bill)}
+                              onPay={() => navigate("/payment/courses", { state: { billToDisplay: bill } })}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
 
 export default Bill;

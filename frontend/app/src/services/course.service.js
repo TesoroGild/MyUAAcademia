@@ -213,6 +213,17 @@ export const getClassesCoursesS = async () => {
     }
 }
 
+export const getClassesCoursesByProgramS = async (title) => {
+    console.log("COURSE SERVICE : GET CLASSES-COURSES-BY-PROGRAM");
+    try {
+        const response = await axios.get(`${backend_url}/ClasseCourse/classe-course/${title}`);
+        return response.data;
+    } catch (error) {
+        console.error('Erreur :', error);
+        throw error;
+    }
+}
+
 export const getProgramSessionCoursesS = async (sessionProgram) => {
     console.log("COURSE SERVICE : GET COURSES BY SESSION YEAR");
     try {

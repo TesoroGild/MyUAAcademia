@@ -1,120 +1,207 @@
-import "./login.css";
-import React from 'react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Toast, ToastToggle } from "flowbite-react";
+import { HiExclamation, HiX } from "react-icons/hi";
+import { employeeLogin, userLogin } from "../../services/auth.service";
+import uaLogo from '../../assets/img/UA_Logo2.jpg';
+import { Avatar } from "flowbite-react";
 
-//Services
-import { userLogin } from '../../services/auth.service';
+const CONFIG = {
+  employee: {
+    title: "Espace Employé",
+    subtitle: "Connectez-vous avec votre code employé.",
+    codeLabel: "Code employé",
+    codePlaceholder: "ex. ABCD12345678",
+    codeHint: "Votre code vous a été fourni par l'administration.",
+    loginFn: employeeLogin,
+    roleRedirects: {
+      admin: "/adminspace",
+      default: "/professorspace",
+    },
+    setCoKey: "employee", // pour savoir quel setter appeler
+  },
+  user: {
+    title: "Espace Étudiant",
+    subtitle: "Connectez-vous avec votre matricule étudiant.",
+    codeLabel: "Matricule",
+    codePlaceholder: "ex. STU20240001",
+    codeHint: "Votre matricule figure sur votre carte étudiante.",
+    loginFn: userLogin,
+    roleRedirects: {
+      default: "/studentspace",
+    },
+    setCoKey: "user",
+  },
+};
 
-function Login ({ setUserCo }) {
-    //States
-    const [loginForm, setLoginForm] = useState({
-        permanentCode: "",
-        pwd: ""
-    });
-    const [permanentCodeFocused, setPermanentCodeFocused] = useState(false);
-    const [passwordFocused, setPasswordFocused] = useState(false);
+function Login({ type, setEmployeeCo, setUserCo }) {
+  const config = CONFIG[type];
+  const navigate = useNavigate();
 
-    //Functions
-    const handlePCFocus = (event) => {
-        setPermanentCodeFocused(true);
+  const [form, setForm] = useState({ code: "", pwd: "" });
+  const [codeFocused, setCodeFocused] = useState(false);
+  const [pwdFocused, setPwdFocused] = useState(false);
+  const [errorToast, setErrorToast] = useState({ show: false, message: "" });
+  const [warnToast, setWarnToast] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const showError = (msg) => {
+    setErrorToast({ show: true, message: msg });
+    setTimeout(() => setErrorToast({ show: false, message: "" }), 5000);
+  };
+
+  const onLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = type === "user" ? { permanentCode: form.code, pwd: form.pwd } : { code: form.code, pwd: form.pwd };
+
+      const result = await config.loginFn(payload);
+
+      if (result.success) {
+        const user = result.userConnected;
+        
+        if (config.setCoKey === "employee") {
+          setEmployeeCo((prev) => ({ ...prev, ...user }));
+        } else setUserCo((prev) => ({ ...prev, ...user }));
+
+        localStorage.setItem("justLoggedIn", true);
+        localStorage.setItem("userRole", user.userRole);
+
+        const role = user.userRole.toLowerCase();
+        const redirect = config.roleRedirects[role] ?? config.roleRedirects.default;
+        navigate(redirect);
+      } else {
+        showError(result.message);
+      }
+    } catch {
+      setWarnToast(true);
+      setTimeout(() => setWarnToast(false), 5000);
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const handlePFocus = (event) => {
-        setPasswordFocused(true);
-    }
+  return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
 
-    const handleLoginChange = (event) => {
-        setLoginForm({ ...loginForm, [event.target.name]: event.target.value });
-    }
-
-    const isPermanentCodeValid = (code) => {
-        const regex = /^[A-Z]{4}\d{8}$/;
-        return regex.test(code);
-    }
-
-    const navigate = useNavigate();
-
-    const onLogin = async (event) => {
-        event.preventDefault();
-        try {
-          const userCredentials = {
-            permanentCode: loginForm.permanentCode,
-            pwd: loginForm.pwd
-          };
-          
-          const result = await userLogin(userCredentials);
-
-          if (result.success) {
-            await setUserCo((prev) => ({
-                ...prev,
-                ...result.userConnected
-            }));
-            localStorage.setItem('justLoggedIn', 'true');
-            localStorage.setItem('userRole', result.userConnected.userRole);
-            if (result.userConnected.userRole.toLowerCase() == "professor") {
-                navigate('/professorspace');
-            } else {
-                navigate('/studentspace');
-            } 
-            console.log("L'utilisateur est connecté");
-            setPermanentCodeFocused(true);
-            setPasswordFocused(true);
-            setLoginForm({ permanentCode: "", pwd: "" });
-          } else {
-            alert(result.message);
-          }
-          
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    //Return
-    return (<>
-        <div>
-            <div></div>
-            <div>
-                <form onSubmit={onLogin}>
-                    <div className="w-full flex p-4">
-                        <label htmlFor="permanentCode" className="w-1/3">Code Permanent :</label>
-                        <div className="w-1/3">
-                        {/* pattern="^[A-Z]{4}\d{8}$"*/}
-                            <input type="text" id="permanentCode" name="permanentCode" placeholder="Ex: AAAA64011145"
-                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                onChange={handleLoginChange} required
-                                onBlur={handlePCFocus}
-                                focused={permanentCodeFocused.toString()}
-                            />
-                            <span className="text-xs font-light text-red-500 format-error">
-                                Format invalid!
-                            </span>
-                        </div>
-                        <p className="w-1/3">Explication code permanent</p>
-                    </div>
-                    <div className="w-full flex p-4">
-                        <label className="w-1/3" htmlFor="pwd">Mot de passe :</label>
-                        <div className="w-1/3">
-                            <input type="password" id="pwd" name="pwd" placeholder="Password" 
-                                className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                onChange={handleLoginChange} required
-                                onBlur={handlePFocus}
-                                focused={passwordFocused.toString()}
-                            />
-                            <span className="text-xs font-light text-red-500 empty-p-error">
-                                Veuillez saisir le mot de passe.
-                            </span>
-                        </div>
-                        <p className="w-1/3">Explication password</p>
-                    </div>
-                    <button type="submit" disabled={!loginForm.permanentCode || !loginForm.pwd}
-                        className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                        Connexion
-                    </button>
-                </form>
+      {/* Toasts */}
+      <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+        {warnToast && (
+          <Toast>
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500">
+              <HiExclamation className="h-5 w-5" />
             </div>
+            <div className="ml-3 text-sm font-normal">
+              Impossible de contacter le serveur. Veuillez réessayer.
+            </div>
+            <ToastToggle />
+          </Toast>
+        )}
+        {errorToast.show && (
+          <Toast>
+            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500">
+              <HiX className="h-5 w-5" />
+            </div>
+            <div className="ml-3 text-sm font-normal">{errorToast.message}</div>
+            <ToastToggle />
+          </Toast>
+        )}
+      </div>
+
+      {/* Card */}
+      <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-sm p-8">
+
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3">
+                          <Avatar img={uaLogo} bordered size="sm" />
+                          <span className="font-semibold text-slate-800 text-sm tracking-wide uppercase">
+                              MyUA Academia
+                          </span>
+                    </div>
+          <h1 className="text-xl font-bold text-slate-900">{config.title}</h1>
+          <p className="text-sm text-slate-500 mt-1">{config.subtitle}</p>
         </div>
-    </>)
+
+        {/* Form */}
+        <form onSubmit={onLogin} className="flex flex-col gap-5">
+
+          {/* Code */}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="code" className="text-sm font-medium text-slate-700">
+              {config.codeLabel}
+            </label>
+            <input
+              type="text"
+              id="code"
+              name="code"
+              placeholder={config.codePlaceholder}
+              value={form.code}
+              onChange={(e) => setForm({ ...form, code: e.target.value })}
+              onBlur={() => setCodeFocused(true)}
+              required
+              className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition"
+            />
+            {codeFocused && !form.code && (
+              <span className="text-xs text-red-500">Ce champ est requis.</span>
+            )}
+            <span className="text-xs text-slate-400">{config.codeHint}</span>
+          </div>
+
+          {/* Mot de passe */}
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="pwd" className="text-sm font-medium text-slate-700">
+              Mot de passe
+            </label>
+            <input
+              type="password"
+              id="pwd"
+              name="pwd"
+              placeholder="••••••••"
+              value={form.pwd}
+              onChange={(e) => setForm({ ...form, pwd: e.target.value })}
+              onBlur={() => setPwdFocused(true)}
+              required
+              className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition"
+            />
+            {pwdFocused && !form.pwd && (
+              <span className="text-xs text-red-500">
+                Veuillez saisir votre mot de passe.
+              </span>
+            )}
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={!form.code || !form.pwd || loading}
+            className="w-full bg-blue-800 hover:bg-blue-900 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg py-2.5 text-sm transition-colors flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                </svg>
+                Connexion...
+              </>
+            ) : (
+              "Se connecter"
+            )}
+          </button>
+        </form>
+
+        {/* Back */}
+        <button
+          onClick={() => navigate("/")}
+          className="mt-6 w-full text-center text-xs text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          ← Retour à l'accueil
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default Login;

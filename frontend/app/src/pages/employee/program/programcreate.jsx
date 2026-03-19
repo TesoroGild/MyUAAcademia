@@ -1,324 +1,337 @@
-//Reusable
-import AdminDashboard from "../../dashboard/admindashboard";
-import AdminHeader from "../../header/adminheader";
-
-//React
+import Sidebar from "../../sidebar/sidebar";
+import adminPicture from "../../../assets/img/Admin.jpg";
 import React, { useEffect, useState } from "react";
-import { Button, Table, Toast } from "flowbite-react";
-import { Tooltip } from "flowbite-react"
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
+import { HiCheck, HiPencil, HiTrash, HiPlus, HiX, HiExclamation } from "react-icons/hi";
+import { createProgramS, getProgramsS } from "../../../services/program.service";
 
-//Services
-import { createProgramS, getProgramsS, programRegistrationS } from "../../../services/program.service";
-import { getStudentsS } from "../../../services/user.service";
+// ── Options formulaire ────────────────────────────────────────────────────────
+const GRADES = ["Certificat", "BTS", "Baccalauréat", "Master", "Doctorat"];
+const DEPARTMENTS = [
+  "Art visuel et médiatique", "Enseignement", "Informatique",
+  "Mathématiques", "Ressources Humaines",
+];
+const FACULTIES = [
+  "Arts", "Communication", "Développement durable", "Éducation",
+  "Gestion", "Langues", "Santé", "Science politique et droit",
+  "Sciences", "Sciences humaines",
+];
 
-//Icons
-import { HiCheck, HiExclamation, HiInformationCircle, HiOutlinePlusSm  } from "react-icons/hi";
+// ── Champ formulaire réutilisable ─────────────────────────────────────────────
+const Field = ({ label, error, children }) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</label>
+    {children}
+    {error && <p className="text-xs text-red-600">{error}</p>}
+  </div>
+);
 
-const ProgramCreate = ({employeeCo}) => {
-    //States
-    const {
-            register,
-            setValue,
-            control,
-            handleSubmit,
-            reset,
-            formState: { errors }
-        } = useForm({
-            defaultValues: {
-                title: "",
-                programName: "",
-                descriptions: "",
-                grade: "",
-                department: "",
-                faculty: "",
-                employeeCode: employeeCo.code
-            }
-        });
-    const [programs, setPrograms] = useState([]);
-    const [students, setStudents] = useState([]);
-    const [displayInscriptionCreate, setDisplayInscriptionCreate] = useState(false);
-    const [displayInscriptionModify, setDisplayInscriptionModify] = useState(false);
-    const [displayInscriptionDelete, setDisplayInscriptionDelete] = useState(false);
-    const [showProgramAdd, setShowProgramAdd] = useState(false);
+const inputCls = "border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition w-full";
 
-    //Functions
-    useEffect(() => {
-        //getPrograms();
-        //getStudents();
-    }, []);
+// ── Alert inline ──────────────────────────────────────────────────────────────
+const Alert = ({ type, message }) => {
+  const s = {
+    success: "bg-green-50 border-green-200 text-green-700",
+    error:   "bg-red-50 border-red-200 text-red-700",
+    warning: "bg-amber-50 border-amber-200 text-amber-700",
+  }[type];
+  const Icon = type === "success" ? HiCheck : type === "warning" ? HiExclamation : HiX;
+  return (
+    <div className={`flex items-center gap-2 border rounded-lg px-4 py-3 text-sm ${s}`}>
+      <Icon className="w-4 h-4 shrink-0" />
+      {message}
+    </div>
+  );
+};
 
-    const getPrograms = async () => {
-        try {
-            const programs = await getProgramsS();
-            setPrograms(programs);
-        } catch (error) {
-            console.log(error);
-        }
+// ── Page principale ───────────────────────────────────────────────────────────
+const ProgramCreate = ({ employeeCo }) => {
+  const [programs, setPrograms]   = useState([]);
+  const [panel, setPanel]         = useState(null);   // null | "create" | "edit" | "delete"
+  const [selected, setSelected]   = useState(null);   // programme sélectionné pour edit/delete
+  const [alert, setAlert]         = useState(null);   // { type, message }
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { register, handleSubmit, reset, setValue, formState: { errors } } = useForm({
+    defaultValues: {
+      title: "", programName: "", descriptions: "",
+      grade: "", department: "", faculty: "",
+      employeeCode: employeeCo?.code ?? "",
+    },
+  });
+
+  useEffect(() => { getPrograms(); }, []);
+
+  const showAlert = (type, message) => {
+    setAlert({ type, message });
+    setTimeout(() => setAlert(null), 5000);
+  };
+
+  const getPrograms = async () => {
+    try {
+      const list = await getProgramsS();
+      setPrograms(list);
+    } catch (e) { console.error(e); }
+  };
+
+  const openCreate = () => {
+    reset({ title: "", programName: "", descriptions: "", grade: "", department: "", faculty: "", employeeCode: employeeCo?.code ?? "" });
+    setSelected(null);
+    setPanel("create");
+  };
+
+  const openEdit = (program) => {
+    setSelected(program);
+    setValue("title",        program.title);
+    setValue("programName",  program.programName);
+    setValue("descriptions", program.descriptions);
+    setValue("grade",        program.grade);
+    setValue("department",   program.department);
+    setValue("faculty",      program.faculty);
+    setPanel("edit");
+  };
+
+  const openDelete = (program) => {
+    setSelected(program);
+    setPanel("delete");
+  };
+
+  const closePanel = () => { setPanel(null); setSelected(null); };
+
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    try {
+      const result = await createProgramS(data);
+      if (result) {
+        showAlert("success", `Programme "${data.title}" créé avec succès.`);
+        reset();
+        setPanel(null);
+        await getPrograms();
+      } else {
+        showAlert("error", "Une erreur est survenue lors de la création.");
+      }
+    } catch (e) {
+      console.error(e);
+      showAlert("warning", "Impossible de contacter le serveur.");
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const getStudents = async () => {
-        try {
-            const studentsList = await getStudentsS();
-            setStudents(studentsList);
-            setFilteredStudents(studentsList);
-        } catch (error) {
-            console.log(error);
-        }
-    }
+  const GRADE_BADGE = {
+    "Certificat":   "bg-slate-100 text-slate-600 border-slate-200",
+    "BTS":          "bg-teal-50 text-teal-700 border-teal-100",
+    "Baccalauréat": "bg-blue-50 text-blue-700 border-blue-100",
+    "Master":       "bg-violet-50 text-violet-700 border-violet-100",
+    "Doctorat":     "bg-amber-50 text-amber-700 border-amber-100",
+  };
 
-    const createProgram = async (programToCreate) => {
-        try {
-            const createdProgram = await createProgramS(programToCreate);
+  return (
+    <div className="flex h-screen bg-slate-50 overflow-hidden">
+      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
 
-            if (createdProgram !== null && createdProgram !== undefined) {
-                //await getPrograms();
-                reset();
-                setShowProgramAdd(true);
-                setTimeout(() => {
-                    setShowProgramAdd(false);
-                }, 5000);
-            } else {
-                setTitleFocused(true);
-                setProgramNameFocused(true);
-                setDescriptionsFocused(true);
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
+      <main className="flex-1 flex overflow-hidden">
 
-    const displayInscription1 = () => {
-        setDisplayInscriptionCreate(!displayInscriptionCreate);
-        setDisplayInscriptionModify(false);
-        setDisplayInscriptionDelete(false);
-    }
+        {/* ── Colonne liste ── */}
+        <div className={`flex flex-col overflow-hidden transition-all duration-200 ${panel ? "w-1/2 border-r border-slate-200" : "w-full"}`}>
 
-    const displayInscription2 = () => {
-        setDisplayInscriptionModify(!displayInscriptionModify);
-        setDisplayInscriptionCreate(false);
-        setDisplayInscriptionDelete(false);
-    }
-
-    const displayInscription3 = () => {
-        setDisplayInscriptionDelete(!displayInscriptionDelete);
-        setDisplayInscriptionCreate(false);
-        setDisplayInscriptionModify(false);
-    }
-
-    //Return
-    return (<>
-        <div className="flex">
-            <div className="dash-div">
-                <AdminDashboard employeeCo = {employeeCo} />
+          {/* Top bar */}
+          <div className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Gestion des programmes</p>
+              <p className="text-xs text-slate-400">{programs.length} programme{programs.length > 1 ? "s" : ""}</p>
             </div>
-                
-            <div className="w-full">
-                <div>
-                    <AdminHeader/>
-                </div>
+            <button
+              onClick={openCreate}
+              className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+            >
+              <HiPlus className="w-4 h-4" />
+              Nouveau programme
+            </button>
+          </div>
 
-                <div>
-                    <div className="flex">
-                        <div className="w-2/3">
-                            GESTION DES PROGRAMMES
-                        </div>
-
-                        <div>
-                            { showProgramAdd && (
-                                <Toast>
-                                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
-                                        <HiCheck className="h-5 w-5" />
-                                    </div>
-                                    <div className="ml-3 text-sm font-normal">Programme ajouté.</div>
-                                    <Toast.Toggle />
-                                </Toast>
-                            )}
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className="flex pt-4">
-                            <div className="w-1/3">
-                                <Button onClick={() => displayInscription1()}>
-                                    Nouveau
-                                </Button>
-                            </div>
-
-                            <div className="w-1/3">
-                                <Button onClick={() => displayInscription2()}>
-                                    Modifier
-                                </Button>
-                            </div>
-
-                            <div>
-                                <Button onClick={() => displayInscription3()}>
-                                    Supprimer
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-
-                    { displayInscriptionCreate && (
-                        <div>
-                            <form onSubmit={handleSubmit(createProgram)}>
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="title" className="w-1/3">Titre :</label>
-                                    <div className="w-1/3">
-                                        <input type="text" id="title" name="title"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            {...register("title", { required: "Le titre est requis!" })}
-                                        />
-                                        {errors.title && (
-                                            <p className="text-red-500 text-sm">{errors.title.message}</p>   
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="programName" className="w-1/3">Nom :</label>
-                                    <div className="w-1/3">
-                                        <input type="text" id="programName" name="programName"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            {...register("programName", { required: "Le nom du programme est requis!" })}
-                                        />
-                                        {errors.programName && (
-                                            <p className="text-red-500 text-sm">{errors.programName.message}</p>   
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="descriptions" className="w-1/3">Description :</label>
-                                    <div className="w-1/3">
-                                        <textarea id="descriptions" name="descriptions"
-                                            className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            {...register("descriptions", { required: "La description du programme est requise!" })}
-                                        />
-                                        {errors.descriptions && (
-                                            <p className="text-red-500 text-sm">{errors.descriptions.message}</p>   
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="grade" className="w-1/3">Niveau d'étude :</label>
-                                    <div className="w-1/3">
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="grade" name="grade"
-                                            {...register("grade", { required: "Le grade est requis!" })}
-                                        >
-                                            <option value="" disabled>Sélectionnez le niveau d'étude</option>
-                                            <option value="Certificat">Certificat</option>
-                                            <option value="Baccalauréat">Baccalauréat</option>
-                                            <option value="Master">Master</option>
-                                            <option value="Doctorat">Doctorat</option>
-                                        </select>
-                                        {errors.grade && (
-                                            <p className="text-red-500 text-sm">{errors.grade.message}</p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="department" className="w-1/3">Département :</label>
-                                    <div className="w-1/3">
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="department" name="department"
-                                            {...register("department", { required: "Le département est requis!" })}
-                                        >
-                                            <option value="" disabled>Sélectionnez le département</option>
-                                            <option value="Art visuel et médiatique">Art visuel et médiatique</option>
-                                            <option value="Enseignement">Enseignement</option>
-                                            <option value="Informatique">Informatique</option>
-                                            <option value="Mathématiques">Mathématiques</option>
-                                            <option value="Ressources Humaines">Ressources Humaines</option>
-                                        </select>
-                                        {errors.department && (
-                                            <p className="text-red-500 text-sm">{errors.department.message}</p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <div className="w-full flex p-4">
-                                    <label htmlFor="faculty" className="w-1/3">Faculté :</label>
-                                    <div className="w-1/3">
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                            id="faculty" name="faculty"
-                                            {...register("faculty", { required: "La faculté est requise!" })}
-                                        >
-                                            <option value="" disabled>Sélectionnez la Faculté</option>
-                                            <option value="Arts">Arts</option>
-                                            <option value="Communication">Communication</option>
-                                            <option value="Développement durable">Développement durable</option>
-                                            <option value="Éducation">Éducation</option>
-                                            <option value="Gestion">Gestion</option>
-                                            <option value="Langues">Langues</option>
-                                            <option value="Santé">Santé</option>
-                                            <option value="Science politique et droit">Science politique et droit</option>
-                                            <option value="Sciences">Sciences</option>
-                                            <option value="Sciences humaine">Sciences humaine</option>
-                                        </select>
-                                        {errors.sexe && (
-                                            <p className="text-red-500 text-sm">{errors.sexe.message}</p>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Tooltip content="Infos">
-                                            <HiInformationCircle className="h-4 w-4" />
-                                        </Tooltip>
-                                    </div>
-                                </div>
-
-                                <button type="submit"
-                                className="w-full text-white bg-[#e7cc96] disabled:hover:bg-[#e7cc96] hover:bg-[#e7cc96]  focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-[#e7cc96] dark:hover:bg-[#e7cc96] dark:focus:ring-primary-800 disabled:opacity-50">
-                                    Créer
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    { displayInscriptionModify && (
-                        <div>
-                            Modifier.
-                        </div>
-                    )}
-
-                    { displayInscriptionDelete && (
-                        <div>
-                            Delete.
-                        </div>
-                    )}
-                </div>
-            
+          {/* Alertes */}
+          {alert && (
+            <div className="px-8 pt-4">
+              <Alert type={alert.type} message={alert.message} />
             </div>
+          )}
+
+          {/* Liste */}
+          <div className="flex-1 overflow-y-auto px-8 py-6">
+            {programs.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-40 text-slate-400 text-sm">
+                Aucun programme enregistré.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {programs.map((p) => (
+                  <div
+                    key={p.title}
+                    className={`bg-white border rounded-xl px-5 py-4 flex items-center justify-between gap-4 transition-colors ${
+                      selected?.title === p.title ? "border-blue-300 bg-blue-50/30" : "border-slate-200 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-xs font-semibold border px-2 py-0.5 rounded-full shrink-0 ${GRADE_BADGE[p.grade] ?? "bg-slate-100 text-slate-600 border-slate-200"}`}>
+                          {p.grade}
+                        </span>
+                        <p className="text-sm font-semibold text-slate-900 truncate">{p.title}</p>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 truncate">{p.programName}</p>
+                      <p className="text-xs text-slate-400 mt-0.5">{p.faculty} · {p.department}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        onClick={() => openEdit(p)}
+                        className="p-2 rounded-lg border border-slate-200 hover:border-blue-700 hover:text-blue-800 text-slate-500 transition-colors"
+                        title="Modifier"
+                      >
+                        <HiPencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => openDelete(p)}
+                        className="p-2 rounded-lg border border-slate-200 hover:border-red-300 hover:text-red-600 text-slate-500 transition-colors"
+                        title="Supprimer"
+                      >
+                        <HiTrash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-    </>)
-}
+
+        {/* ── Panneau latéral ── */}
+        {panel && (
+          <div className="w-1/2 flex flex-col overflow-hidden bg-white">
+
+            {/* En-tête panneau */}
+            <div className="h-16 border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+              <p className="text-sm font-semibold text-slate-900">
+                {panel === "create" && "Nouveau programme"}
+                {panel === "edit"   && `Modifier — ${selected?.title}`}
+                {panel === "delete" && "Supprimer un programme"}
+              </p>
+              <button onClick={closePanel} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 transition-colors">
+                <HiX className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-8 py-6">
+
+              {/* ── Formulaire Créer / Modifier ── */}
+              {(panel === "create" || panel === "edit") && (
+                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+
+                  <Field label="Titre" error={errors.title?.message}>
+                    <input
+                      type="text"
+                      placeholder="ex. INF-BACC"
+                      className={inputCls}
+                      {...register("title", { required: "Le titre est requis." })}
+                    />
+                  </Field>
+
+                  <Field label="Nom du programme" error={errors.programName?.message}>
+                    <input
+                      type="text"
+                      placeholder="ex. Baccalauréat en informatique"
+                      className={inputCls}
+                      {...register("programName", { required: "Le nom est requis." })}
+                    />
+                  </Field>
+
+                  <Field label="Description" error={errors.descriptions?.message}>
+                    <textarea
+                      rows={3}
+                      placeholder="Décrivez le programme..."
+                      className={inputCls}
+                      {...register("descriptions", { required: "La description est requise." })}
+                    />
+                  </Field>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Niveau d'étude" error={errors.grade?.message}>
+                      <select className={inputCls} {...register("grade", { required: "Le niveau est requis." })}>
+                        <option value="" disabled>Sélectionner</option>
+                        {GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
+                      </select>
+                    </Field>
+
+                    <Field label="Département" error={errors.department?.message}>
+                      <select className={inputCls} {...register("department", { required: "Le département est requis." })}>
+                        <option value="" disabled>Sélectionner</option>
+                        {DEPARTMENTS.map((d) => <option key={d} value={d}>{d}</option>)}
+                      </select>
+                    </Field>
+                  </div>
+
+                  <Field label="Faculté" error={errors.faculty?.message}>
+                    <select className={inputCls} {...register("faculty", { required: "La faculté est requise." })}>
+                      <option value="" disabled>Sélectionner</option>
+                      {FACULTIES.map((f) => <option key={f} value={f}>{f}</option>)}
+                    </select>
+                  </Field>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="flex-1 bg-blue-800 hover:bg-blue-900 disabled:opacity-50 text-white font-medium rounded-lg py-2.5 text-sm transition-colors"
+                    >
+                      {isLoading ? "Enregistrement..." : panel === "create" ? "Créer le programme" : "Enregistrer les modifications"}
+                    </button>
+                    <button type="button" onClick={closePanel} className="px-4 border border-slate-200 hover:border-slate-300 text-slate-600 rounded-lg text-sm transition-colors">
+                      Annuler
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* ── Confirmation suppression ── */}
+              {panel === "delete" && selected && (
+                <div className="flex flex-col gap-6">
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+                    <p className="text-sm font-semibold text-red-800 mb-1">Confirmer la suppression</p>
+                    <p className="text-sm text-red-700">
+                      Vous êtes sur le point de supprimer le programme <strong>{selected.title}</strong> — {selected.programName}.
+                      Cette action est irréversible.
+                    </p>
+                  </div>
+                  <div className="bg-white border border-slate-200 rounded-xl p-5 flex flex-col gap-2">
+                    <p className="text-xs text-slate-400 uppercase tracking-wide font-medium mb-1">Détails</p>
+                    <p className="text-sm text-slate-700"><span className="text-slate-400">Niveau :</span> {selected.grade}</p>
+                    <p className="text-sm text-slate-700"><span className="text-slate-400">Faculté :</span> {selected.faculty}</p>
+                    <p className="text-sm text-slate-700"><span className="text-slate-400">Département :</span> {selected.department}</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        // TODO : brancher ton service de suppression ici
+                        showAlert("success", `Programme "${selected.title}" supprimé.`);
+                        setPrograms((prev) => prev.filter((p) => p.title !== selected.title));
+                        closePanel();
+                      }}
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg py-2.5 text-sm transition-colors"
+                    >
+                      Confirmer la suppression
+                    </button>
+                    <button onClick={closePanel} className="px-4 border border-slate-200 hover:border-slate-300 text-slate-600 rounded-lg text-sm transition-colors">
+                      Annuler
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
 
 export default ProgramCreate;

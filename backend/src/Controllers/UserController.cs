@@ -254,7 +254,7 @@ namespace MyUAAcademiaB.Controllers
         {
             if (activationRequest == null) return BadRequest(ModelState);
 
-            if(!_userInterface.StudentExists(activationRequest.PermanentCode))
+            if(!_userInterface.StudentExists(activationRequest.Code))
             {
                 ModelState.AddModelError("", "L'étudiant n'existe pas.");
                 return StatusCode(400, ModelState);
@@ -270,6 +270,31 @@ namespace MyUAAcademiaB.Controllers
 
             return Ok(isActivated);
         }
+
+        //[HttpPut("validate")]
+        //[ProducesResponseType(200, Type = typeof(bool))]
+        //[ProducesResponseType(400)]
+        //[ProducesResponseType(404)]
+        //public IActionResult ValidateEmployeeAccount([FromBody] ValidationRequest validationRequest)
+        //{
+        //    if (validationRequest == null) return BadRequest(ModelState);
+
+        //    if (!_employeeInterface.EmployeeExists(validationRequest.Code))
+        //    {
+        //        ModelState.AddModelError("", "L'employé n'existe pas.");
+        //        return StatusCode(400, ModelState);
+        //    }
+
+        //    var isActivated = _employeeInterface.ValidateEmployeeAccount(validationRequest);
+
+        //    if (!isActivated)
+        //    {
+        //        ModelState.AddModelError("", "Erreur lors de la validation de l'employé.");
+        //        return StatusCode(500, ModelState);
+        //    }
+
+        //    return Ok(isActivated);
+        //}
 
         [HttpPut("students")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Users>))]

@@ -19,5 +19,6 @@
         public char Sexe { get; set; }
         public string StreetAddress { get; set; }
         public string UserRole { get; set; }
+        public string Nationality { get; set; }
     }
 }
