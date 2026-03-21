@@ -20,5 +20,8 @@
         public Employees Employee { get; set; }
 
         public ICollection<UserCourse>? UserCourse { get; set; }
+
+        public string? TaughtBy { get; set; }
+        public Employees? TaughtByProfessor { get; set; }
     }
 }

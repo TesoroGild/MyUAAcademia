@@ -9,5 +9,6 @@
         public DateOnly RealStartingDate { get; set; }
         public DateOnly RealEndDate { get; set; }
         public bool IsContractOver { get; set; }
+        public string RealSalary { get; set; }
     }
 }

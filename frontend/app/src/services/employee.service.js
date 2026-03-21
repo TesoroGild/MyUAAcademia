@@ -21,6 +21,26 @@ export const createEmployee = async (employeeTocreate) => {
   }
 };
 
+export const createContractS  = async (contractToCreate) => {
+  console.log("EMPLOYEE SERVICE : CREATE CONTRACT");
+  try {
+    const response = await axios.post(`${backend_url}/Contract`, contractToCreate, {withCredentials: true});
+    return { 
+      success: true, 
+      contractCreated: response.data 
+    };
+  } catch (error) {
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data.message
+      };
+    }
+    
+    return { success: false, message: "Impossible de contacter le serveur" };
+  }
+}
+
 
 //Read
 export const getEmployeeS = async (code) => {
@@ -50,6 +70,26 @@ export const getEmployeesS = async () => {
     throw error;
   }
 };
+
+export const getContractsS  = async () => {
+  console.log("EMPLOYEE SERVICE : GET CONTRACT");
+  try {
+    const response = await axios.get(`${backend_url}/Contract`, {withCredentials: true});
+    return { 
+      success: true, 
+      contracts: response.data 
+    };
+  } catch (error) {
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data.message
+      };
+    }
+    
+    return { success: false, message: "Impossible de contacter le serveur" };
+  }
+}
 
 //Update
 export const activeEmployeeAccountS = async (activateAccount) => {

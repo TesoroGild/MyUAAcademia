@@ -48,14 +48,11 @@ namespace MyUAAcademiaB.Services
 
         public string SetFirstPasssword(string lastName, string firstName)
         {
-            var codePermanent = new StringBuilder();
-            codePermanent.Append(lastName.Substring(0, 3).ToUpper());
-            codePermanent.Append(firstName.Substring(0, 1).ToUpper());
-            codePermanent.Append("bienvenido");
-            Random rnd = new Random();
-            codePermanent.Append(rnd.Next(10, 99));
-
-            return codePermanent.ToString();
+            var firstPwd = new StringBuilder();
+            firstPwd.Append(lastName.Substring(0, 3).ToUpper());
+            firstPwd.Append("helloyou");
+            firstPwd.Append(firstName.Substring(0, 2).ToUpper());
+            return firstPwd.ToString();
         }
     }
 }

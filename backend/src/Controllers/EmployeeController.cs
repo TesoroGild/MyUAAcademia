@@ -130,6 +130,32 @@ namespace MyUAAcademiaB.Controllers
             return Ok(employee);
         }
 
+        [HttpPost("exist")]
+        [ProducesResponseType(200, Type = typeof(Boolean))]
+        [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, professor, student")]
+        public IActionResult GetEmployee([FromBody] ExistCredentialsDto credentials)
+        {
+            if (!_employeeInterface.EmployeeExistsV1(credentials.Code, credentials.Email))
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Aucun compte associé."
+                });
+
+            var employee = _employeeInterface.GetEmployee(credentials.Code);
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            return Ok(new VerifiedUserDto
+            {
+                FirstName = employee.FirstName,
+                LastName = employee.LastName,
+                UserRole = employee.UserRole,
+                UserCode = employee.Code
+            });
+        }
+
 
         /*UPDATE*/
         [HttpPut("activate")]
@@ -181,6 +207,37 @@ namespace MyUAAcademiaB.Controllers
 
             return Ok(isActivated);
         }
+
+        [HttpPut("users")]
+        [ProducesResponseType(200, Type = typeof(Employees))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateEmployee([FromBody] EmployeeTU eltsToUpdate)
+        {
+            if (eltsToUpdate == null) return BadRequest(ModelState);
+
+            if (!_employeeInterface.EmployeeExists(eltsToUpdate.Code))
+            {
+                ModelState.AddModelError("", "L'employé n'existe pas.");
+                return StatusCode(400, ModelState);
+            }
+
+            if (!string.IsNullOrWhiteSpace(eltsToUpdate.Pwd))
+            {
+                eltsToUpdate.Pwd = _authService.HashPassword(eltsToUpdate.Code, eltsToUpdate.Pwd);
+            }
+
+            var studentUpdated = _employeeInterface.UpdateEmployee(eltsToUpdate);
+
+            if (studentUpdated == null)
+            {
+                ModelState.AddModelError("", "Erreur lors de la modification de l'employé.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok(studentUpdated);
+        }
+
 
         /*DELETE*/
     }

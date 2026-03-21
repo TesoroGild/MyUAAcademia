@@ -30,13 +30,12 @@ namespace MyUAAcademiaB.Controllers
         {
             if (loginCredentials == null) return BadRequest("Format invalide.");
 
-            var userConnected = _authService.AutenticateEmployee(loginCredentials);
+            var auth = _authService.AuthenticateEmployee(loginCredentials);
+            var userConnected = auth.Employee;
 
             if (userConnected == null)
             {
-                ModelState.AddModelError("", "Erreur lors de la tentative de connection!");
-                //return StatusCode(500, ModelState);
-                return Unauthorized("Informations invalides.");
+                return StatusCode(auth.StatusCode, new { message = auth.ErrorMessage });
             }
             else
             {
@@ -66,13 +65,12 @@ namespace MyUAAcademiaB.Controllers
             if (loginCredentialsStudent == null) return BadRequest("Format invalide.");
             //var test = _authService.HashPassword(loginCredentialsStudent.PermanentCode, loginCredentialsStudent.Pwd);
 
-            var userConnected = _authService.AuthenticateUser(loginCredentialsStudent);
+            var auth = _authService.AuthenticateUser(loginCredentialsStudent);
+            var userConnected = auth.User;
 
             if (userConnected == null)
             {
-                ModelState.AddModelError("", "Erreur lors de la tentative de connection!");
-                //return StatusCode(500, ModelState);
-                return Unauthorized("Informations invalides.");
+                return StatusCode(auth.StatusCode, new { message = auth.ErrorMessage });
             }
             else
             {
@@ -97,7 +95,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("logout")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "Admin, Employee, Professor, Student")]
+        [Authorize(Roles = "admin, professor, student")]
         public IActionResult Logout()
         {
             Response.Cookies.Delete("SESSION_ID", new CookieOptions
@@ -105,7 +103,8 @@ namespace MyUAAcademiaB.Controllers
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
-                Path = "/"
+                Path = "/",
+                Expires = DateTime.UtcNow.AddDays(-1)
             });
 
             return Ok(true);
@@ -145,7 +144,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPut("reset-password")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "Admin, Professor")]
+        //[Authorize(Roles = "Admin, Professor")]
         public async Task<IActionResult> UpdatePassword([FromBody] ResetPasswordCredentials resetPasswordCredentials)
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");
@@ -164,7 +163,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPut("reset-password2")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "Professor, Student")]
+        //[Authorize(Roles = "Professor, Student")]
         public async Task<IActionResult> UpdatePassword1([FromBody] ResetPasswordCredentials resetPasswordCredentials)
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");

@@ -58,7 +58,9 @@ namespace MyUAAcademiaB.Controllers
             var email = _userService.GenerateEmail(studentTocreate.FirstName, studentTocreate.LastName);
             var studentMap = _mapper.Map<Users>(studentTocreate);
             studentMap.IsActivated = 0;
-            studentMap.Pwd = _userService.SetFirstPasssword(studentMap.LastName, studentMap.FirstName);
+            if (string.IsNullOrWhiteSpace(studentTocreate.EmployeeCode)) studentMap.Pwd = 
+                    _authService.HashPassword(permanentCode, _userService.SetFirstPasssword(studentTocreate.LastName, studentTocreate.FirstName));
+            else studentMap.Pwd = _authService.HashPassword(permanentCode, studentTocreate.Password);
             studentMap.ProfessionalEmail = email;
             var userCreated = _userInterface.CreateStudent(studentMap);
 
@@ -297,7 +299,7 @@ namespace MyUAAcademiaB.Controllers
         //}
 
         [HttpPut("students")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Users>))]
+        [ProducesResponseType(200, Type = typeof(Users))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public IActionResult UpdateStudent([FromBody] SStudentEltToUpdate eltToUpdate)

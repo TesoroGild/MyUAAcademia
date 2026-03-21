@@ -68,7 +68,8 @@ export const getCoursesS = async () => {
 export const getProgramCoursesS = async (programsTitles) => {
     console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
-        const response = await axios.post(`${backend_url}/Course/courses/program`, programsTitles);
+        const titles = [programsTitles];
+        const response = await axios.post(`${backend_url}/Course/courses/program`, titles);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
@@ -192,6 +193,7 @@ export const getClassroomsS = async () => {
 //Create
 export const createClasseCourseS = async (classeCourseToCreate) => {
     console.log("COURSE SERVICE : CREATE CLASSE-COURSE");
+    console.log(classeCourseToCreate)
     try {
         const response = await axios.post(`${backend_url}/ClasseCourse/classe-course`, classeCourseToCreate);
         return response.data;

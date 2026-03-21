@@ -15,5 +15,7 @@
         public virtual Employees? CreatedBy { get; set; }
         public string? CreatedByCode { get; set; }
         public virtual ICollection<Employees>? CreatedEmployees { get; set; }
+
+        public ICollection<ClassesCourses> TaughtCourses { get; set; } = new List<ClassesCourses>();
     }
 }

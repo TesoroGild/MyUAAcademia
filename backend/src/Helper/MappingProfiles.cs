@@ -52,6 +52,8 @@ namespace MyUAAcademiaB.Helper
             CreateMap<UserProgramEnrollmentDto, UserProgramEnrollment>();
             CreateMap<Users, StudentCoDto>();
             CreateMap<StudentCoDto, Users>();
+            CreateMap<Contracts, ContractTCDto>();
+            CreateMap<ContractTCDto, Contracts>();
         }
     }
 }

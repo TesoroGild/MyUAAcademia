@@ -18,6 +18,11 @@ namespace MyUAAcademiaB.Repository
             return _context.Employees.Any(e => e.Code == code);
         }
 
+        public bool EmployeeExistsV1(string code, string email) 
+        {
+            return _context.Employees.Any(e => e.Code == code && e.PersonalEmail == email);
+        }
+
         /*CREATE*/
         public Employees CreateEmployee(Employees employees)
         {
@@ -93,6 +98,34 @@ namespace MyUAAcademiaB.Repository
             return false;
         }
 
+        public Employees UpdateEmployee(EmployeeTU eltsToUpdate)
+        {
+            var employee = GetEmployee(eltsToUpdate.Code);
+
+            if (employee != null)
+            {
+                if (!string.IsNullOrWhiteSpace(eltsToUpdate.PhoneNumber))
+                {
+                    employee.PhoneNumber = eltsToUpdate.PhoneNumber;
+                }
+                if (!string.IsNullOrWhiteSpace(eltsToUpdate.Pwd))
+                {
+                    employee.Pwd = eltsToUpdate.Pwd;
+                }
+                if (!string.IsNullOrWhiteSpace(eltsToUpdate.FirstName))
+                {
+                    employee.FirstName = eltsToUpdate.FirstName;
+                }
+                if (!string.IsNullOrWhiteSpace(eltsToUpdate.LastName))
+                {
+                    employee.LastName = eltsToUpdate.LastName;
+                }
+
+                _context.Employees.Update(employee);
+                _context.SaveChanges();
+            }
+            return employee;
+        }
 
         /*DELETE*/
     }

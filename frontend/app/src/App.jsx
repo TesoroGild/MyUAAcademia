@@ -12,7 +12,7 @@ import AdmissionVerify  from "./pages/admission/verify.jsx";
 import Contact          from "./pages/contact/contact";
 import Notfound         from "./pages/not-found/notfound";
 import Registration     from "./pages/registration/registration.jsx";
-import ChangePassword   from "./pages/employee/change-pwd/changepassword.jsx";
+import ResetPassword   from "./pages/employee/change-pwd/resetpassword.jsx";
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 import Login            from "./pages/login/login";
@@ -51,7 +51,7 @@ import Course           from "./pages/student/course/course.jsx";
 import CourseEnrollment from "./pages/student/create/create.jsx";
 import StudentList      from "./pages/student/list/list.jsx";
 import Student          from "./pages/student/student";
-import Program          from "./pages/program/program.jsx";
+import ContractCreate   from "./pages/employee/contract/contract.jsx";
 
 import { getUserBySessionS } from "./services/auth.service.js";
 
@@ -116,9 +116,11 @@ const App = () => {
         <Route path="/admission/verify"   element={<AdmissionVerify />} />
         <Route path="/contact"            element={<Contact />} />
         <Route path="/registration"       element={<Registration setUserCo={setUserCo} setEmployeeCo={setEmployeeCo} />} />
-        <Route path="/employee/resetpwd"  element={<ChangePassword employeeTRC={employeeTRC} />} />
         <Route path="/login/user"         element={<Login type="user"     setUserCo={setUserCo}     setEmployeeCo={setEmployeeCo} />} />
         <Route path="/login/employee"     element={<Login type="employee" setEmployeeCo={setEmployeeCo} setUserCo={setUserCo} />} />
+
+        {/* ── Users ── */}
+        <Route path="/resetpwd"  element={<ResetPassword employeeTRC={employeeTRC} />} />
 
         {/* ── Student ── */}
         <Route path="/studentspace"       element={<StudentSpace userCo={userCo} />} />
@@ -140,7 +142,6 @@ const App = () => {
         {/* ── Admin ── */}
         <Route path="/adminspace"                     element={<AdminSpace      employeeCo={employeeCo} />} />
         <Route path="/adminplanning"                  element={<AdminPlanning   employeeCo={employeeCo} />} />
-        <Route path="/program"                        element={<Program         employeeCo={employeeCo} />} />
         <Route path="/employee/program/program"       element={<ProgramCreate   employeeCo={employeeCo} />} />
         <Route path="/employee/program/class"         element={<Class           employeeCo={employeeCo} />} />
         <Route path="/employee/program/classroom"     element={<Classroom       employeeCo={employeeCo} />} />
@@ -155,6 +156,7 @@ const App = () => {
         <Route path="/employee/student/create"        element={<CourseEnrollment employeeCo={employeeCo} />} />
         <Route path="/employee/student/course"        element={<Course          employeeCo={employeeCo} />} />
         <Route path="/employee/student/inscription"   element={<Inscription     employeeCo={employeeCo} />} />
+        <Route path="/employee/contracts"    element={<ContractCreate employeeCo={employeeCo} />} />
 
         {/* ── Fallback ── */}
         <Route path="/notfound" element={<Notfound />} />

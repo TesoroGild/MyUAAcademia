@@ -19,5 +19,7 @@ namespace MyUAAcademiaB.Dto
         public string SessionCourse { get; set; }
         
         public string YearCourse { get; set; }
+
+        public string EmployeeCode { get; set; }
     }
 }

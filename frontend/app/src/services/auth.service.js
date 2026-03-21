@@ -32,15 +32,13 @@ export const employeeLogin = async (credentials) => {
       userConnected: response.data 
     };
   } catch (error) {
-    console.error('Erreur :', error.response.data);
-    
     if (error.response) {
       return {
         success: false,
-        message: error.response.data
+        message: error.response.data.message
       };
     }
-
+    
     return { success: false, message: "Impossible de contacter le serveur" };
   }
 };
@@ -85,12 +83,29 @@ export const userLogin = async (credentials) => {
 export const logoutS = async () => {
   console.log("AUTH SERVICE : LOGOUT");
   try {
-    const response = axios.post(`${backend_url}/Auth/logout`, {}, {withCredentials: true});
+    const response = await axios.post(`${backend_url}/Auth/logout`, {}, {withCredentials: true});
     localStorage.clear();
     return { success: true, response: response.data };
   } catch (error) {
     console.error('Erreur :', error);
     throw error;
+  }
+}
+
+export const verifyUserForResetS = async (credentials) => {
+  console.log("AUTH SERVICE : GET-USER");
+  try {
+    const response = await axios.post(`${backend_url}/Employee/exist`, credentials, {withCredentials: true});
+    return { 
+      success: true, 
+      user: response.data 
+    };
+  } catch (error) {
+    console.error('Erreur :', error);
+    return { 
+      success: false, 
+      message: error.response?.data?.message || "Utilisateur non trouvé" 
+    };
   }
 }
 

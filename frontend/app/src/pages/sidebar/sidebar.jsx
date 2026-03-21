@@ -77,6 +77,7 @@ const getNavItems = (userCo) => {
         { label: "Liste des employés",  to: "/employee/employee/list" },
         { label: "Créer un employé",    to: "/employee/employee/create" },
         { label: "Attribuer un prof",   to: "/employee/employee/assign-course" },
+        { label: "Créer un contrat",   to: "/employee/contracts" }
       ],
     },
     { label: "Planning",   icon: HiTable,    to: "/adminplanning" },

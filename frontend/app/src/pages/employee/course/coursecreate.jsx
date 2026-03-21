@@ -32,7 +32,8 @@ const Alert = ({ type, message }) => {
 };
 
 const JOURS   = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-const PLAGES  = ["09:30 - 12:30", "13:30 - 16:30", "18:00 - 21:00"];
+const HEURES_DEBUT = ["09:00", "09:30", "10:00", "10:30", "11:00", "13:00", "13:30", "14:00", "15:00", "16:00", "18:00", "19:00", "20:00"];
+const HEURES_FIN   = ["10:30", "11:00", "12:00", "12:30", "14:30", "15:00", "15:30", "16:00", "17:00", "19:30", "20:00", "21:00", "21:30"];
 const currentYear = new Date().getFullYear();
 
 // ── Résumé d'une séance planifiée ─────────────────────────────────────────────
@@ -63,7 +64,7 @@ const CourseCreate = ({ employeeCo }) => {
   const [isLoading, setIsLoading]     = useState(false);
   const [recentSeances, setRecentSeances] = useState([]); // séances ajoutées cette session
 
-  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, reset, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: {
       yearCourse: "", classeName: "", courseSigle: "",
       jours: "", horaire: "", startTime: "", endTime: "",
@@ -94,14 +95,14 @@ const CourseCreate = ({ employeeCo }) => {
   };
 
   const onSubmit = async (data) => {
-    const [start, end] = data.horaire.split(" - ");
+    //const [start, end] = data.horaire.split(" - ");
     const payload = {
       classeName:    data.classeName,
       sessionCourse: session,
       courseSigle:   data.courseSigle,
       jours:         data.jours,
-      startTime:     start,
-      endTime:       end,
+      startTime:     data.startTime,
+      endTime:       data.endTime,
       yearCourse:    data.yearCourse,
       employeeCode:  employeeCo?.code,
     };
@@ -287,19 +288,36 @@ const CourseCreate = ({ employeeCo }) => {
                   </select>
                 </Field>
 
-                <Field label="Plage horaire" error={errors.horaire?.message}>
+                <Field label="Heure de début" error={errors.startTime?.message}>
                   <select
                     className={inputCls}
-                    {...register("horaire", { required: "Requis." })}
-                    onChange={(e) => {
-                      setValue("horaire", e.target.value);
-                      const [start, end] = e.target.value.split(" - ");
-                      setValue("startTime", start);
-                      setValue("endTime",   end);
-                    }}
+                    {...register("startTime", { required: "Requis." })}
                   >
                     <option value="">Sélectionner</option>
-                    {PLAGES.map((p) => <option key={p} value={p}>{p}</option>)}
+                    {HEURES_DEBUT.map((h) => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                </Field>
+
+                <Field label="Heure de fin" error={errors.endTime?.message}>
+                  <select
+                    className={inputCls}
+                    {...register("endTime", {
+                      required: "Requis.",
+                      validate: (end) => {
+                        const start = getValues("startTime");
+                        if (!start) return "Sélectionnez d'abord une heure de début.";
+                        const [sh, sm] = start.split(":").map(Number);
+                        const [eh, em] = end.split(":").map(Number);
+                        const diff = (eh * 60 + em) - (sh * 60 + sm);
+                        if (diff <= 0)   return "L'heure de fin doit être après l'heure de début.";
+                        if (diff < 120)   return "Un cours dure minimum 1 heure 30.";
+                        if (diff > 180)  return "Un cours dure maximum 3 heures.";
+                        return true;
+                      }
+                    })}
+                  >
+                    <option value="">Sélectionner</option>
+                    {HEURES_FIN.map((h) => <option key={h} value={h}>{h}</option>)}
                   </select>
                 </Field>
               </div>

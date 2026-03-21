@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using MyUAAcademiaB.Enums;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 
@@ -22,44 +23,81 @@ namespace MyUAAcademiaB.Services
             return _passwordHasher.HashPassword(usercode, password);
         }
 
-        public bool VerifyPassword(string usercode, string hashedPassword, string providedPassword)
-        {
-            var result = _passwordHasher.VerifyHashedPassword(usercode, hashedPassword, providedPassword);
-            return result == PasswordVerificationResult.Success;
-        }
+        //public PasswordCheckResult VerifyPassword(string usercode, string hashedPassword, string providedPassword)
+        //{
+        //    try
+        //    {
+        //        var result = _passwordHasher.VerifyHashedPassword(usercode, hashedPassword, providedPassword);
 
-        public Users? AuthenticateUser(LoginCredentialsStudent credentials)
-        {
-            var user = _userInterface.GetUser(credentials.PermanentCode);
+        //        if (result == PasswordVerificationResult.Success)
+        //            return PasswordCheckResult.Success;
 
-            if (user != null)
+        //        return PasswordCheckResult.InvalidCredentials;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // On log l'erreur ici pour le debug à Montréal
+        //        Console.WriteLine($"Erreur hashage : {ex.Message}");
+        //        return PasswordCheckResult.ServerError;
+        //    }
+        //}
+
+        public AuthResponse AuthenticateUser(LoginCredentialsStudent credentials)
+        {
+            try
             {
-                //var hashPass = HashPassword(credentials.PermanentCode, credentials.Pwd);
-                var areCredentialsValid = VerifyPassword(user.PermanentCode, user.Pwd, credentials.Pwd);
+                var user = _userInterface.GetUser(credentials.PermanentCode);
 
-                if (areCredentialsValid) 
-                { 
-                    return user;
-                }
-            }
-                
-            return null;
-        }
-
-        public Employees? AutenticateEmployee(LoginCredentials credentials)
-        {
-            var employee = _employeeInterface.GetEmployee(credentials.Code);
-
-            if (employee != null)
-            {
-                var areCredentialsValid = VerifyPassword(employee.Code, employee.Pwd, credentials.Pwd);
-
-                if (areCredentialsValid)
+                // Sécurité : On ne dit pas si c'est le code ou le mdp qui est faux
+                if (user == null)
                 {
-                    return employee;
+                    return new AuthResponse { StatusCode = 400, ErrorMessage = "Identifiants invalides." };
                 }
+
+                var result = _passwordHasher.VerifyHashedPassword(user.PermanentCode, user.Pwd, credentials.Pwd);
+
+                if (result == PasswordVerificationResult.Success)
+                {
+                    return new AuthResponse { User = user, StatusCode = 200 };
+                }
+
+                return new AuthResponse { StatusCode = 400, ErrorMessage = "Identifiants invalides." };
             }
-            return null;
+            catch (Exception ex)
+            {
+                // Ici, quelque chose a vraiment mal tourné (BD offline, erreur de hashage, etc.)
+                Console.WriteLine($"[CRITICAL] Auth Error: {ex.Message}");
+                return new AuthResponse { StatusCode = 500, ErrorMessage = "Une erreur technique est survenue sur le serveur." };
+            }
+        }
+
+        public AuthResponse AuthenticateEmployee(LoginCredentials credentials)
+        {
+            try
+            {
+                var employee = _employeeInterface.GetEmployee(credentials.Code);
+
+                // Sécurité : On ne dit pas si c'est le code ou le mdp qui est faux
+                if (employee == null)
+                {
+                    return new AuthResponse { StatusCode = 400, ErrorMessage = "Identifiants invalides." };
+                }
+
+                var result = _passwordHasher.VerifyHashedPassword(employee.Code, employee.Pwd, credentials.Pwd);
+
+                if (result == PasswordVerificationResult.Success)
+                {
+                    return new AuthResponse { Employee = employee, StatusCode = 200 };
+                }
+
+                return new AuthResponse { StatusCode = 400, ErrorMessage = "Identifiants invalides." };
+            }
+            catch (Exception ex)
+            {
+                // Ici, quelque chose a vraiment mal tourné (BD offline, erreur de hashage, etc.)
+                Console.WriteLine($"[CRITICAL] Auth Error: {ex.Message}");
+                return new AuthResponse { StatusCode = 500, ErrorMessage = "Une erreur technique est survenue sur le serveur." };
+            }
         }
 
         //public async Task<int> UpdatePasswordAsync(ResetPasswordCredentials resetPasswordCredentials)

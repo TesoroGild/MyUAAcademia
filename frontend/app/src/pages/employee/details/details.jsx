@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, Tooltip } from "flowbite-react";
 import { getEmployeeS } from "../../../services/employee.service";
-import { update } from "../../../services/profile.service";
+import { updateUser } from "../../../services/profile.service";
 
 // ── Petit composant champ info ───────────────────────────────────────────────
 const InfoRow = ({ label, value }) => (
@@ -134,7 +134,7 @@ const EmployeeDetails = ({ employeeCo }) => {
   const updateProfile = async (e) => {
     e.preventDefault();
     try {
-      const modified = await update({
+      const modified = await updateUser({
         code: profile.code || profile.userCode,
         phoneNumber: profileModForm.phoneNumber,
         lastname: profileModForm.lastname,

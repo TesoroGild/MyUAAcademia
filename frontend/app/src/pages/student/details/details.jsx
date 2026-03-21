@@ -182,7 +182,7 @@ const StudentDetails = ({ userCo }) => {
       pwd: "motDePasseSecret",
       lastName: student.lastName,
       firstName: student.firstName,
-      link: "https://localhost:5173/employee/resetpwd",
+      link: "https://localhost:5173/user/resetpwd",
       programs: progsAccepted,
     }, your_public_key).catch(console.error);
   };

@@ -10,6 +10,7 @@ using MyUAAcademiaB.Helper;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Repository;
 using MyUAAcademiaB.Services;
+using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -51,6 +52,7 @@ builder.Services.AddScoped<IProgramInterface, ProgramRepository>();
 builder.Services.AddScoped<IUserInterface, UserRepository>();
 builder.Services.AddScoped<IUserCourseInterface, UserCourseRepository>();
 builder.Services.AddScoped<IUserProgramInterface, UserProgramRepository>();
+builder.Services.AddScoped<IContractInterface, ContractRepository>();
 
 //Services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -68,6 +70,7 @@ builder.Services.AddAuthentication("Bearer")
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            RoleClaimType = ClaimTypes.Role,
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,

@@ -85,6 +85,24 @@ namespace MyUAAcademiaB.Data
             modelBuilder.Entity<ClassesCourses>()
                 .Property(cc => cc.EmployeeCode)
                 .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //Ajout de prof
+            modelBuilder.Entity<ClassesCourses>()
+                .HasOne(cc => cc.TaughtByProfessor)
+                .WithMany(e => e.TaughtCourses)
+                .HasForeignKey(cc => cc.TaughtBy)
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired(false);
+            modelBuilder.Entity<ClassesCourses>()
+                .Property(cc => cc.TaughtBy)
+                .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            // Contrainte salle : jamais 2 cours en même temps dans la même salle
+            modelBuilder.Entity<ClassesCourses>()
+                .HasIndex(cc => new { cc.ClasseName, cc.StartTime, cc.Jours, cc.SessionCourse, cc.YearCourse })
+                .IsUnique();
+            // Contrainte prof : un prof ne peut pas être à 2 endroits en même temps
+            modelBuilder.Entity<ClassesCourses>()
+                .HasIndex(cc => new { cc.TaughtBy, cc.StartTime, cc.Jours, cc.SessionCourse, cc.YearCourse })
+                .IsUnique();
 
             /*EMPLOYEES*/
             modelBuilder.Entity<Employees>()

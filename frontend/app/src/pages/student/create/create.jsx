@@ -101,7 +101,7 @@ const ProgramSection = ({ programs, register, errors, onProgramSelect }) => {
         {/* Rôle */}
         <Field label="Rôle" required error={errors.userRole?.message}>
           <div className="flex gap-6 pt-1">
-            {[{ val: "Student", label: "Étudiant" }, { val: "Professor", label: "Professeur" }].map(({ val, label }) => (
+            {[{ val: "Student", label: "Étudiant" }].map(({ val, label }) => (
               <label key={val} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700">
                 <input type="radio" value={val} {...register("userRole", { required: "Le rôle est requis." })} className="accent-blue-700" />
                 {label}

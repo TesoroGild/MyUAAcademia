@@ -193,6 +193,10 @@ function Login({ type, setEmployeeCo, setUserCo }) {
         </form>
 
         {/* Back */}
+        <button onClick={() => navigate("/resetpwd")}
+          className="mt-4 text-xs text-slate-400 hover:text-slate-600 transition-colors">
+          Mot de passe oublié ?
+        </button>
         <button
           onClick={() => navigate("/")}
           className="mt-6 w-full text-center text-xs text-slate-400 hover:text-slate-600 transition-colors"

@@ -20,3 +20,14 @@ export const update = async (profileToModify) => {
     throw error;
   }
 }
+
+export const updateUser = async (profileToModify) => {
+  console.log("PROFILE SERVICE : UPDATE");
+  try {
+    const response = await axios.put(`${backend_url}/Employee/users`, profileToModify);
+    return response.data;
+  } catch (error) {
+    console.error('Erreur :', error);
+    throw error;
+  }
+}

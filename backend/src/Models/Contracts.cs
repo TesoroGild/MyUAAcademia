@@ -5,8 +5,10 @@
         public string Availability {  get; set; } //Semaine
         public string BaseSalary { get; set; } //Annuel
         public string Code { get; set; }
+        public string Department { get; set; }
         public string Description { get; set; }
         public DateOnly? EndingDate { get; set; }
+        public string Faculty { get; set; }
         public string JobTitle { get; set; }
         public string MaximumWage { get; set; } //70000$
         public int MinimumWage { get; set; } //50000$

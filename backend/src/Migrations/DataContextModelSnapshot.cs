@@ -17,7 +17,7 @@ namespace MyUAAcademiaB.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "9.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -152,6 +152,10 @@ namespace MyUAAcademiaB.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("TaughtBy")
+                        .HasColumnType("nvarchar(450)")
+                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+
                     b.Property<string>("YearCourse")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -164,6 +168,10 @@ namespace MyUAAcademiaB.Migrations
 
                     b.HasIndex("ClasseName", "StartTime", "Jours", "SessionCourse", "YearCourse")
                         .IsUnique();
+
+                    b.HasIndex("TaughtBy", "StartTime", "Jours", "SessionCourse", "YearCourse")
+                        .IsUnique()
+                        .HasFilter("[TaughtBy] IS NOT NULL");
 
                     b.ToTable("ClassesCourses");
                 });
@@ -181,12 +189,20 @@ namespace MyUAAcademiaB.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly?>("EndingDate")
                         .HasColumnType("date");
+
+                    b.Property<string>("Faculty")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("JobTitle")
                         .IsRequired()
@@ -351,6 +367,10 @@ namespace MyUAAcademiaB.Migrations
 
                     b.Property<DateOnly>("RealEndDate")
                         .HasColumnType("date");
+
+                    b.Property<string>("RealSalary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("RealStartingDate")
                         .HasColumnType("date");
@@ -611,11 +631,18 @@ namespace MyUAAcademiaB.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MyUAAcademiaB.Models.Employees", "TaughtByProfessor")
+                        .WithMany("TaughtCourses")
+                        .HasForeignKey("TaughtBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Classe");
 
                     b.Navigation("Course");
 
                     b.Navigation("Employee");
+
+                    b.Navigation("TaughtByProfessor");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Courses", b =>
@@ -758,6 +785,8 @@ namespace MyUAAcademiaB.Migrations
                     b.Navigation("EmployeesContracts");
 
                     b.Navigation("Programs");
+
+                    b.Navigation("TaughtCourses");
 
                     b.Navigation("Users");
                 });
