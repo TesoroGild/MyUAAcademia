@@ -63,8 +63,9 @@ const AssignProfessor = ({ employeeCo }) => {
       // Pré-remplir les assignations existantes
       const init = {};
       courses.forEach((c) => {
-        if (c.professorCode) init[c.id] = { profCode: c.professorCode, profName: c.professorName ?? c.professorCode, saved: true, saving: false };
+        if (c.taughtBy) init[c.id] = { profCode: c.taughtBy, profName: c.professorName ?? c.taughtBy, saved: true, saving: false };
       });
+      console.log(courses)
       setAssignments(init);
     } catch (e) { console.error(e); }
   };

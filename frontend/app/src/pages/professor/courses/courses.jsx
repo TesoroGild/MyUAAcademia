@@ -3,7 +3,7 @@ import profPicture from "../../../assets/img/Professor.jpg";
 import { useEffect, useState } from "react";
 import { HiChevronRight, HiArrowLeft, HiAcademicCap, HiUserGroup, HiSearch, HiX } from "react-icons/hi";
 import { RiGraduationCapFill } from "react-icons/ri";
-import { getClassesCoursesS } from "../../../services/course.service";
+import { getProfCourseS } from "../../../services/course.service";
 import { getProgramStudentsS } from "../../../services/user.service";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -48,13 +48,14 @@ const ProfessorCourses = ({ employeeCo }) => {
   const loadCourses = async () => {
     setIsLoading(true);
     try {
-      const res = await getClassesCoursesS("");
-      const all = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
-      // Filtre sur les cours du prof connecté
-      const mine = all.filter(
-        (c) => c.professorCode === employeeCo?.code || c.professorCode === employeeCo?.userCode
-      );
-      setAllCourses(mine);
+      const res = await getProfCourseS(employeeCo.code || employeeCo.userCode);
+      // const all = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
+      // // Filtre sur les cours du prof connecté
+      // const mine = all.filter(
+      //   (c) => c.taughtBy === employeeCo?.code || c.taughtBy === employeeCo?.userCode
+      // );
+      // console.log(mine)
+      setAllCourses(res.courses);
     } catch (e) { console.error(e); }
     finally { setIsLoading(false); }
   };

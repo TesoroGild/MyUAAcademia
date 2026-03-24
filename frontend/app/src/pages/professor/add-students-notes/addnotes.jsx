@@ -6,7 +6,7 @@ import { HiChevronRight, HiArrowLeft, HiCheck, HiExclamation, HiX, HiUpload } fr
 import { RiGraduationCapFill } from "react-icons/ri";
 import { getStudentsInProgramS } from "../../../services/user.service";
 import { addNotesS } from "../../../services/bulletin.service";
-import { getClassesCoursesS } from "../../../services/course.service";
+import { getProfCourseS } from "../../../services/course.service";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const MENTION_OPTIONS = ["A+","A","A-","B+","B","B-","C+","C","C-","D+","D","E","EXE","I","S","R","*"];
@@ -66,7 +66,7 @@ const AddStudentsNotes = ({ employeeCo }) => {
   const loadCourses = async () => {
     setIsLoading(true);
     try {
-      const res  = await getClassesCoursesS("");
+      const res  = await getProfCourseS(employeeCo?.code || employeeCo?.userCode);
       const all  = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
       const mine = all.filter((c) => c.professorCode === employeeCo?.code || c.professorCode === employeeCo?.userCode);
       setAllCourses(mine);

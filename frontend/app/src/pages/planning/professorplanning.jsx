@@ -2,7 +2,7 @@ import Sidebar from "../sidebar/sidebar";
 import userPicture from "../../assets/img/User_Icon.png";
 import { useEffect, useState } from "react";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
-import { getClassesCoursesS } from "../../services/course.service";
+import { getProfCourseS } from "../../services/course.service";
 
 const DAYS  = ["Lun", "Mar", "Mer", "Jeu", "Ven"];
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8);
@@ -29,7 +29,7 @@ export const ProfessorAcademicPlanning = ({ employeeCo }) => {
 
   const load = async () => {
     try {
-      const res  = await getClassesCoursesS("");
+      const res  = await getProfCourseS(employeeCo?.code || employeeCo?.userCod);
       const all  = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
       setCourses(all.filter((c) => c.professorCode === employeeCo?.code || c.professorCode === employeeCo?.userCode));
     } catch (e) { console.error(e); }

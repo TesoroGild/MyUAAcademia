@@ -129,6 +129,17 @@ namespace MyUAAcademiaB.Controllers
             return Ok(classeCoursesWithNames);
         }
 
+        [HttpGet("professor-courses/{profCode}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<ClasseCoursesProgramDto>))]
+        public async Task<IActionResult> GetProfessorCoursesAsync(string profCode)
+        {
+            var professorCourses = await _classeCourseInterface.GetProfessorCourses(profCode);
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            return Ok(professorCourses);
+        }
+
 
         /*UPDATE*/
         [HttpPut("add-remove-student")]

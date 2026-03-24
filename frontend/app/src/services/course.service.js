@@ -256,6 +256,23 @@ export const getProgramSessionCoursesS = async (sessionProgram) => {
     }
 }
 
+export const getProfCourseS = async (profCode) => {
+    console.log("COURSE SERVICE : GET PROFESSOR COURSES GRADE PROGRAM");
+    try {
+    const response = await axios.get(`${backend_url}/ClasseCourse/professor-courses/${profCode}`, {withCredentials: true});
+    return { 
+      success: true, 
+      courses: response.data 
+    };
+  } catch (error) {
+    console.error('Erreur :', error);
+    return { 
+      success: false, 
+      message: error.response?.data?.message || "Aucun élement trouvé" 
+    };
+  }
+}
+
 //Update
 
 //Delete

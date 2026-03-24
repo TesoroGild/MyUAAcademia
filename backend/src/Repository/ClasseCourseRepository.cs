@@ -3,6 +3,7 @@ using MyUAAcademiaB.Data;
 using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
+using System.Threading.Tasks;
 
 namespace MyUAAcademiaB.Repository
 {
@@ -76,6 +77,28 @@ namespace MyUAAcademiaB.Repository
                 query = query.Where(cc => cc.SessionCourse != "Automne");
 
             return query.OrderBy(cc => cc.SessionCourse).ToList();
+        }
+
+        public async Task<ICollection<ClasseCoursesProgramDto>> GetProfessorCourses(string profCode)
+        {
+            return await _context.ClassesCourses
+                .Where(cc => cc.TaughtBy == profCode)
+                .Select(cc => new ClasseCoursesProgramDto
+                {
+                    Id = cc.Id,
+                    ClasseName = cc.ClasseName,
+                    CourseSigle = cc.CourseSigle,
+                    Jours = cc.Jours,
+                    StartTime = cc.StartTime,
+                    EndTime = cc.EndTime,
+                    SessionCourse = cc.SessionCourse,
+                    YearCourse = cc.YearCourse,
+                    EmployeeCode = cc.EmployeeCode,
+                    TaughtBy = cc.TaughtBy,
+                    ProgramTitle = cc.Course.Program.ProgramName,
+                    Grade = cc.Course.Program.Grade
+                })
+                .ToListAsync();
         }
 
         public ICollection<ClassesCourses> GetProgramsSessionCourses(ICollection<ClassesCourses> classesCourses, IEnumerable<string> titles)
