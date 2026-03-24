@@ -5,20 +5,21 @@ const backend_url = import.meta.env.VITE_API_URL;
 //Create
 export const createEmployee = async (employeeTocreate) => {
   console.log("EMPLOYEE SERVICE : CREATE");
-  try {
-    const response = await axios.post(`${backend_url}/Employee/employee`, employeeTocreate);
-    return { success: true, employeeAdded: response.data };
-  } catch (error) {
-    console.error('Erreur :', error);
-    if (error.response) {
-      return {
-        success: false,
-        message: error.response.data[""]?.[0]
-      };
-    }
+  // try {
+  //   const response = await axios.post(`${backend_url}/Employee/employee`, employeeTocreate);
+  //   return { success: true, employeeAdded: response.data };
+  // } catch (error) {
+  //   console.error('Erreur :', error);
+  //   if (error.response) {
+  //     return {
+  //       success: false,
+  //       message: error.response.data[""]?.[0]
+  //     };
+  //   }
 
-    return { success: false, message: "Impossible de contacter le serveur" };
-  }
+  //   return { success: false, message: "Impossible de contacter le serveur" };
+  // }
+  return { success: false, message: "Impossible de contacter le serveur" };
 };
 
 export const createContractS  = async (contractToCreate) => {
@@ -93,7 +94,7 @@ export const getContractsS  = async () => {
 
 //Update
 export const activeEmployeeAccountS = async (activateAccount) => {
-    console.log("USER SERVICE : ACTIVE EMPLOYEE ACCOUNT");
+    console.log("EMPLOYEE SERVICE : ACTIVE EMPLOYEE ACCOUNT");
     try {
         const response = await axios.put(`${backend_url}/Employee/activate`, activateAccount);
         return response.data;
@@ -103,13 +104,13 @@ export const activeEmployeeAccountS = async (activateAccount) => {
 }
 
 export const validateEmployeeS = async (validateFile) => {
-    console.log("USER SERVICE : VALIDE EMPLOYEE FILES");
-    try {
-        const response = await axios.put(`${backend_url}/Employee/validate`, validateFile);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+  console.log("EMPLOYEE SERVICE : VALIDE EMPLOYEE FILES");
+  try {
+      const response = await axios.put(`${backend_url}/Employee/validate`, validateFile);
+      return response.data;
+  } catch (error) {
+      throw error;
+  }
 }
 
 //Delete

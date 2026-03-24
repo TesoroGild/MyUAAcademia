@@ -27,7 +27,17 @@ namespace MyUAAcademiaB.Data
         {
             /*BILLS*/
             modelBuilder.Entity<Bills>()
-                .HasKey(bi => new { bi.SessionStudy, bi.YearStudy, bi.PermanentCode });
+                .HasKey(bi => new { bi.SessionStudy, bi.YearStudy, bi.PermanentCode });//, bi.ProgramTitle
+            modelBuilder.Entity<Bills>()
+                .HasOne(b => b.Student)
+                .WithMany(s => s.Bills)
+                .HasForeignKey(b => b.PermanentCode)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Bills>()
+                .HasOne(b => b.Program)
+                .WithMany(p => p.Bills)
+                .HasForeignKey(b => b.ProgramTitle)
+                .OnDelete(DeleteBehavior.Restrict);
 
             /*BULLETINS*/
             modelBuilder.Entity<Bulletins>()
@@ -133,6 +143,10 @@ namespace MyUAAcademiaB.Data
             modelBuilder.Entity<EmployeesContracts>()
                 .Property(ec => ec.EmpCode)
                 .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            modelBuilder.Entity<EmployeesContracts>()
+                .HasIndex(ec => new  { ec.EmpCode })
+                .IsUnique()
+                .HasFilter("[IsContractOver] = 0");
 
             /*PROGRAMS*/
             modelBuilder.Entity<Programs>()

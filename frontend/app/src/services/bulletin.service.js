@@ -27,6 +27,8 @@ export const addNotesS = async (studentsNotesGrades) => {
     }
 }
 
+
+//READ
 export const getStudentBulletinS = async (permanentCode) => {
     console.log("BULLETIN SERVICE : GET");
     try {
@@ -38,6 +40,25 @@ export const getStudentBulletinS = async (permanentCode) => {
     }
 }
 
+export const getCourseGradeS = async (studentCourse) => {
+    console.log("BULLETIN SERVICE : GET COURSE GRADE");
+    try {
+    const response = await axios.post(`${backend_url}/Bulletin/course-mention`, studentCourse, {withCredentials: true});
+    return { 
+      success: true, 
+      user: response.data 
+    };
+  } catch (error) {
+    console.error('Erreur :', error);
+    return { 
+      success: false, 
+      message: error.response?.data?.message || "Utilisateur non trouvé" 
+    };
+  }
+}
+
+
+//UPDATE
 export const update = async (billToModify) => {
     
 }

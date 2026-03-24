@@ -7,6 +7,7 @@ using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 using MyUAAcademiaB.Services;
 using System.Globalization;
+using System.Reflection.Emit;
 using System.Security.Claims;
 
 namespace MyUAAcademiaB.Controllers
@@ -34,27 +35,30 @@ namespace MyUAAcademiaB.Controllers
 
         /*CREATE*/
         [HttpPost("employee")]
-        [ProducesResponseType(200, Type = typeof(IEnumerable<Employees>))]
+        [ProducesResponseType(200, Type = typeof(string))]
         [ProducesResponseType(400)]
         public IActionResult CreateEmployee([FromBody] EmployeeTCDto employeeTocreate)
         {
             if (employeeTocreate == null) return BadRequest(ModelState);
 
             DateOnly parseBirthDay;
-            DateOnly parseStartingDate;
 
             DateOnly.TryParseExact(employeeTocreate.BirthDay, "yyyy-MM-dd",
                            CultureInfo.InvariantCulture,
                            DateTimeStyles.None,
                            out parseBirthDay);
 
-            DateOnly.TryParseExact(employeeTocreate.DateOfTakingOffice, "yyyy-MM-dd",
-                           CultureInfo.InvariantCulture,
-                           DateTimeStyles.None,
-                           out parseStartingDate);
+            string firstWord = employeeTocreate.JobTitle?.Trim().Split(' ')[0].ToLower() ?? "";
+            string role = firstWord switch
+            {
+                "professeur" or "enseignant" or "prof" => "professor",
+                "directeur" or "dir" => "director",
+                "admin" or "administrateur" => "admin",
+                _ => "staff"
+            };
 
             var code = _employeeService.GenerateCode(employeeTocreate.LastName, employeeTocreate.FirstName, parseBirthDay, employeeTocreate.Sexe,
-            employeeTocreate.Job, parseStartingDate);
+            role, employeeTocreate.RealStartingDate);
             var employeeExist = _employeeInterface.EmployeeExists(code);
 
             if (employeeExist)
@@ -76,22 +80,35 @@ namespace MyUAAcademiaB.Controllers
             employeeMap.PersonalEmail = employeeTocreate.Email;
             employeeMap.Code = code;
             employeeMap.UserStatus = "0";
+            employeeMap.UserRole = role;
             var employeeCreated = _employeeInterface.CreateEmployee(employeeMap);
 
-            if (employeeCreated == null)
+            var employeeContract = new EmployeesContracts
+            {
+                EmpCode = code,
+                ContractCode = employeeTocreate.ContractCode,
+                RealStartingDate = employeeTocreate.RealStartingDate,
+                RealEndDate = employeeTocreate.RealEndDate,
+                IsContractOver = false,
+                RealSalary = employeeTocreate.RealSalary
+            };
+
+            var userContractRslt = _employeeInterface.CreateUserContract(employeeContract);
+
+            if (employeeCreated == null || userContractRslt == null)
             {
                 ModelState.AddModelError("", "Erreur lors de la création de l'employé.");
                 return StatusCode(500, ModelState);
             }
 
-            return Ok(employeeCreated);
+            return Ok(employeeCreated.Code);
         }
 
 
         /*READ*/
         [HttpGet("employees")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<EmployeeTDDto>))]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "admin")]
         public IActionResult GetEmployeesV2()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -131,7 +148,7 @@ namespace MyUAAcademiaB.Controllers
         }
 
         [HttpPost("exist")]
-        [ProducesResponseType(200, Type = typeof(Boolean))]
+        [ProducesResponseType(200, Type = typeof(VerifiedUserDto))]
         [ProducesResponseType(400)]
         [Authorize(Roles = "admin, professor, student")]
         public IActionResult GetEmployee([FromBody] ExistCredentialsDto credentials)

@@ -87,6 +87,7 @@ const Subscribe = ({ userCo }) => {
   const [cart, setCart]                             = useState([]);      // { ccourseId, sigle, fullName, credits, jours, startTime, endTime }
   const [alerts, setAlerts]                         = useState([]);      // { id, type, message }
   const [isLoading, setIsLoading]                   = useState(false);
+  const [cartToDrop, setCartToDrop]                 = useState([]);
 
   useEffect(() => {
     loadData();
@@ -140,6 +141,17 @@ const Subscribe = ({ userCo }) => {
     }
   };
 
+  const activeUserCourses = userCourses.filter(
+    (uc) => !cartToDrop.find((ctd) => ctd.ccourseId === uc.id)
+  );
+
+  // Calcul du label du bouton
+  const getSubmitButtonLabel = () => {
+    if (cart.length > 0 && cartToDrop.length > 0) return "Confirmer les modifications";
+    if (cartToDrop.length > 0) return "Confirmer l'abandon";
+    return "Confirmer l'inscription";
+  };
+
   const filterByProgram = (program) => {
     if (!program) { setFilteredCourses(coursesAvailable); return; }
     setFilteredCourses(
@@ -175,15 +187,33 @@ const Subscribe = ({ userCo }) => {
     setCart((prev) => prev.filter((c) => c.ccourseId !== ccourseId));
   };
 
+  const dropCourse = (course) => {
+    setCartToDrop((prev) => [...prev, {
+      ccourseId: course.id,
+      sigle: course.sigle,
+      fullName: course.fullName,
+      credits: course.credits,
+      jours: course.jours,
+      startTime: course.startTime,
+      endTime: course.endTime,
+    }])
+  }
+
+  const removeFromDropCart = (ccourseId) => {
+    setCartToDrop((prev) => prev.filter((c) => c.ccourseId !== ccourseId));
+  };
+
   const registerCourses = async () => {
-    if (cart.length === 0) return;
+    if (cart.length === 0 && cartToDrop.length === 0) return;
     try {
       const res = await enrollStudentsInCoursesS({
-        cCourseIds: cart.map((c) => c.ccourseId),
+        cCourseIdsToAdd: cart.map((c) => c.ccourseId) || null,
+        cCourseIdsToDrop: cartToDrop.map((ctd) => ctd.ccourseId) || null,
         permanentCodes: [userCo.permanentCode],
+        programTitle: selectedProgram || programs[0].title
       });
       if (res.success) {
-        addAlert("success", "Inscription confirmée avec succès.");
+        addAlert("success", "Inscription confirmée.");
         setCart([]);
         loadData();
       } else {
@@ -255,41 +285,63 @@ const Subscribe = ({ userCo }) => {
 
           {/* ── Mes cours actuels ── */}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-900">Mes cours — {activeSessions[0]?.session ?? "session en cours"}</p>
-              <span className={`text-xs font-medium border px-2 py-0.5 rounded-full ${
-                userCourses.length >= MAX_COURSES
-                  ? "bg-red-50 text-red-700 border-red-100"
-                  : "bg-slate-100 text-slate-500 border-slate-200"
-              }`}>
-                {userCourses.length} / {MAX_COURSES} cours
-              </span>
-            </div>
-            {userCourses.length === 0 ? (
-              <p className="px-5 py-4 text-sm text-slate-400">Aucun cours inscrit pour cette session.</p>
-            ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-100">
-                    <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Sigle</th>
-                    <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Cours</th>
-                    <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Salle</th>
-                    <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Horaire</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {userCourses.map((c, i) => (
-                    <tr key={i} className={`border-b border-slate-50 last:border-0 ${i % 2 === 1 ? "bg-slate-50/50" : ""}`}>
-                      <td className="py-3 px-5 font-mono text-xs font-semibold text-slate-700">{c.courseSigle}</td>
-                      <td className="py-3 px-5 text-slate-700">{c.fullName}</td>
-                      <td className="py-3 px-5 text-slate-500">{c.classeName}</td>
-                      <td className="py-3 px-5 text-slate-500">{c.jours} · {c.startTime}–{c.endTime}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+  <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+    <p className="text-sm font-semibold text-slate-900">Mes cours inscrits</p>
+    <span className="text-xs font-medium text-slate-500">{activeUserCourses.length} / {MAX_COURSES}</span>
+  </div>
+  {activeUserCourses.length === 0 ? (
+    <p className="px-5 py-8 text-center text-sm text-slate-400">Aucun cours actif.</p>
+  ) : (
+    <table className="w-full text-sm">
+      <tbody className="divide-y divide-slate-100">
+        {activeUserCourses.map((c) => (
+          <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
+            <td className="py-3 px-5 font-mono text-xs font-bold text-blue-700 w-24">{c.courseSigle}</td>
+            <td className="py-3 px-5 text-slate-600">{c.classeName}</td>
+            <td className="py-3 px-5 text-slate-400 text-xs">{c.jours} · {c.startTime}–{c.endTime}</td>
+            <td className="py-3 px-5 text-right">
+              <button 
+                onClick={() => dropCourse(c)}
+                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                title="Abandonner ce cours"
+              >
+                <HiTrash className="w-4 h-4" />
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
+{/* ── 2. SECTION ABANDON (À AFFICHER SEULEMENT SI CARTTODROP > 0) ── */}
+{cartToDrop.length > 0 && (
+  <div className="bg-red-50 border border-red-100 rounded-xl overflow-hidden ring-1 ring-red-200">
+    <div className="px-5 py-3 border-b border-red-100 flex items-center gap-2">
+      <HiExclamation className="text-red-500 w-4 h-4" />
+      <p className="text-sm font-bold text-red-800">Cours à abandonner</p>
+    </div>
+    <table className="w-full text-sm">
+      <tbody>
+        {cartToDrop.map((c) => (
+          <tr key={c.ccourseId} className="bg-red-50/30">
+            <td className="py-3 px-5 font-mono text-xs font-bold text-red-700 w-24 line-through opacity-60">{c.sigle}</td>
+            <td className="py-3 px-5 text-red-800/70 text-xs italic">La désinscription sera effective après confirmation.</td>
+            <td className="py-3 px-5 text-right">
+              <button 
+                onClick={() => removeFromDropCart(c.ccourseId)}
+                className="text-xs font-semibold text-red-800 underline hover:no-underline"
+              >
+                Annuler l'abandon
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
 
           {/* ── Section inscription ── */}
           {canEnroll && activeSessions.length > 0 && (
@@ -351,60 +403,46 @@ const Subscribe = ({ userCo }) => {
               </div>
 
               {/* ── Panier ── */}
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">Ma sélection</p>
-                    <p className="text-xs text-slate-400 mt-0.5">{cart.length} cours · {totalCartCredits} crédit{totalCartCredits > 1 ? "s" : ""}</p>
-                  </div>
-                </div>
+              <div className="bg-white border-2 border-blue-100 rounded-xl overflow-hidden shadow-sm">
+  <div className="px-5 py-4 border-b border-slate-100 bg-blue-50/30">
+    <p className="text-sm font-semibold text-slate-900">Résumé des modifications</p>
+  </div>
+  
+  {/* Liste des nouveaux cours à ajouter */}
+  {cart.length > 0 ? (
+     <div className="divide-y divide-slate-50">
+        {cart.map((c) => (
+          <div key={c.ccourseId} className="px-5 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">AJOUT</span>
+              <span className="font-mono text-xs font-bold">{c.sigle}</span>
+              <span className="text-xs text-slate-500">{c.fullName}</span>
+            </div>
+            <button onClick={() => removeFromCart(c.ccourseId)} className="text-slate-300 hover:text-red-500">
+              <HiX className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+     </div>
+  ) : cartToDrop.length === 0 && (
+    <p className="px-5 py-6 text-center text-sm text-slate-400 italic">Aucune modification en attente.</p>
+  )}
 
-                {cart.length === 0 ? (
-                  <p className="px-5 py-4 text-sm text-slate-400">Aucun cours ajouté.</p>
-                ) : (
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-slate-100">
-                        <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Sigle</th>
-                        <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Titre</th>
-                        <th className="text-center py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Crédits</th>
-                        <th className="text-left py-3 px-5 text-xs text-slate-400 font-medium uppercase tracking-wide">Horaire</th>
-                        <th className="py-3 px-5" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {cart.map((c, i) => (
-                        <tr key={i} className={`border-b border-slate-50 last:border-0 ${i % 2 === 1 ? "bg-slate-50/50" : ""}`}>
-                          <td className="py-3 px-5 font-mono text-xs font-semibold text-slate-700">{c.sigle}</td>
-                          <td className="py-3 px-5 text-slate-700">{c.fullName}</td>
-                          <td className="py-3 px-5 text-center text-slate-500">{c.credits}</td>
-                          <td className="py-3 px-5 text-slate-500 text-xs">{c.jours} · {c.startTime}–{c.endTime}</td>
-                          <td className="py-3 px-5 text-right">
-                            <button
-                              onClick={() => removeFromCart(c.ccourseId)}
-                              className="flex items-center gap-1 ml-auto text-xs font-medium text-red-600 hover:text-red-800 transition-colors"
-                            >
-                              <HiTrash className="w-3.5 h-3.5" />
-                              Retirer
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-
-                <div className="px-5 py-4 border-t border-slate-100 flex justify-end">
-                  <button
-                    onClick={registerCourses}
-                    disabled={cart.length === 0}
-                    className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
-                  >
-                    <HiCheck className="w-4 h-4" />
-                    Confirmer l'inscription
-                  </button>
-                </div>
-              </div>
+  <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+    <div className="text-xs text-slate-500">
+      {cart.length > 0 && <span>+{cart.length} inscription(s) </span>}
+      {cartToDrop.length > 0 && <span className="text-red-600 ml-2">-{cartToDrop.length} abandon(s)</span>}
+    </div>
+    <button
+      onClick={registerCourses}
+      disabled={cart.length === 0 && cartToDrop.length === 0}
+      className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm font-bold px-6 py-2.5 rounded-lg transition-all shadow-md"
+    >
+      <HiCheck className="w-4 h-4" />
+      {getSubmitButtonLabel()}
+    </button>
+  </div>
+</div>
             </>
           )}
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyUAAcademiaB.Data;
+using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 
@@ -19,6 +20,7 @@ namespace MyUAAcademiaB.Repository
             return _context.ClassesCourses.Any(cc => cc.Id.ToString().Equals(classeCourseId));
         }
 
+
         /*CREATE*/
         public ClassesCourses ScheduleACourse(ClassesCourses classesCourses)
         {
@@ -26,6 +28,7 @@ namespace MyUAAcademiaB.Repository
                 _context.SaveChanges();
                 return classesCourses;
         }
+
 
         /*READ*/
         public ICollection<ClassesCourses> GetClasseCourse()
@@ -112,12 +115,26 @@ namespace MyUAAcademiaB.Repository
                 .ToList();
         }
 
+
         /*UPDATE*/
         public ClassesCourses UpdateACourse(ClassesCourses classesCourses)
         {
             _context.Update(classesCourses);
             _context.SaveChanges();
             return classesCourses;
+        }
+
+        public async Task<int> AddProfessor(ProfCCoursesIdDto profCourseIds)
+        {
+            var classeCourse = await _context.ClassesCourses
+                .FirstOrDefaultAsync(cc => cc.Id == profCourseIds.ClassCourseId);
+
+            if (classeCourse == null)
+                return 0;
+
+            classeCourse.TaughtBy = profCourseIds.ProfessorCode;
+
+            return await _context.SaveChangesAsync();
         }
     }
 }

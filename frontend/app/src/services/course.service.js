@@ -68,8 +68,7 @@ export const getCoursesS = async () => {
 export const getProgramCoursesS = async (programsTitles) => {
     console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
-        const titles = [programsTitles];
-        const response = await axios.post(`${backend_url}/Course/courses/program`, titles);
+        const response = await axios.post(`${backend_url}/Course/courses/program`, programsTitles);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
@@ -193,13 +192,33 @@ export const getClassroomsS = async () => {
 //Create
 export const createClasseCourseS = async (classeCourseToCreate) => {
     console.log("COURSE SERVICE : CREATE CLASSE-COURSE");
-    console.log(classeCourseToCreate)
     try {
         const response = await axios.post(`${backend_url}/ClasseCourse/classe-course`, classeCourseToCreate);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
         throw error;
+    }
+}
+
+export const assignProfessorToClasseCourseS = async (profCourseIds) => {
+    console.log("COURSE SERVICE : ASSIGN PROFESSOR TO CLASSE-COURSE");
+    try {
+        const response = await axios.put(`${backend_url}/ClasseCourse/assign-prof-course`, profCourseIds, {withCredentials: true});
+        return {
+            success: true
+        }
+    } catch (error) {
+        console.error('Erreur :', error.response);
+    
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 

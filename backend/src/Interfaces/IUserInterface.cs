@@ -5,7 +5,9 @@ namespace MyUAAcademiaB.Interfaces
 {
     public interface IUserInterface
     {
+        //bool
         bool StudentExists(string permanentCode);
+        bool UserExistsV1(string permanentCode, string email);
 
         /*CREATE*/
         Users CreateStudent(Users student);
@@ -22,6 +24,7 @@ namespace MyUAAcademiaB.Interfaces
 
         /*UPDATE*/
         bool ActivateStudentAccount(ActivationRequest activationRequest);
+        bool ValidateUserAccount(ValidationRequest validationRequest);
         Task<int> UpdatePasswordAsync(ResetPasswordCredentials resetPasswordCredentials);
         Users UpdateStudentProfile(SStudentEltToUpdate eltToUpdate);
 

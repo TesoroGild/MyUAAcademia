@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyUAAcademiaB.Data;
 
@@ -11,9 +12,11 @@ using MyUAAcademiaB.Data;
 namespace MyUAAcademiaB.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260323042413_Test1")]
+    partial class Test1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -351,9 +354,6 @@ namespace MyUAAcademiaB.Migrations
                     b.Property<string>("UserStatus")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("isValidated")
-                        .HasColumnType("bit");
-
                     b.HasKey("Code");
 
                     b.HasIndex("CreatedByCode");
@@ -574,9 +574,6 @@ namespace MyUAAcademiaB.Migrations
 
                     b.Property<string>("UserStatus")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("isValidated")
-                        .HasColumnType("bit");
 
                     b.HasKey("PermanentCode");
 

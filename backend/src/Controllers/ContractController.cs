@@ -46,25 +46,32 @@ namespace MyUAAcademiaB.Controllers
             // 3. Dept (Informatique = 1, Mathématiques = 2, etc.)
             string codeDept = contractToCreate.Department switch
             {
-                "Informatique" => "1",
-                "Mathématiques" => "2",
-                "Relations humaines" => "3",
-                "Enseignement" => "4",
-                "Art visuel et médiatique" => "5",
-                _ => "0"
+                "Danse" => "01",
+                "Chimie" => "02",
+                "Communication sociale et publique" => "03",
+                "Éducation et pédagogie" => "04",
+                "Enseignement" => "05",
+                "Finance" => "06",
+                "Géographie" => "07",
+                "Histoire" => "08",
+                "Informatique" => "09",
+                "Mathématiques" => "10",
+                "Psychologie" => "11",
+                "Relations humaines" => "12",
+                "Science politique" => "13",
+                _ => "00"
             };
 
             // 4. Faculty (Sciences = 1, Communication = 2, etc.)
             string codeFac = contractToCreate.Faculty switch
             {
-                "Sciences" => "1",
+                "Arts" => "1",
                 "Communication" => "2",
-                "Éducation" => "3",
-                "Sciences sociales" => "4",
-                "Arts" => "5",
-                "Gestion" => "6",
-                "Santé" => "7",
-                "Langues" => "8",
+                "Science politique et droit" => "3",
+                "Sciences" => "4",
+                "Sciences de l’éducation" => "5",
+                "Sciences de la gestion" => "6",
+                "Sciences humaines" => "7",
                 _ => "0"
             };
 

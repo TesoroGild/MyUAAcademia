@@ -31,6 +31,11 @@ namespace MyUAAcademiaB.Repository
         }
 
         /*READ*/
+        public bool UserExistsV1(string permanentCode, string email)
+        {
+            return _context.Users.Any(e => e.PermanentCode == permanentCode && e.PersonalEmail == email);
+        }
+
         public ICollection<Users> GetProfessors()
         {
             return _context.Users
@@ -113,11 +118,10 @@ namespace MyUAAcademiaB.Repository
             return false;
         }
 
-        public bool ValidateStudentAccount(ValidationRequest validationRequest)
+        public bool ValidateUserAccount(ValidationRequest validationRequest)
         {
             var student = GetUser(validationRequest.Code);
-            var validateAccount = 0;
-
+            int validateAccount;
             if (validationRequest.IsValidated) validateAccount = 1;
             else validateAccount = 0;
 
@@ -132,9 +136,9 @@ namespace MyUAAcademiaB.Repository
         }
 
         public async Task<int> UpdatePasswordAsync(ResetPasswordCredentials resetPasswordCredentials)
-        {
-            var employee = await _context.Employees
-                .FirstOrDefaultAsync(u => u.Code == resetPasswordCredentials.UserCode);
+        {//Employees - Users
+            var employee = await _context.Users
+                .FirstOrDefaultAsync(u => u.PermanentCode == resetPasswordCredentials.UserCode);
 
             if (employee == null)
                 return 0; // utilisateur introuvable

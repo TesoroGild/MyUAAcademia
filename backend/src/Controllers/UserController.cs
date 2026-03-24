@@ -6,6 +6,7 @@ using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 using System.Globalization;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyUAAcademiaB.Controllers
 {
@@ -26,6 +27,34 @@ namespace MyUAAcademiaB.Controllers
         private readonly IClasseCourseInterface _classeCourseInterface = classeCourseInterface;
         private readonly IUserCourseInterface _userCourseInterface = userCourseInterface;
         private readonly IBulletinInterface _bulletinInterface = bulletinInterface;
+
+        //EXIST
+        [HttpPost("exist")]
+        [ProducesResponseType(200, Type = typeof(VerifiedUserDto))]
+        [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, professor, student")]
+        public IActionResult GetEmployee([FromBody] ExistCredentialsDto credentials)
+        {
+            if (!_userInterface.UserExistsV1(credentials.Code, credentials.Email))
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Aucun compte associé."
+                });
+
+            var student = _userInterface.GetUser(credentials.Code);
+
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            return Ok(new VerifiedUserDto
+            {
+                FirstName = student.FirstName,
+                LastName = student.LastName,
+                UserRole = student.UserRole,
+                UserCode = student.PermanentCode
+            });
+        }
+
 
         /*CREATE*/
         [HttpPost("students")]
@@ -273,30 +302,30 @@ namespace MyUAAcademiaB.Controllers
             return Ok(isActivated);
         }
 
-        //[HttpPut("validate")]
-        //[ProducesResponseType(200, Type = typeof(bool))]
-        //[ProducesResponseType(400)]
-        //[ProducesResponseType(404)]
-        //public IActionResult ValidateEmployeeAccount([FromBody] ValidationRequest validationRequest)
-        //{
-        //    if (validationRequest == null) return BadRequest(ModelState);
+        [HttpPut("validate")]
+        [ProducesResponseType(200, Type = typeof(bool))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult ValidateUserAccount([FromBody] ValidationRequest validationRequest)
+        {
+            if (validationRequest == null) return BadRequest(ModelState);
 
-        //    if (!_employeeInterface.EmployeeExists(validationRequest.Code))
-        //    {
-        //        ModelState.AddModelError("", "L'employé n'existe pas.");
-        //        return StatusCode(400, ModelState);
-        //    }
+            if (!_userInterface.StudentExists(validationRequest.Code))
+            {
+                ModelState.AddModelError("", "Aucun étudiant trouvé.");
+                return StatusCode(400, ModelState);
+            }
 
-        //    var isActivated = _employeeInterface.ValidateEmployeeAccount(validationRequest);
+            var isActivated = _userInterface.ValidateUserAccount(validationRequest);
 
-        //    if (!isActivated)
-        //    {
-        //        ModelState.AddModelError("", "Erreur lors de la validation de l'employé.");
-        //        return StatusCode(500, ModelState);
-        //    }
+            if (!isActivated)
+            {
+                ModelState.AddModelError("", "Erreur lors de la validation de l'employé.");
+                return StatusCode(500, ModelState);
+            }
 
-        //    return Ok(isActivated);
-        //}
+            return Ok(isActivated);
+        }
 
         [HttpPut("students")]
         [ProducesResponseType(200, Type = typeof(Users))]

@@ -54,18 +54,5 @@ namespace MyUAAcademiaB.Services
             if (grade >= 50) return "D-";
             return "E";
         }
-
-        public async Task<int> CreateBulletin(BulletinDto bulletinTocreate)
-        {
-            var bulletinMap = _mapper.Map<Bulletins>(bulletinTocreate);
-            var bulletinCreated = _bulletinInterface.CreateBulletin(bulletinMap);
-
-            if (bulletinCreated == null)
-            {
-                return 500;
-            }
-
-            return 200;
-        }
     }
 }

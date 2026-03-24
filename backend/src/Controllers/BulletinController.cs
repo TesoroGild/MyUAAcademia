@@ -83,6 +83,22 @@ namespace MyUAAcademiaB.Controllers
             return Ok(bulletins);
         }
 
+        [HttpPost("course-mention")]
+        [ProducesResponseType(200, Type = typeof(string))]
+        [ProducesResponseType(400)]
+        public IActionResult GetCourseMention(SchoolReportKeysDto schoolReportKeys)
+        {
+            if (schoolReportKeys == null) return BadRequest(ModelState);
+
+            var courseGrade = _bulletinInterface.GetCourseMention(schoolReportKeys);
+
+            if (!string.IsNullOrEmpty(courseGrade))
+            {
+                return NotFound(new { message = "Aucun élement trouvé." });
+            }
+
+            return Ok(courseGrade);
+        }
 
         [HttpGet("bulletin/{permanentCode}")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BulletinResponse>))]
@@ -118,6 +134,7 @@ namespace MyUAAcademiaB.Controllers
 
             return Ok(bulletin);
         }
+
 
         /*UPDATE*/
         [HttpPut("bulletins")]

@@ -11,6 +11,7 @@ namespace MyUAAcademiaB.Interfaces
 
         /*CREATE*/
         Employees CreateEmployee(Employees employees);
+        EmployeesContracts CreateUserContract(EmployeesContracts employeeContract);
 
         /*READ*/
         Employees GetEmployee(string code);

@@ -89,8 +89,9 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpPost("courses/program")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<CourseDto>))]
-        public IActionResult GetProgramCourses([FromBody] List<string> programsTitles)
+        public IActionResult GetProgramCourses([FromBody] ProgramSelectionDto programsTitlesJson)
         {
+            var programsTitles = programsTitlesJson.ProgramsTitles;
             if (programsTitles == null || programsTitles.Count == 0) return BadRequest(ModelState);
 
             var courses = _mapper.Map<List<CourseDto>>(_courseInterface.GetProgramCoursesByProgram(programsTitles));

@@ -151,6 +151,32 @@ namespace MyUAAcademiaB.Controllers
             return Ok(newSchedule);
         }
 
+        [HttpPut("assign-prof-course")]
+        [ProducesResponseType(200, Type = typeof(bool))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> AssignProfToClasseCourse([FromBody] ProfCCoursesIdDto profCourseIds)
+        {
+            if (profCourseIds == null) return BadRequest(ModelState);
+
+            var courseExist = _classeCourseInterface.IsClasseExist(profCourseIds.ClassCourseId+"");
+
+            if (!courseExist)
+            {
+                return StatusCode(400, new { message = "Le prof ou le cours n'existe pas" });
+            }
+
+            var rslt = await _classeCourseInterface.AddProfessor(profCourseIds);
+
+            if (rslt <= 0)
+            {
+                ModelState.AddModelError("", "Erreur lors de l'assignation du professeur.");
+                return StatusCode(500, ModelState);
+            }
+
+            return Ok(true);
+        }
+
         //[HttpPut("unsubcribe-student")]
         //[ProducesResponseType(200)]
         //[ProducesResponseType(400)]

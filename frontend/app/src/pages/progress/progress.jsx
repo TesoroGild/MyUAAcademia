@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { HiChevronDown, HiCheck, HiClock, HiAcademicCap } from "react-icons/hi";
 import { getProgramCoursesS, getStudentCoursesS } from "../../services/course.service";
 import { getStudentProgramsS } from "../../services/program.service";
+import { getCourseGradeS } from "../../services/bulletin.service"
 
 // ── Statut d'un cours ────────────────────────────────────────────────────────
 // "done"    = réussi (mention != E et != null)
@@ -11,7 +12,9 @@ import { getStudentProgramsS } from "../../services/program.service";
 // "pending" = pas encore pris
 const getCourseStatus = (sigle, studentCourses) => {
   const found = studentCourses.find((c) => c.sigle === sigle);
+  console.log(found)
   if (!found) return "pending";
+  //const grade = getCourseGradeS({ code: userCo.permanentCode, course: sigle });
   if (found.mention && found.mention !== "E") return "done";
   return "ongoing";
 };
@@ -117,7 +120,7 @@ const Progress = ({ userCo }) => {
   const loadProgramCourses = async (title) => {
     setIsLoading(true);
     try {
-      const courses = await getProgramCoursesS([title]);
+      const courses = await getProgramCoursesS({ programsTitles: [title]});
       setProgramCourses(courses);
     } catch (e) { console.error(e); }
     finally { setIsLoading(false); }

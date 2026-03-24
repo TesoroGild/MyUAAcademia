@@ -1,4 +1,5 @@
-﻿using MyUAAcademiaB.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using MyUAAcademiaB.Data;
 using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
@@ -59,6 +60,18 @@ namespace MyUAAcademiaB.Repository
             _context.UserCourses.Update(userClasses);
             _context.SaveChanges();
             return userClasses;
+        }
+
+        public async Task<int> DropCourses(List<UserCourse> usersClasses)
+        {
+            var keys = usersClasses.Select(u => $"{u.PermanentCode}|{u.CCourseId}").ToList();
+
+            var toDelete = await _context.UserCourses
+                .Where(db => keys.Contains(db.PermanentCode + "|" + db.CCourseId))
+                .ToListAsync();
+
+            _context.UserCourses.RemoveRange(toDelete);
+            return await _context.SaveChangesAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MyUAAcademiaB.Models;
+﻿using MyUAAcademiaB.Dto;
+using MyUAAcademiaB.Models;
 
 namespace MyUAAcademiaB.Interfaces
 {
@@ -12,6 +13,7 @@ namespace MyUAAcademiaB.Interfaces
 
         /*READ*/
         ICollection<ClassesCourses> GetClasseCourse();
+        //Task<int> GetClasseCourse(int id);
         ICollection<ClassesCourses> GetClasseCoursesByProgram(string title);
         ICollection<string> GetCoursesSigle(List<int> courseIds);
         ICollection<ClasseCourses1>GetClasseCourseById(ICollection<int> courseIds);
@@ -23,5 +25,6 @@ namespace MyUAAcademiaB.Interfaces
 
         /*UPDATE*/
         ClassesCourses UpdateACourse(ClassesCourses classesCourses);
+        Task<int> AddProfessor(ProfCCoursesIdDto profCourseIds);
     }
 }

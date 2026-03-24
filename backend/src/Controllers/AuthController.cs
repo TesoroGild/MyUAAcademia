@@ -144,7 +144,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPut("reset-password")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        //[Authorize(Roles = "Admin, Professor")]
+        //[Authorize(Roles = "admin, professor, student")]
         public async Task<IActionResult> UpdatePassword([FromBody] ResetPasswordCredentials resetPasswordCredentials)
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");
@@ -163,7 +163,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPut("reset-password2")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        //[Authorize(Roles = "Professor, Student")]
+        //[Authorize(Roles = "admin, professor, student")]
         public async Task<IActionResult> UpdatePassword1([FromBody] ResetPasswordCredentials resetPasswordCredentials)
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");

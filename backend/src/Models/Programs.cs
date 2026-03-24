@@ -23,5 +23,6 @@ namespace MyUAAcademiaB.Models
 
         public ICollection<UserProgramEnrollment>? UserProgramEnrollments { get; set; }
         public ICollection<Courses>? Courses { get; set; }
+        public virtual ICollection<Bills>? Bills { get; set; } = new List<Bills>();
     }
 }

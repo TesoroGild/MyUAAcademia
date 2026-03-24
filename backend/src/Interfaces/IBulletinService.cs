@@ -8,6 +8,5 @@ namespace MyUAAcademiaB.Interfaces
         //decimal
         double CalculateAverage(IEnumerable<Bulletins> bullettins);
         string SetMention(double grade);
-        Task<int> CreateBulletin(BulletinDto bulletinTocreate);
     }
 }

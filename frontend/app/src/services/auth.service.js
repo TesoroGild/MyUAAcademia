@@ -7,6 +7,7 @@ export const modifyPasswordS = async(changePwdCredentials) => {
   console.log("EMPLOYEE SERVICE : MODIFY PASSWORD");
   try {
     await axios.put(`${backend_url}/Auth/reset-password`, changePwdCredentials);
+    //await axios.put(`${backend_url}/Auth/reset-password2`, changePwdCredentials);
     return { success: true }
   } catch (error) {
     console.error('Erreur :', error);
@@ -96,6 +97,7 @@ export const verifyUserForResetS = async (credentials) => {
   console.log("AUTH SERVICE : GET-USER");
   try {
     const response = await axios.post(`${backend_url}/Employee/exist`, credentials, {withCredentials: true});
+    //const response = await axios.post(`${backend_url}/User/exist`, credentials, {withCredentials: true});
     return { 
       success: true, 
       user: response.data 

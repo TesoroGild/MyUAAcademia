@@ -16,5 +16,8 @@ namespace MyUAAcademiaB.Interfaces
         /*READ*/
         ICollection<int> GetStudentClasseCourse(string permanentCode);
         UserCourse ModifyUserCourse(UserCourse userClasses);
+
+        /*UPDATE*/
+        Task<int> DropCourses(List<UserCourse> usersClasses);
     }
 }

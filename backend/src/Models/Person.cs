@@ -5,7 +5,8 @@
         public DateOnly BirthDay { get; set; }
         public string? UserStatus { get; set; }
         public string FirstName { get; set; }
-        public int? IsActivated { get; set; }
+        public int IsActivated { get; set; } = 0;
+        public bool IsValidated { get; set; } = false;
         public string LastName { get; set; }
         public int? Nas { get; set; }
         public string Nationality { get; set; }

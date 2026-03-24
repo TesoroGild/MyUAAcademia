@@ -3,8 +3,6 @@ Il s'agit du backend de l'application https://github.com/TesoroGild/MyUAAcademia
 
 
 # Prérequis
-Sonarqube : ???
-Docker : ???
 Visual Studio : https://visualstudio.microsoft.com/fr/downloads/
 MyUAAcademia : https://github.com/TesoroGild/MyUAAcademia
 
@@ -51,3 +49,5 @@ Lorsque je fermais le navigateur, mon user était stateless donc je perdais ses 
 
 # TODOS
 * Enregistrer les fichiers des utilisateurs selon chaque programme inscrit.
+* Logique de session pour s'inscrire aux cours
+* Visuel pour indiquer les cours réussis en vérifiant le bulletin.

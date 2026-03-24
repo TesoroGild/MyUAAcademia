@@ -27,8 +27,8 @@ const Alert = ({ type, message }) => {
 
 const TYPE_EMPLOYMENT = ["Temps plein", "Temps partiel"];
 const TYPE_OFFER      = ["Permanent", "Temporaire", "Saisonnier", "Stage"];
-const DEPARTMENTS     = ["Informatique", "Mathématiques", "Relations humaines", "Enseignement", "Art visuel et médiatique"];
-const FACULTIES       = ["Sciences", "Communication", "Éducation", "Sciences sociales", "Arts", "Gestion", "Santé", "Langues"];
+const DEPARTMENTS     = ["Danse", "Chimie", "Communication sociale et publique", "Éducation et pédagogie", "Enseignement", "Finance", "Géographie", "Histoire", "Informatique", "Mathématiques", "Psychologie", "Relations humaines",  "Science politique"];
+const FACULTIES       = ["Arts", "Communication", "Science politique et droit", "Sciences", "Sciences de l’éducation", "Sciences de la gestion", "Sciences humaines"];
 
 const STATUS_BADGE = (contract) => {
   const now  = new Date();

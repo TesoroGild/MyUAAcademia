@@ -31,6 +31,13 @@ namespace MyUAAcademiaB.Repository
             return employees;
         }
 
+        public EmployeesContracts CreateUserContract(EmployeesContracts employeeContract)
+        {
+            _context.EmployeesContracts.Add(employeeContract);
+            _context.SaveChanges();
+            return employeeContract;
+        }
+
 
         /*READ*/
         public Employees GetEmployee(string code) 
@@ -83,8 +90,7 @@ namespace MyUAAcademiaB.Repository
         public bool ValidateEmployeeAccount(ValidationRequest validationRequest)
         {
             var employee = GetEmployee(validationRequest.Code);
-            var validateAccount = 0;
-
+            int validateAccount;
             if (validationRequest.IsValidated) validateAccount = 1;
             else validateAccount = 0;
 

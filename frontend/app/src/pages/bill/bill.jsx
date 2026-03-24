@@ -157,28 +157,32 @@ const Bill = ({ userCo, userPermanentCode }) => {
   const getCourses = async (year, session) => {
     try {
       const res = await getSessionCoursePriceS({ permanentCode: userPermanentCode, yearCourse: year, sessionCourse: session });
-      if (res.success) setStudentCourses(res.courses);
-    } catch (e) { console.error(e); }
+      if (res.success) {
+        setStudentCourses(res.courses);
+        return res.courses; // ← ajoute ça
+      }
+      return [];
+    } catch (e) { console.error(e); return []; }
   };
 
   const calcTotal = (bill) => {
     if (!bill) return 0;
     let t = 0;
-    t += bill.generalExpenses || 0;
-    t += bill.sportsAdministrationFees || 0;
-    t += bill.dentalInsurance || 0;
-    t += bill.insuranceFees || 0;
-    t += bill.amount || 0;
-    t -= bill.refundsAndAdjustments || 0;
+    t += bill.generalExpenses           || 0;
+    t += bill.sportsAdministrationFees  || 0;
+    t += bill.dentalInsurance           || 0;
+    t += bill.insuranceFees             || 0;
+    t += bill.amount                    || 0;
+    t -= bill.refundsAndAdjustments     || 0;
     return t;
   };
 
   const loadSession = async (year, session) => {
     const found = studentBills.find((b) => b.yearStudy == year && b.sessionStudy === session);
     if (found) {
+      const courses = await getCourses(year, session);
       setBillToDisplay(found);
       setTotal(calcTotal(found));
-      await getCourses(year, session);
     } else {
       setBillToDisplay(null);
       setStudentCourses([]);
@@ -192,12 +196,11 @@ const Bill = ({ userCo, userPermanentCode }) => {
 
   const handleHistoryRowClick = async (bill) => {
     if (expandedBill?.yearStudy === bill.yearStudy && expandedBill?.sessionStudy === bill.sessionStudy) {
-      setExpandedBill(null);
-      return;
+      setExpandedBill(null); return;
     }
     setExpandedBill(bill);
-    setTotal(calcTotal(bill));
     await getCourses(bill.yearStudy, bill.sessionStudy);
+    setTotal(calcTotal(bill));
   };
 
   return (

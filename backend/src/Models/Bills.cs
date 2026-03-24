@@ -1,4 +1,6 @@
-﻿namespace MyUAAcademiaB.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MyUAAcademiaB.Models
 {
     public class Bills
     {
@@ -22,6 +24,9 @@
 
         public string PermanentCode { get; set; }
         public Users Student {  get; set; }
+
+        public string? ProgramTitle { get; set; }
+        public virtual Programs? Program { get; set; }
 
         //public ICollection<Courses> Course { get; set; }
     }

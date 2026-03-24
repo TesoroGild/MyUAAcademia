@@ -64,5 +64,15 @@ namespace MyUAAcademiaB.Services
 
             return 200;
         }
+
+        public double CalculateAmount(IEnumerable<BillCoursePrice> coursesAPrices)
+        {
+            if (coursesAPrices == null || !coursesAPrices.Any())
+            {
+                return 0;
+            }
+
+            return coursesAPrices.Sum(c => c.Price);
+        }
     }
 }

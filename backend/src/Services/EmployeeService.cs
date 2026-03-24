@@ -27,11 +27,10 @@ namespace MyUAAcademiaB.Services
             code.Append(month.ToString("D2"));
             code.Append(year.ToString("D4"));
 
-            if (job.ToLower().Equals("directeur")) code.Append("DM");
-            else if (job.ToLower().Equals("chef")) code.Append("GD");
-            else if (job.ToLower().Equals("ressources humaines")) code.Append("SV");
-            else if (job.ToLower().Equals("caissier")) code.Append("CP");
-            else code.Append("RN");
+            if (job.ToLower().Equals("director")) code.Append("DG");
+            else if (job.ToLower().Equals("admin")) code.Append("AD");
+            else if (job.ToLower().Equals("professor")) code.Append("PF");
+            else code.Append("EMP");
 
             code.Append(DateTime.Today.Year - startingDate.Year);
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyUAAcademiaB.Data;
+using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 
@@ -30,11 +31,11 @@ namespace MyUAAcademiaB.Repository
         }
 
         /*CREATE*/
-        public Bulletins CreateBulletin(Bulletins bulletinToCreate)
+        public int CreateBulletin(Bulletins bulletinToCreate)
         {
             _context.Add(bulletinToCreate);
-            _context.SaveChanges();
-            return bulletinToCreate;
+            var res = _context.SaveChanges();
+            return res;
         }
 
         /*READ*/
@@ -55,6 +56,12 @@ namespace MyUAAcademiaB.Repository
                 .ToList();
         }
 
+        public string? GetCourseMention(SchoolReportKeysDto schoolReportKeys)
+        {
+            return _context.Bulletins.Where(bu => bu.Sigle == schoolReportKeys.Sigle && bu.PermanentCode == schoolReportKeys.PermanentCode)
+                .Select(bu => bu.Mention)
+                .SingleOrDefault();
+        }
 
         /*UPDATE*/
         public async Task<int> UpdateBulletin(Bulletins bulletinToUpdate)
@@ -72,5 +79,11 @@ namespace MyUAAcademiaB.Repository
         }
 
         /*DELETE*/
+        public Task<int> RemoveCourseTranscript(Bulletins courseToDrop)
+        {
+            _context.Remove(courseToDrop);
+            var res = _context.SaveChangesAsync();
+            return res;
+        }
     }
 }

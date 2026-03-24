@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyUAAcademiaB.Data;
 
@@ -11,9 +12,11 @@ using MyUAAcademiaB.Data;
 namespace MyUAAcademiaB.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260321213622_EndDateContractNullable")]
+    partial class EndDateContractNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,9 +60,6 @@ namespace MyUAAcademiaB.Migrations
                     b.Property<double?>("InsuranceFees")
                         .HasColumnType("float");
 
-                    b.Property<string>("ProgramTitle")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<double?>("RefundsAndAdjustments")
                         .HasColumnType("float");
 
@@ -69,8 +69,6 @@ namespace MyUAAcademiaB.Migrations
                     b.HasKey("SessionStudy", "YearStudy", "PermanentCode");
 
                     b.HasIndex("PermanentCode");
-
-                    b.HasIndex("ProgramTitle");
 
                     b.ToTable("Bills");
                 });
@@ -351,9 +349,6 @@ namespace MyUAAcademiaB.Migrations
                     b.Property<string>("UserStatus")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("isValidated")
-                        .HasColumnType("bit");
-
                     b.HasKey("Code");
 
                     b.HasIndex("CreatedByCode");
@@ -575,9 +570,6 @@ namespace MyUAAcademiaB.Migrations
                     b.Property<string>("UserStatus")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("isValidated")
-                        .HasColumnType("bit");
-
                     b.HasKey("PermanentCode");
 
                     b.HasIndex("EmployeeCode");
@@ -590,15 +582,8 @@ namespace MyUAAcademiaB.Migrations
                     b.HasOne("MyUAAcademiaB.Models.Users", "Student")
                         .WithMany("Bills")
                         .HasForeignKey("PermanentCode")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("MyUAAcademiaB.Models.Programs", "Program")
-                        .WithMany("Bills")
-                        .HasForeignKey("ProgramTitle")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Program");
 
                     b.Navigation("Student");
                 });
@@ -815,8 +800,6 @@ namespace MyUAAcademiaB.Migrations
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Programs", b =>
                 {
-                    b.Navigation("Bills");
-
                     b.Navigation("Courses");
 
                     b.Navigation("UserProgramEnrollments");

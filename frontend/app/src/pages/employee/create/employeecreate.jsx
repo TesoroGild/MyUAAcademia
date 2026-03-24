@@ -61,7 +61,7 @@ const EmployeeCreate = ({ employeeCo }) => {
       birthday: "", createdByCode: employeeCo?.code ?? "",
       email: "", empStatus: "", firstname: "", lastname: "",
       nas: "", phoneNumber: "", sexe: "", streetAddress: "",
-      userRole: "professor", nationality: "",
+      jobTitle: "", nationality: "",
       realStartingDate: "", realEndDate: "", realSalary: "",
     },
   });
@@ -91,18 +91,15 @@ const EmployeeCreate = ({ employeeCo }) => {
     try {
       const payload = {
         ...data,
+        jobTitle: selectedContract.jobTitle,
         contractCode: selectedContract?.code ?? null,
-        // Champs du poste issus du contrat (envoyés pour info, stockés côté back)
-        department:   selectedContract?.department ?? null,
-        faculty:      selectedContract?.faculty    ?? null,
-        job:          selectedContract?.jobTitle   ?? null,
-        contracts:    selectedContract?.typeOfEmployment ?? null,
+        realEndDate: data.RealEndDate === "" ? null : data.RealEndDate
       };
       const result = await createEmployee(payload);
       if (result.success) {
         showAlert("success", "Employé créé avec succès.", {
           label: "Voir le dossier",
-          fn: () => navigate(`/employee/${result.employeeAdded.code}`),
+          fn: () => navigate(`/employee/${result.employeeAdded}`),
         });
         reset();
         setSelectedContract(null);
@@ -202,17 +199,6 @@ const EmployeeCreate = ({ employeeCo }) => {
             </div>
             <div className="p-6 flex flex-col gap-5">
 
-              {/* Rôle */}
-              <div className="grid sm:grid-cols-2 gap-5">
-                <Field label="Rôle" required error={errors.userRole?.message}>
-                  <select className={inputCls} {...register("userRole", { required: "Requis." })}>
-                    <option value="professor">Professeur</option>
-                    <option value="employee">Employé</option>
-                    <option value="admin">Directeur</option>
-                  </select>
-                </Field>
-              </div>
-
               {/* ── Sélecteur contrat ── */}
               {!selectedContract ? (
                 <div className="flex flex-col gap-2">
@@ -285,7 +271,6 @@ const EmployeeCreate = ({ employeeCo }) => {
                   <div className="border border-blue-100 rounded-xl overflow-hidden">
                     <div className="px-4 py-3 bg-blue-50/50 border-b border-blue-100">
                       <p className="text-xs font-semibold text-blue-800 uppercase tracking-wide">Conditions négociées — propres à cet employé</p>
-                      <p className="text-xs text-blue-600 mt-0.5">Enregistrées dans EmployeesContracts</p>
                     </div>
                     <div className="p-4 grid sm:grid-cols-3 gap-4">
                       <Field label="Salaire réel ($)" required error={errors.realSalary?.message} hint="Salaire négocié">

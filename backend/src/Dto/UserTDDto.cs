@@ -13,6 +13,7 @@
         public string ProfessionalEmail { get; set; }
 
         public string IsActivated { get; set; }
+        public bool IsValidated { get; set; }
 
         public string Nationality { get; set; }
 

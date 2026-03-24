@@ -107,6 +107,7 @@ const CourseEnrollment = ({ employeeCo }) => {
       const res = await enrollStudentsInCoursesS({
         cCourseIds:     selectedCourses.map((c) => c.id),
         permanentCodes: selectedStudents.map((s) => s.permanentCode),
+        programTitle: programTitle
       });
       if (res.success) {
         showAlert("success", `${selectedStudents.length} étudiant(s) inscrit(s) à ${selectedCourses.length} cours.`);

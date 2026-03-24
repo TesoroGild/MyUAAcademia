@@ -3,7 +3,7 @@ import adminPicture from "../../../assets/img/Admin.jpg";
 import React, { useEffect, useState } from "react";
 import { HiSearch, HiX, HiCheck, HiExclamation, HiAcademicCap, HiUser } from "react-icons/hi";
 import { getProgramsS } from "../../../services/program.service";
-import { getClassesCoursesS, getClassesCoursesByProgramS } from "../../../services/course.service";//assignProfessorToClasseCourseS
+import { getClassesCoursesByProgramS, assignProfessorToClasseCourseS } from "../../../services/course.service";
 import { getEmployeesS } from "../../../services/employee.service";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -69,17 +69,17 @@ const AssignProfessor = ({ employeeCo }) => {
     } catch (e) { console.error(e); }
   };
 
-//   const assignProf = async (classCourse, prof) => {
-//     setAssignments((prev) => ({ ...prev, [classCourse.id]: { profCode: prof.code, profName: `${prof.firstName} ${prof.lastName}`, saving: true, saved: false } }));
-//     try {
-//       await assignProfessorToClasseCourseS({ classCourseId: classCourse.id, professorCode: prof.code });
-//       setAssignments((prev) => ({ ...prev, [classCourse.id]: { profCode: prof.code, profName: `${prof.firstName} ${prof.lastName}`, saving: false, saved: true } }));
-//       showAlert("success", `${prof.firstName} ${prof.lastName} assigné(e) à ${classCourse.courseSigle}.`);
-//     } catch {
-//       setAssignments((prev) => { const n = { ...prev }; delete n[classCourse.id]; return n; });
-//       showAlert("error", "Impossible d'assigner ce professeur.");
-//     }
-//   };
+  const assignProf = async (classCourse, prof) => {
+    setAssignments((prev) => ({ ...prev, [classCourse.id]: { profCode: prof.code, profName: `${prof.firstName} ${prof.lastName}`, saving: true, saved: false } }));
+    try {
+      await assignProfessorToClasseCourseS({ classCourseId: classCourse.id, professorCode: prof.code });
+      setAssignments((prev) => ({ ...prev, [classCourse.id]: { profCode: prof.code, profName: `${prof.firstName} ${prof.lastName}`, saving: false, saved: true } }));
+      showAlert("success", `${prof.firstName} ${prof.lastName} assigné(e) à ${classCourse.courseSigle}.`);
+    } catch {
+      setAssignments((prev) => { const n = { ...prev }; delete n[classCourse.id]; return n; });
+      showAlert("error", "Impossible d'assigner ce professeur.");
+    }
+  };
 
   const removeAssignment = (courseId) => {
     setAssignments((prev) => { const n = { ...prev }; delete n[courseId]; return n; });

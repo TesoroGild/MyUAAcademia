@@ -193,7 +193,7 @@ namespace MyUAAcademiaB.Controllers
             var billMap = _mapper.Map<Bills>(billToUpdate);
             var billUpdated = _billInterface.UpdateBill(billMap);
 
-            if (billUpdated == null)
+            if (billUpdated < 0)
             {
                 ModelState.AddModelError("", "Erreur lors de la mise à jour de la facture.");
                 return StatusCode(500, ModelState);
