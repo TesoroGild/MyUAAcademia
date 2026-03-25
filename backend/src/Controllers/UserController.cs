@@ -32,7 +32,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("exist")]
         [ProducesResponseType(200, Type = typeof(VerifiedUserDto))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "admin, professor, student")]
+        //[Authorize(Roles = "admin, professor, student")]
         public IActionResult GetEmployee([FromBody] ExistCredentialsDto credentials)
         {
             if (!_userInterface.UserExistsV1(credentials.Code, credentials.Email))

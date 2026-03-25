@@ -107,7 +107,7 @@ export const getStudentsInProgramS = async (classeCourse) => {
 }
 
 export const getProgramStudentsS = async (progTitle) => {
-    console.log("USER SERVICE : GET STUDENTS");
+    console.log("USER SERVICE : GET STUDENTS IN PROGRAM");
     try {
         const response = await axios.get(`${backend_url}/UserProgram/students-in-the-program/${progTitle}`);
         return { 

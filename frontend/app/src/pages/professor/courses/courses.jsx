@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { HiChevronRight, HiArrowLeft, HiAcademicCap, HiUserGroup, HiSearch, HiX } from "react-icons/hi";
 import { RiGraduationCapFill } from "react-icons/ri";
 import { getProfCourseS } from "../../../services/course.service";
-import { getProgramStudentsS } from "../../../services/user.service";
+import { getStudentsInProgramS } from "../../../services/user.service";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const GRADE_BADGE = {
@@ -63,7 +63,7 @@ const ProfessorCourses = ({ employeeCo }) => {
   const loadStudents = async (programTitle) => {
     setIsLoading(true);
     try {
-      const res  = await getProgramStudentsS(programTitle);
+      const res  = await getStudentsInProgramS(programTitle);
       const list = Array.isArray(res) ? res : res?.students ?? res?.data ?? [];
       setStudents(list);
     } catch (e) { console.error(e); }
@@ -106,7 +106,7 @@ const ProfessorCourses = ({ employeeCo }) => {
   const selectCourse = async (course) => {
     setSelectedCourse(course);
     setSearchStudent("");
-    await loadStudents(course.programTitle);
+    await loadStudents(course.id);
     goTo("students");
   };
 

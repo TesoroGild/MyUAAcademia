@@ -68,7 +68,7 @@ export const getUserBySessionS = async () => {
 }
 
 export const userLogin = async (credentials) => {
-  console.log("AUTH SERVICE : LOGIN");
+  console.log("AUTH SERVICE : LOGIN2");
   try {
     const response = await axios.post(`${backend_url}/Auth/login2`, credentials, {withCredentials: true});
     return {
@@ -76,8 +76,14 @@ export const userLogin = async (credentials) => {
       userConnected: response.data
     };
   } catch (error) {
-    console.error('Erreur :', error);
-    throw error;
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data.message
+      };
+    }
+    
+    return { success: false, message: "Impossible de contacter le serveur" };
   }
 };
 
