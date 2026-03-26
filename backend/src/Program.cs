@@ -1,4 +1,3 @@
-//tu as change les studentId de bill par permanentcode
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
@@ -11,7 +10,6 @@ using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Repository;
 using MyUAAcademiaB.Services;
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json.Serialization;
 
