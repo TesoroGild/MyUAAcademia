@@ -17,18 +17,27 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var frontendUrl = builder.Configuration["FRONTEND_URL"];
-var httpPass = builder.Configuration["HTTPS_PASS"];
-var httpFile = builder.Configuration["HTTPS_FILE"];
-var port = builder.Configuration["PORT"];
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenLocalhost(int.Parse(port), listenOptions =>
-    {
-        listenOptions.UseHttps(httpFile, httpPass);
-    });
-});
+    var port = int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "8080");
 
+    if (builder.Environment.IsDevelopment())
+    {
+        var httpPass = builder.Configuration["HTTPS_PASS"];
+        var httpFile = builder.Configuration["HTTPS_FILE"];
+
+        options.ListenLocalhost(port, listenOptions =>
+        {
+            listenOptions.UseHttps(httpFile, httpPass);
+        });
+    }
+    else
+    {
+        // En prod (Railway) : HTTP simple sur toutes les interfaces
+        options.Listen(System.Net.IPAddress.Any, port);
+    }
+});
 
 // Add services to the container.
 builder.Services.AddControllers();

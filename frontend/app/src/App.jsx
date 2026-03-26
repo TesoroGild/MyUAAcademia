@@ -87,7 +87,6 @@ const App = () => {
           setUserCo(response.userConnected);
         } else if (role === "professor") {
           setEmployeeCo(response.userConnected);
-          //setUserCo(response.userConnected);
         } else if (role === "admin") {
           setEmployeeCo(response.userConnected);
         }
