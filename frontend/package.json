@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "react-datepicker": "^9.1.0",
-    "react-hook-form": "^7.62.0"
-  }
-}

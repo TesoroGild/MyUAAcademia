@@ -398,7 +398,7 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-frontend/package-lock.json
+app/package-lock.json
 
 # Mkcert files
 *.pem
