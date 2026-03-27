@@ -196,11 +196,16 @@ app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+if (!Directory.Exists(uploadsPath))
+{
+    Directory.CreateDirectory(uploadsPath);
+}
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        Path.Combine(Directory.GetCurrentDirectory(), "Uploads")
-    ),
+    FileProvider = new PhysicalFileProvider(uploadsPath),
     RequestPath = "/Uploads"
 });
 app.Run();
