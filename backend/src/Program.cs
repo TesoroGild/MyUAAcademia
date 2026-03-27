@@ -192,7 +192,20 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowSpecificOrigin");
+//app.UseCors("AllowSpecificOrigin");
+
+var frontUrl = builder.Configuration["FRONTEND_URL"];
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(frontUrl) // Utilise la variable !
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
