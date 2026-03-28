@@ -12,7 +12,7 @@ using MyUAAcademiaB.Data;
 namespace MyUAAcademiaB.Migrations.Postgres
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20260328151429_InitialCreatePostgres")]
+    [Migration("20260328165941_InitialCreatePostgres")]
     partial class InitialCreatePostgres
     {
         /// <inheritdoc />
