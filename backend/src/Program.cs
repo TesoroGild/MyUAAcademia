@@ -169,7 +169,16 @@ var connectionString = builder.Configuration["DefaultConnection"]
                        ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContext>(options =>
 {
-    options.UseSqlServer(connectionString);
+    if (builder.Environment.IsDevelopment())
+    {
+        // SQL Server pour ton SSMS local
+        options.UseSqlServer(connectionString);
+    }
+    else
+    {
+        // PostgreSQL pour ta mise en ligne gratuite
+        options.UseNpgsql(connectionString);
+    }
 });
 
 // 10. Logging
