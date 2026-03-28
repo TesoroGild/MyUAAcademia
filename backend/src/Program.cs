@@ -165,13 +165,10 @@ builder.Services.AddCors(options =>
 });
 
 // 9. Base de données
-var connectionString = builder.Configuration["DefaultConnection"]
-                       ?? builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<DataContext>(options =>
 {
     if (builder.Environment.IsDevelopment())
     {
-        // SQL Server pour ton SSMS local
         options.UseSqlServer(
             builder.Configuration.GetConnectionString("DefaultConnection"),
             x => x.MigrationsAssembly("MyUAAcademiaB")
@@ -179,14 +176,16 @@ builder.Services.AddDbContext<DataContext>(options =>
     }
     else
     {
-        // PostgreSQL pour ta mise en ligne gratuite
-        options.UseNpgsql(
-            builder.Configuration.GetConnectionString("DefaultConnection"), x =>
-            { 
-                x.MigrationsAssembly("MyUAAcademiaB");
-                x.MigrationsHistoryTable("__EFMigrationsHistory", "public");
-            }
-        ).UseSnakeCaseNamingConvention();
+        var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':');
+        var npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
+
+        options.UseNpgsql(npgsqlConn, x =>
+        {
+            x.MigrationsAssembly("MyUAAcademiaB");
+            x.MigrationsHistoryTable("__EFMigrationsHistory", "public");
+        }).UseSnakeCaseNamingConvention();
     }
 });
 
