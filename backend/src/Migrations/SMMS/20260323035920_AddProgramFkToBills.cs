@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace MyUAAcademiaB.Migrations
+namespace MyUAAcademiaB.Migrations.SMMS
 {
     /// <inheritdoc />
     public partial class AddProgramFkToBills : Migration

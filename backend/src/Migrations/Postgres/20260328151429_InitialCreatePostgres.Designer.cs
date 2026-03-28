@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyUAAcademiaB.Data;
 
 #nullable disable
 
-namespace MyUAAcademiaB.Migrations
+namespace MyUAAcademiaB.Migrations.Postgres
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260328151429_InitialCreatePostgres")]
+    partial class InitialCreatePostgres
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -306,8 +309,11 @@ namespace MyUAAcademiaB.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("IsActivated")
+                    b.Property<int>("IsActivated")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsValidated")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -350,9 +356,6 @@ namespace MyUAAcademiaB.Migrations
 
                     b.Property<string>("UserStatus")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("isValidated")
-                        .HasColumnType("bit");
 
                     b.HasKey("Code");
 
@@ -530,8 +533,11 @@ namespace MyUAAcademiaB.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("IsActivated")
+                    b.Property<int>("IsActivated")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsValidated")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -574,9 +580,6 @@ namespace MyUAAcademiaB.Migrations
 
                     b.Property<string>("UserStatus")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("isValidated")
-                        .HasColumnType("bit");
 
                     b.HasKey("PermanentCode");
 

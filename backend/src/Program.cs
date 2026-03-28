@@ -172,12 +172,21 @@ builder.Services.AddDbContext<DataContext>(options =>
     if (builder.Environment.IsDevelopment())
     {
         // SQL Server pour ton SSMS local
-        options.UseSqlServer(connectionString);
+        options.UseSqlServer(
+            builder.Configuration.GetConnectionString("DefaultConnection"),
+            x => x.MigrationsAssembly("MyUAAcademiaB")
+        );
     }
     else
     {
         // PostgreSQL pour ta mise en ligne gratuite
-        options.UseNpgsql(connectionString);
+        options.UseNpgsql(
+            builder.Configuration.GetConnectionString("DefaultConnection"), x =>
+            { 
+                x.MigrationsAssembly("MyUAAcademiaB");
+                x.MigrationsHistoryTable("__EFMigrationsHistory", "public");
+            }
+        ).UseSnakeCaseNamingConvention();
     }
 });
 
@@ -234,6 +243,16 @@ app.MapControllers();
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
+}
+
+// 17. Envoie des migrations vers postgreSQL en prod
+if (!app.Environment.IsDevelopment()) // Si on est sur Railway
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+        db.Database.Migrate();
+    }
 }
 
 app.Run();
