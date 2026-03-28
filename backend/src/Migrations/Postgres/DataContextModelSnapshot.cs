@@ -2,9 +2,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyUAAcademiaB.Data;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -18,571 +18,719 @@ namespace MyUAAcademiaB.Migrations.Postgres
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.14")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Bills", b =>
                 {
                     b.Property<string>("SessionStudy")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("session_study");
 
                     b.Property<string>("YearStudy")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("year_study");
 
                     b.Property<string>("PermanentCode")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("permanent_code");
 
                     b.Property<double?>("Amount")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision")
+                        .HasColumnName("amount");
 
                     b.Property<double?>("AmountPaid")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision")
+                        .HasColumnName("amount_paid");
 
                     b.Property<DateTime>("DateOfIssue")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_of_issue");
 
                     b.Property<DateTime?>("DateOfPaiement")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date_of_paiement");
 
                     b.Property<DateTime>("DeadLine")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dead_line");
 
                     b.Property<double?>("DentalInsurance")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision")
+                        .HasColumnName("dental_insurance");
 
                     b.Property<double?>("GeneralExpenses")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision")
+                        .HasColumnName("general_expenses");
 
                     b.Property<double?>("InsuranceFees")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision")
+                        .HasColumnName("insurance_fees");
 
                     b.Property<string>("ProgramTitle")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("program_title");
 
                     b.Property<double?>("RefundsAndAdjustments")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision")
+                        .HasColumnName("refunds_and_adjustments");
 
                     b.Property<double?>("SportsAdministrationFees")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision")
+                        .HasColumnName("sports_administration_fees");
 
-                    b.HasKey("SessionStudy", "YearStudy", "PermanentCode");
+                    b.HasKey("SessionStudy", "YearStudy", "PermanentCode")
+                        .HasName("pk_bills");
 
-                    b.HasIndex("PermanentCode");
+                    b.HasIndex("PermanentCode")
+                        .HasDatabaseName("ix_bills_permanent_code");
 
-                    b.HasIndex("ProgramTitle");
+                    b.HasIndex("ProgramTitle")
+                        .HasDatabaseName("ix_bills_program_title");
 
-                    b.ToTable("Bills");
+                    b.ToTable("bills", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Bulletins", b =>
                 {
                     b.Property<string>("Sigle")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("sigle");
 
                     b.Property<string>("PermanentCode")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("permanent_code");
 
                     b.Property<double?>("Grade")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision")
+                        .HasColumnName("grade");
 
                     b.Property<string>("Mention")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("mention");
 
-                    b.HasKey("Sigle", "PermanentCode");
+                    b.HasKey("Sigle", "PermanentCode")
+                        .HasName("pk_bulletins");
 
-                    b.HasIndex("PermanentCode");
+                    b.HasIndex("PermanentCode")
+                        .HasDatabaseName("ix_bulletins_permanent_code");
 
-                    b.ToTable("Bulletins");
+                    b.ToTable("bulletins", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Classes", b =>
                 {
                     b.Property<string>("ClasseName")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("classe_name");
 
                     b.Property<int?>("Capacity")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("capacity");
 
                     b.Property<string>("EmployeeCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
+                        .HasColumnName("employee_code")
                         .UseCollation("SQL_Latin1_General_CP1_CS_AS");
 
                     b.Property<string>("TypeOfClasse")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("type_of_classe");
 
-                    b.HasKey("ClasseName");
+                    b.HasKey("ClasseName")
+                        .HasName("pk_classes");
 
-                    b.HasIndex("EmployeeCode");
+                    b.HasIndex("EmployeeCode")
+                        .HasDatabaseName("ix_classes_employee_code");
 
-                    b.ToTable("Classes");
+                    b.ToTable("classes", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.ClassesCourses", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClasseName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("classe_name");
 
                     b.Property<string>("CourseSigle")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("course_sigle");
 
                     b.Property<string>("EmployeeCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
+                        .HasColumnName("employee_code")
                         .UseCollation("SQL_Latin1_General_CP1_CS_AS");
 
                     b.Property<string>("EndTime")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("end_time");
 
                     b.Property<string>("Jours")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("jours");
 
                     b.Property<string>("SessionCourse")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("session_course");
 
                     b.Property<string>("StartTime")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("start_time");
 
                     b.Property<string>("TaughtBy")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
+                        .HasColumnName("taught_by")
                         .UseCollation("SQL_Latin1_General_CP1_CS_AS");
 
                     b.Property<string>("YearCourse")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("year_course");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_classes_courses");
 
-                    b.HasIndex("CourseSigle");
+                    b.HasIndex("CourseSigle")
+                        .HasDatabaseName("ix_classes_courses_course_sigle");
 
-                    b.HasIndex("EmployeeCode");
+                    b.HasIndex("EmployeeCode")
+                        .HasDatabaseName("ix_classes_courses_employee_code");
 
                     b.HasIndex("ClasseName", "StartTime", "Jours", "SessionCourse", "YearCourse")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("ix_classes_courses_classe_name_start_time_jours_session_course");
 
                     b.HasIndex("TaughtBy", "StartTime", "Jours", "SessionCourse", "YearCourse")
                         .IsUnique()
-                        .HasFilter("[TaughtBy] IS NOT NULL");
+                        .HasDatabaseName("ix_classes_courses_taught_by_start_time_jours_session_course_y");
 
-                    b.ToTable("ClassesCourses");
+                    b.ToTable("classes_courses", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Contracts", b =>
                 {
                     b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("code");
 
                     b.Property<string>("Availability")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("availability");
 
                     b.Property<string>("BaseSalary")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("base_salary");
 
                     b.Property<string>("Department")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("department");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("description");
 
                     b.Property<DateOnly?>("EndingDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("ending_date");
 
                     b.Property<string>("Faculty")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("faculty");
 
                     b.Property<string>("JobTitle")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("job_title");
 
                     b.Property<string>("MaximumWage")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("maximum_wage");
 
                     b.Property<int>("MinimumWage")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("minimum_wage");
 
                     b.Property<int>("NumberOfHours")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("number_of_hours");
 
                     b.Property<DateOnly>("StartingDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("starting_date");
 
                     b.Property<string>("TypeOfEmployment")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("type_of_employment");
 
                     b.Property<string>("TypeOfOffer")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("type_of_offer");
 
                     b.Property<string>("WorkShift")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("work_shift");
 
-                    b.HasKey("Code");
+                    b.HasKey("Code")
+                        .HasName("pk_contracts");
 
-                    b.ToTable("Contracts");
+                    b.ToTable("contracts", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Courses", b =>
                 {
                     b.Property<string>("Sigle")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("sigle");
 
                     b.Property<int?>("Autumn")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("autumn");
 
                     b.Property<int>("Credits")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("credits");
 
                     b.Property<string>("EmployeeCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
+                        .HasColumnName("employee_code")
                         .UseCollation("SQL_Latin1_General_CP1_CS_AS");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("full_name");
 
                     b.Property<double>("Price")
-                        .HasColumnType("float");
+                        .HasColumnType("double precision")
+                        .HasColumnName("price");
 
                     b.Property<string>("ProgramTitle")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("program_title");
 
                     b.Property<int?>("Summer")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("summer");
 
                     b.Property<int?>("Winter")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("winter");
 
-                    b.HasKey("Sigle");
+                    b.HasKey("Sigle")
+                        .HasName("pk_courses");
 
-                    b.HasIndex("EmployeeCode");
+                    b.HasIndex("EmployeeCode")
+                        .HasDatabaseName("ix_courses_employee_code");
 
-                    b.HasIndex("ProgramTitle");
+                    b.HasIndex("ProgramTitle")
+                        .HasDatabaseName("ix_courses_program_title");
 
-                    b.ToTable("Courses");
+                    b.ToTable("courses", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Employees", b =>
                 {
                     b.Property<string>("Code")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
+                        .HasColumnName("code")
                         .UseCollation("SQL_Latin1_General_CP1_CS_AS");
 
                     b.Property<DateOnly>("BirthDay")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("birth_day");
 
                     b.Property<string>("CreatedByCode")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
+                        .HasColumnName("created_by_code")
                         .UseCollation("SQL_Latin1_General_CP1_CS_AS");
 
                     b.Property<string>("EmpStatus")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("emp_status");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("first_name");
 
                     b.Property<int>("IsActivated")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("is_activated");
 
                     b.Property<bool>("IsValidated")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_validated");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("last_name");
 
                     b.Property<int?>("Nas")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("nas");
 
                     b.Property<string>("Nationality")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("nationality");
 
                     b.Property<string>("PersonalEmail")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("personal_email");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("phone_number");
 
                     b.Property<string>("ProfessionalEmail")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("professional_email");
 
                     b.Property<string>("Pwd")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("pwd");
 
-                    b.Property<string>("Sexe")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char>("Sexe")
+                        .HasColumnType("character(1)")
+                        .HasColumnName("sexe");
 
                     b.Property<string>("StreetAddress")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("street_address");
 
                     b.Property<string>("UserRole")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("user_role");
 
                     b.Property<string>("UserStatus")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("user_status");
 
-                    b.HasKey("Code");
+                    b.HasKey("Code")
+                        .HasName("pk_employees");
 
-                    b.HasIndex("CreatedByCode");
+                    b.HasIndex("CreatedByCode")
+                        .HasDatabaseName("ix_employees_created_by_code");
 
-                    b.ToTable("Employees");
+                    b.ToTable("employees", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.EmployeesContracts", b =>
                 {
                     b.Property<string>("EmpCode")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
+                        .HasColumnName("emp_code")
                         .UseCollation("SQL_Latin1_General_CP1_CS_AS");
 
                     b.Property<string>("ContractCode")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("contract_code");
 
                     b.Property<bool>("IsContractOver")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_contract_over");
 
                     b.Property<DateOnly?>("RealEndDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("real_end_date");
 
                     b.Property<string>("RealSalary")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("real_salary");
 
                     b.Property<DateOnly>("RealStartingDate")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("real_starting_date");
 
-                    b.HasKey("EmpCode", "ContractCode");
+                    b.HasKey("EmpCode", "ContractCode")
+                        .HasName("pk_employees_contracts");
 
-                    b.HasIndex("ContractCode");
+                    b.HasIndex("ContractCode")
+                        .HasDatabaseName("ix_employees_contracts_contract_code");
 
                     b.HasIndex("EmpCode")
                         .IsUnique()
+                        .HasDatabaseName("ix_employees_contracts_emp_code")
                         .HasFilter("[IsContractOver] = 0");
 
-                    b.ToTable("EmployeesContracts");
+                    b.ToTable("employees_contracts", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Programs", b =>
                 {
                     b.Property<string>("Title")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("title");
 
                     b.Property<string>("Department")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("department");
 
                     b.Property<string>("Descriptions")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("descriptions");
 
                     b.Property<string>("EmployeeCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
+                        .HasColumnName("employee_code")
                         .UseCollation("SQL_Latin1_General_CP1_CS_AS");
 
                     b.Property<string>("Faculty")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("faculty");
 
                     b.Property<string>("Grade")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("grade");
 
                     b.Property<string>("ProgramName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("program_name");
 
-                    b.HasKey("Title");
+                    b.HasKey("Title")
+                        .HasName("pk_programs");
 
-                    b.HasIndex("EmployeeCode");
+                    b.HasIndex("EmployeeCode")
+                        .HasDatabaseName("ix_programs_employee_code");
 
-                    b.ToTable("Programs");
+                    b.ToTable("programs", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.StudentFiles", b =>
                 {
                     b.Property<string>("FileCode")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("file_code");
 
                     b.Property<string>("ContentType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("content_type");
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("file_name");
 
                     b.Property<string>("FileType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("file_type");
 
                     b.Property<string>("StudentCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("student_code");
 
                     b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("uploaded_at");
 
-                    b.HasKey("FileCode");
+                    b.HasKey("FileCode")
+                        .HasName("pk_student_files");
 
-                    b.ToTable("StudentFiles");
+                    b.ToTable("student_files", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.UserCourse", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CCourseId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("c_course_id");
 
                     b.Property<string>("PermanentCode")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("permanent_code");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_user_courses");
 
-                    b.HasIndex("CCourseId");
+                    b.HasIndex("CCourseId")
+                        .HasDatabaseName("ix_user_courses_c_course_id");
 
-                    b.HasIndex("PermanentCode");
+                    b.HasIndex("PermanentCode")
+                        .HasDatabaseName("ix_user_courses_permanent_code");
 
-                    b.ToTable("UserCourses");
+                    b.ToTable("user_courses", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.UserProgramEnrollment", b =>
                 {
                     b.Property<string>("PermanentCode")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("permanent_code");
 
                     b.Property<string>("Title")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("title");
 
                     b.Property<DateTime?>("EndDateEstimate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("end_date_estimate");
 
                     b.Property<DateTime?>("EnrollmentDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("enrollment_date");
 
                     b.Property<bool>("HasFinished")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("has_finished");
 
                     b.Property<bool>("IsEnrolled")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_enrolled");
 
                     b.Property<DateTime?>("RealEndDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("real_end_date");
 
-                    b.HasKey("PermanentCode", "Title");
+                    b.HasKey("PermanentCode", "Title")
+                        .HasName("pk_user_program_enrollments");
 
-                    b.HasIndex("Title");
+                    b.HasIndex("Title")
+                        .HasDatabaseName("ix_user_program_enrollments_title");
 
-                    b.ToTable("UserProgramEnrollments");
+                    b.ToTable("user_program_enrollments", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Users", b =>
                 {
                     b.Property<string>("PermanentCode")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text")
+                        .HasColumnName("permanent_code");
 
                     b.Property<DateOnly>("BirthDay")
-                        .HasColumnType("date");
+                        .HasColumnType("date")
+                        .HasColumnName("birth_day");
 
                     b.Property<string>("EmployeeCode")
-                        .HasColumnType("nvarchar(450)")
+                        .HasColumnType("text")
+                        .HasColumnName("employee_code")
                         .UseCollation("SQL_Latin1_General_CP1_CS_AS");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("first_name");
 
                     b.Property<int>("IsActivated")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("is_activated");
 
                     b.Property<bool>("IsValidated")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_validated");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("last_name");
 
                     b.Property<int?>("Nas")
-                        .HasColumnType("int");
+                        .HasColumnType("integer")
+                        .HasColumnName("nas");
 
                     b.Property<string>("Nationality")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("nationality");
 
                     b.Property<string>("PersonalEmail")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("personal_email");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("phone_number");
 
                     b.Property<string>("ProfessionalEmail")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("professional_email");
 
                     b.Property<string>("Pwd")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("pwd");
 
-                    b.Property<string>("Sexe")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(1)");
+                    b.Property<char>("Sexe")
+                        .HasColumnType("character(1)")
+                        .HasColumnName("sexe");
 
                     b.Property<string>("StreetAddress")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("street_address");
 
                     b.Property<string>("UserRole")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("user_role");
 
                     b.Property<string>("UserStatus")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text")
+                        .HasColumnName("user_status");
 
-                    b.HasKey("PermanentCode");
+                    b.HasKey("PermanentCode")
+                        .HasName("pk_users");
 
-                    b.HasIndex("EmployeeCode");
+                    b.HasIndex("EmployeeCode")
+                        .HasDatabaseName("ix_users_employee_code");
 
-                    b.ToTable("Users");
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Bills", b =>
@@ -591,12 +739,14 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .WithMany("Bills")
                         .HasForeignKey("PermanentCode")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_bills_users_permanent_code");
 
                     b.HasOne("MyUAAcademiaB.Models.Programs", "Program")
                         .WithMany("Bills")
                         .HasForeignKey("ProgramTitle")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_bills_programs_program_title");
 
                     b.Navigation("Program");
 
@@ -609,13 +759,15 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .WithMany("Bulletins")
                         .HasForeignKey("PermanentCode")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_bulletins_users_permanent_code");
 
                     b.HasOne("MyUAAcademiaB.Models.Courses", "Course")
                         .WithMany("Bulletin")
                         .HasForeignKey("Sigle")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_bulletins_courses_sigle");
 
                     b.Navigation("Course");
 
@@ -628,7 +780,8 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .WithMany("Classes")
                         .HasForeignKey("EmployeeCode")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_classes_employees_employee_code");
 
                     b.Navigation("Employee");
                 });
@@ -639,24 +792,28 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .WithMany("ClassesCourses")
                         .HasForeignKey("ClasseName")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_classes_courses_classes_classe_name");
 
                     b.HasOne("MyUAAcademiaB.Models.Courses", "Course")
                         .WithMany("ClassesCourses")
                         .HasForeignKey("CourseSigle")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_classes_courses_courses_course_sigle");
 
                     b.HasOne("MyUAAcademiaB.Models.Employees", "Employee")
                         .WithMany("ClassesCourses")
                         .HasForeignKey("EmployeeCode")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_classes_courses_employees_employee_code");
 
                     b.HasOne("MyUAAcademiaB.Models.Employees", "TaughtByProfessor")
                         .WithMany("TaughtCourses")
                         .HasForeignKey("TaughtBy")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_classes_courses_employees_taught_by");
 
                     b.Navigation("Classe");
 
@@ -673,13 +830,15 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .WithMany("Courses")
                         .HasForeignKey("EmployeeCode")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_courses_employees_employee_code");
 
                     b.HasOne("MyUAAcademiaB.Models.Programs", "Program")
                         .WithMany("Courses")
                         .HasForeignKey("ProgramTitle")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_courses_programs_program_title");
 
                     b.Navigation("Employee");
 
@@ -690,7 +849,8 @@ namespace MyUAAcademiaB.Migrations.Postgres
                 {
                     b.HasOne("MyUAAcademiaB.Models.Employees", "CreatedBy")
                         .WithMany("CreatedEmployees")
-                        .HasForeignKey("CreatedByCode");
+                        .HasForeignKey("CreatedByCode")
+                        .HasConstraintName("fk_employees_employees_created_by_code");
 
                     b.Navigation("CreatedBy");
                 });
@@ -701,13 +861,15 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .WithMany("EmployeesContracts")
                         .HasForeignKey("ContractCode")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_employees_contracts_contracts_contract_code");
 
                     b.HasOne("MyUAAcademiaB.Models.Employees", "Employee")
                         .WithMany("EmployeesContracts")
                         .HasForeignKey("EmpCode")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_employees_contracts_employees_emp_code");
 
                     b.Navigation("Contract");
 
@@ -720,7 +882,8 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .WithMany("Programs")
                         .HasForeignKey("EmployeeCode")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_programs_employees_employee_code");
 
                     b.Navigation("Employee");
                 });
@@ -731,13 +894,15 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .WithMany("UserCourse")
                         .HasForeignKey("CCourseId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_user_courses_classes_courses_c_course_id");
 
                     b.HasOne("MyUAAcademiaB.Models.Users", "Student")
                         .WithMany("UserCourses")
                         .HasForeignKey("PermanentCode")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_user_courses_users_permanent_code");
 
                     b.Navigation("ClassesCourses");
 
@@ -750,13 +915,15 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .WithMany("UserProgramEnrollments")
                         .HasForeignKey("PermanentCode")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_user_program_enrollments_users_permanent_code");
 
                     b.HasOne("MyUAAcademiaB.Models.Programs", "Programs")
                         .WithMany("UserProgramEnrollments")
                         .HasForeignKey("Title")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("fk_user_program_enrollments_programs_title");
 
                     b.Navigation("Programs");
 
@@ -767,7 +934,8 @@ namespace MyUAAcademiaB.Migrations.Postgres
                 {
                     b.HasOne("MyUAAcademiaB.Models.Employees", "Employee")
                         .WithMany("Users")
-                        .HasForeignKey("EmployeeCode");
+                        .HasForeignKey("EmployeeCode")
+                        .HasConstraintName("fk_users_employees_employee_code");
 
                     b.Navigation("Employee");
                 });
