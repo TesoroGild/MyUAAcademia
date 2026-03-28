@@ -12,8 +12,8 @@ using MyUAAcademiaB.Data;
 namespace MyUAAcademiaB.Migrations.Postgres
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20260328165941_InitialCreatePostgres")]
-    partial class InitialCreatePostgres
+    [Migration("20260328170429_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

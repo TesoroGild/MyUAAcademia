@@ -8,7 +8,7 @@ using MyUAAcademiaB.Data;
 
 #nullable disable
 
-namespace MyUAAcademiaB.Migrations
+namespace MyUAAcademiaB.Migrations.Postgres
 {
     [DbContext(typeof(DataContext))]
     partial class DataContextModelSnapshot : ModelSnapshot
