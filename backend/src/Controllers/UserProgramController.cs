@@ -10,7 +10,6 @@ namespace MyUAAcademiaB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors("AllowSpecificOrigin")]
     public class UserProgramController : ControllerBase
     {
         private readonly IUserProgramInterface _userProgramInterface;

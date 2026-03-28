@@ -28,7 +28,6 @@ export default defineConfig(({ mode }) => {
         cert: fs.readFileSync(path.resolve(__dirname, env.VITE_SSL_CERT_FILE)),
         key: fs.readFileSync(path.resolve(__dirname, env.VITE_SSL_KEY_FILE)),
       } : false,
-      //port: env.VITE_PORT ? parseInt(env.VITE_PORT) : 8080,
       port: parseInt(env.VITE_PORT),
       host: true,
       proxy: {

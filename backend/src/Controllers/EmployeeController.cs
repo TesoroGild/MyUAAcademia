@@ -14,7 +14,6 @@ namespace MyUAAcademiaB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors("AllowSpecificOrigin")]
     public class EmployeeController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -108,7 +107,7 @@ namespace MyUAAcademiaB.Controllers
         /*READ*/
         [HttpGet("employees")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<EmployeeTDDto>))]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin, director")]
         public IActionResult GetEmployeesV2()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -135,7 +134,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpGet("employee/{code}")]
         [ProducesResponseType(200, Type = typeof(EmployeeTDDto))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "Admin, Professor, admin, professor")]
+        [Authorize(Roles = "admin, director")]
         public IActionResult GetEmployee(string code)
         {
             if (!_employeeInterface.EmployeeExists(code)) return NotFound();
@@ -150,7 +149,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("exist")]
         [ProducesResponseType(200, Type = typeof(VerifiedUserDto))]
         [ProducesResponseType(400)]
-        //[Authorize(Roles = "admin, professor, student")]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetEmployee([FromBody] ExistCredentialsDto credentials)
         {
             if (!_employeeInterface.EmployeeExistsV1(credentials.Code, credentials.Email))

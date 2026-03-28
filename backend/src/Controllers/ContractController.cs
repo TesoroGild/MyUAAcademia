@@ -9,7 +9,6 @@ namespace MyUAAcademiaB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors("AllowSpecificOrigin")]
     public class ContractController : ControllerBase
     {
         public readonly IContractInterface _contractInterface;

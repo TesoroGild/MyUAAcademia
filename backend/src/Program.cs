@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -16,6 +16,7 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 var frontendUrl = builder.Configuration["FRONTEND_URL"];
 
+// 1. Config Kestrel (port, HTTP vs HTTPS)
 builder.WebHost.ConfigureKestrel(options =>
 {
     var port = int.Parse(Environment.GetEnvironmentVariable("PORT") ?? "8080");
@@ -32,23 +33,21 @@ builder.WebHost.ConfigureKestrel(options =>
     }
     else
     {
-        // En prod (Railway) : HTTP simple sur toutes les interfaces
         options.Listen(System.Net.IPAddress.Any, port);
     }
 });
 
-// Add services to the container.
-builder.Services.AddControllers();
-builder.Services.AddTransient<Seed>();
-
-//Object Cycle Error
+// 2. Controllers + JSON
 builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-//Auto Mappwer
+// 3. AutoMapper
 builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfiles));
 
-//Repository
+// Add services to the container.
+//builder.Services.AddTransient<Seed>();
+
+// 4. Repositories
 builder.Services.AddScoped<IBillInterface, BillRepository>();
 builder.Services.AddScoped<IBulletinInterface, BulletinRepository>();
 builder.Services.AddScoped<IEmployeeInterface, EmployeeRepository>();
@@ -61,7 +60,7 @@ builder.Services.AddScoped<IUserCourseInterface, UserCourseRepository>();
 builder.Services.AddScoped<IUserProgramInterface, UserProgramRepository>();
 builder.Services.AddScoped<IContractInterface, ContractRepository>();
 
-//Services
+// 5. Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBillService, BillService>();
 builder.Services.AddScoped<IBulletinService, BulletinService>();
@@ -72,6 +71,8 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IUserProgramService, UserProgramService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<JwtService>();
+
+// 6. Auth JWT
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
@@ -83,12 +84,11 @@ builder.Services.AddAuthentication("Bearer")
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Issuer"],
-            ValidAudience = builder.Configuration["Issuer"],//builder.Configuration["Audience"),
+            ValidAudience = builder.Configuration["Issuer"],//builder.Configuration["Audience"]),
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Key"]))
         };
 
-        // Permet de lire le JWT depuis le cookie SESSION_ID
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -106,16 +106,15 @@ builder.Services.AddAuthentication("Bearer")
             },
             OnTokenValidated = context =>
             {
-                Console.WriteLine("Token valid� avec succ�s");
+                Console.WriteLine("Token validé avec succès");
                 return Task.CompletedTask;
             }
-
         };
     });
 builder.Services.AddAuthorization();
 
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// 7. Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -143,73 +142,63 @@ builder.Services.AddSwaggerGen(c =>
     //}});
 });
 
-// Configurer CORS
+// 8. CORS (un seul bloc, une seule politique)
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificOrigin", builder =>
+//    {
+//        builder.WithOrigins(frontendUrl)
+//               .AllowAnyHeader()
+//               .AllowAnyMethod()
+//               .AllowCredentials();
+//    });
+//});
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin", builder =>
+    options.AddDefaultPolicy(policy =>
     {
-        builder.WithOrigins(frontendUrl)
-               .AllowAnyHeader()
-               .AllowAnyMethod()
-               .AllowCredentials();
+        policy.WithOrigins(frontendUrl)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
+// 9. Base de données
 var connectionString = builder.Configuration["DefaultConnection"]
                        ?? builder.Configuration.GetConnectionString("DefaultConnection");
-
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(connectionString);
 });
 
+// 10. Logging
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-var app = builder.Build();
+// ══════════════════════════════════════════
+var app = builder.Build(); // séparation config / pipeline
+// ══════════════════════════════════════════
 
-if (args.Length == 1 && args[0].ToLower() == "seeddata")
-    SeedData(app);
+// Seed
+//if (args.Length == 1 && args[0].ToLower() == "seeddata")
+//    SeedData(app);
 
-void SeedData(IHost app)
+//void SeedData(IHost app)
+//{
+//    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+//    using var scope = scopedFactory.CreateScope();
+//    scope.ServiceProvider.GetService<Seed>().SeedDataContext();
+//}
+
+// 11. Swagger UI
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
-    using (var scope = scopedFactory.CreateScope())
-    {
-        var service = scope.ServiceProvider.GetService<Seed>();
-        service.SeedDataContext();
-    }
-}
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "MYUAA API v1");
-    });
-}
-
-app.UseHttpsRedirection();
-//app.UseCors("AllowSpecificOrigin");
-
-var frontUrl = builder.Configuration["FRONTEND_URL"];
-
-builder.Services.AddCors(options =>
-{
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins(frontUrl) // Utilise la variable !
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MYUAA API v1");
 });
 
-app.UseAuthentication();
-app.UseAuthorization();
-app.MapControllers();
-
+// 12. Uploads (statique, avant les controllers)
 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
 if (!Directory.Exists(uploadsPath))
 {
@@ -221,4 +210,21 @@ app.UseStaticFiles(new StaticFileOptions
     FileProvider = new PhysicalFileProvider(uploadsPath),
     RequestPath = "/Uploads"
 });
+
+// 13. CORS (avant auth — pour gérer le preflight OPTIONS)
+app.UseCors();
+
+// 14. Auth (dans le bon ordre : d'abord identifier, ensuite autoriser)
+app.UseAuthentication();
+app.UseAuthorization();
+
+// 15. Controllers
+app.MapControllers();
+
+// 16. HTTPS redirection (en dev uniquement, car en prod c'est géré par le reverse proxy)
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.Run();

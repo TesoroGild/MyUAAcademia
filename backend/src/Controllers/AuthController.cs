@@ -11,8 +11,6 @@ namespace MyUAAcademiaB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[EnableCors("AllowSpecificOrigin")]
-    //[EnableCors]
     public class AuthController(IAuthService authService, IMapper mapper, IEmployeeInterface employeeInterface,
         IUserInterface userInterface, JwtService jwtService) : ControllerBase
     {
@@ -95,7 +93,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("logout")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "admin, professor, student")]
+        [Authorize(Roles = "admin, director, professor, student")]
         public IActionResult Logout()
         {
             Response.Cookies.Delete("SESSION_ID", new CookieOptions
@@ -110,7 +108,7 @@ namespace MyUAAcademiaB.Controllers
             return Ok(true);
         }
 
-        [Authorize]
+        [Authorize(Roles = "admin, director, professor, student")]
         [HttpGet("reconnect")]
         [ProducesResponseType(200)]
         [ProducesResponseType(401)]
@@ -144,12 +142,11 @@ namespace MyUAAcademiaB.Controllers
         [HttpPut("reset-password")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        //[Authorize(Roles = "admin, professor, student")]
+        [Authorize(Roles = "admin, director, professor")]
         public async Task<IActionResult> UpdatePassword([FromBody] ResetPasswordCredentials resetPasswordCredentials)
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");
 
-            //var userConnected = _employeeInterface.GetEmployee(resetPasswordCredentials.UserCode);
             var hashedPwd = _authService.HashPassword(resetPasswordCredentials.UserCode, resetPasswordCredentials.NewPwd);
             resetPasswordCredentials.NewPwd = "";
             resetPasswordCredentials.NewPwd = hashedPwd;
@@ -163,12 +160,11 @@ namespace MyUAAcademiaB.Controllers
         [HttpPut("reset-password2")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        //[Authorize(Roles = "admin, professor, student")]
+        [Authorize(Roles = "student")]
         public async Task<IActionResult> UpdatePassword1([FromBody] ResetPasswordCredentials resetPasswordCredentials)
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");
 
-            //var userConnected = _employeeInterface.GetEmployee(resetPasswordCredentials.UserCode);
             var hashedPwd = _authService.HashPassword(resetPasswordCredentials.UserCode, resetPasswordCredentials.NewPwd);
             resetPasswordCredentials.NewPwd = "";
             resetPasswordCredentials.NewPwd = hashedPwd;

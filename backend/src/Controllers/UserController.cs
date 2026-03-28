@@ -12,7 +12,6 @@ namespace MyUAAcademiaB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [EnableCors("AllowSpecificOrigin")]
     public class UserController(IUserInterface userInterface, IUserService userService,
         IMapper mapper, IAuthService authService, IUserProgramInterface userProgramInterface,
         IFileService fileService, IUserCourseInterface userCourseInterface, IClasseCourseInterface classeCourseInterface,
@@ -32,8 +31,8 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("exist")]
         [ProducesResponseType(200, Type = typeof(VerifiedUserDto))]
         [ProducesResponseType(400)]
-        //[Authorize(Roles = "admin, professor, student")]
-        public IActionResult GetEmployee([FromBody] ExistCredentialsDto credentials)
+        [Authorize(Roles = "student")]
+        public IActionResult GetUser([FromBody] ExistCredentialsDto credentials)
         {
             if (!_userInterface.UserExistsV1(credentials.Code, credentials.Email))
                 return BadRequest(new
