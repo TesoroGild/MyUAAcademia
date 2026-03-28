@@ -26,7 +26,7 @@ namespace MyUAAcademiaB.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var isDevEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-
+            modelBuilder.HasDefaultSchema("myuaacademia");
             /*BILLS*/
             modelBuilder.Entity<Bills>()
                 .HasKey(bi => new { bi.SessionStudy, bi.YearStudy, bi.PermanentCode });//, bi.ProgramTitle

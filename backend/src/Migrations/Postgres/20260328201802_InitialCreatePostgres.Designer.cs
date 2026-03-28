@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyUAAcademiaB.Migrations.Postgres
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20260328180910_InitialCreatePostgres")]
+    [Migration("20260328201802_InitialCreatePostgres")]
     partial class InitialCreatePostgres
     {
         /// <inheritdoc />
@@ -20,6 +20,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("myuaacademia")
                 .HasAnnotation("ProductVersion", "9.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -92,7 +93,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("ProgramTitle")
                         .HasDatabaseName("ix_bills_program_title");
 
-                    b.ToTable("bills", (string)null);
+                    b.ToTable("bills", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Bulletins", b =>
@@ -119,7 +120,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("PermanentCode")
                         .HasDatabaseName("ix_bulletins_permanent_code");
 
-                    b.ToTable("bulletins", (string)null);
+                    b.ToTable("bulletins", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Classes", b =>
@@ -148,7 +149,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("EmployeeCode")
                         .HasDatabaseName("ix_classes_employee_code");
 
-                    b.ToTable("classes", (string)null);
+                    b.ToTable("classes", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.ClassesCourses", b =>
@@ -221,7 +222,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .IsUnique()
                         .HasDatabaseName("ix_classes_courses_taught_by_start_time_jours_session_course_y");
 
-                    b.ToTable("classes_courses", (string)null);
+                    b.ToTable("classes_courses", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Contracts", b =>
@@ -299,7 +300,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasKey("Code")
                         .HasName("pk_contracts");
 
-                    b.ToTable("contracts", (string)null);
+                    b.ToTable("contracts", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Courses", b =>
@@ -352,7 +353,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("ProgramTitle")
                         .HasDatabaseName("ix_courses_program_title");
 
-                    b.ToTable("courses", (string)null);
+                    b.ToTable("courses", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Employees", b =>
@@ -445,7 +446,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("CreatedByCode")
                         .HasDatabaseName("ix_employees_created_by_code");
 
-                    b.ToTable("employees", (string)null);
+                    b.ToTable("employees", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.EmployeesContracts", b =>
@@ -486,7 +487,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                         .HasDatabaseName("ix_employees_contracts_emp_code")
                         .HasFilter("\"is_contract_over\" = false");
 
-                    b.ToTable("employees_contracts", (string)null);
+                    b.ToTable("employees_contracts", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Programs", b =>
@@ -531,7 +532,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("EmployeeCode")
                         .HasDatabaseName("ix_programs_employee_code");
 
-                    b.ToTable("programs", (string)null);
+                    b.ToTable("programs", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.StudentFiles", b =>
@@ -567,7 +568,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasKey("FileCode")
                         .HasName("pk_student_files");
 
-                    b.ToTable("student_files", (string)null);
+                    b.ToTable("student_files", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.UserCourse", b =>
@@ -597,7 +598,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("PermanentCode")
                         .HasDatabaseName("ix_user_courses_permanent_code");
 
-                    b.ToTable("user_courses", (string)null);
+                    b.ToTable("user_courses", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.UserProgramEnrollment", b =>
@@ -636,7 +637,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("Title")
                         .HasDatabaseName("ix_user_program_enrollments_title");
 
-                    b.ToTable("user_program_enrollments", (string)null);
+                    b.ToTable("user_program_enrollments", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Users", b =>
@@ -724,7 +725,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("EmployeeCode")
                         .HasDatabaseName("ix_users_employee_code");
 
-                    b.ToTable("users", (string)null);
+                    b.ToTable("users", "myuaacademia");
                 });
 
             modelBuilder.Entity("MyUAAcademiaB.Models.Bills", b =>

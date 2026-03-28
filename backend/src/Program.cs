@@ -184,7 +184,7 @@ builder.Services.AddDbContext<DataContext>(options =>
         options.UseNpgsql(npgsqlConn, x =>
         {
             x.MigrationsAssembly("MyUAAcademiaB");
-            x.MigrationsHistoryTable("__EFMigrationsHistory", "public");
+            x.MigrationsHistoryTable("__EFMigrationsHistory", "myuaacademia");
         }).UseSnakeCaseNamingConvention();
     }
 });
