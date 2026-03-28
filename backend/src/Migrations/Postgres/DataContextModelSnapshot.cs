@@ -132,8 +132,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.Property<string>("EmployeeCode")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("employee_code")
-                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+                        .HasColumnName("employee_code");
 
                     b.Property<string>("TypeOfClasse")
                         .IsRequired()
@@ -171,8 +170,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.Property<string>("EmployeeCode")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("employee_code")
-                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+                        .HasColumnName("employee_code");
 
                     b.Property<string>("EndTime")
                         .IsRequired()
@@ -196,8 +194,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
 
                     b.Property<string>("TaughtBy")
                         .HasColumnType("text")
-                        .HasColumnName("taught_by")
-                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+                        .HasColumnName("taught_by");
 
                     b.Property<string>("YearCourse")
                         .IsRequired()
@@ -319,8 +316,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.Property<string>("EmployeeCode")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("employee_code")
-                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+                        .HasColumnName("employee_code");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -360,8 +356,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                 {
                     b.Property<string>("Code")
                         .HasColumnType("text")
-                        .HasColumnName("code")
-                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+                        .HasColumnName("code");
 
                     b.Property<DateOnly>("BirthDay")
                         .HasColumnType("date")
@@ -369,8 +364,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
 
                     b.Property<string>("CreatedByCode")
                         .HasColumnType("text")
-                        .HasColumnName("created_by_code")
-                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+                        .HasColumnName("created_by_code");
 
                     b.Property<string>("EmpStatus")
                         .IsRequired()
@@ -455,8 +449,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                 {
                     b.Property<string>("EmpCode")
                         .HasColumnType("text")
-                        .HasColumnName("emp_code")
-                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+                        .HasColumnName("emp_code");
 
                     b.Property<string>("ContractCode")
                         .HasColumnType("text")
@@ -512,8 +505,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.Property<string>("EmployeeCode")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("employee_code")
-                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+                        .HasColumnName("employee_code");
 
                     b.Property<string>("Faculty")
                         .IsRequired()
@@ -656,8 +648,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
 
                     b.Property<string>("EmployeeCode")
                         .HasColumnType("text")
-                        .HasColumnName("employee_code")
-                        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+                        .HasColumnName("employee_code");
 
                     b.Property<string>("FirstName")
                         .IsRequired()

@@ -41,9 +41,9 @@ namespace MyUAAcademiaB.Migrations.Postgres
                 name: "employees",
                 columns: table => new
                 {
-                    code = table.Column<string>(type: "text", nullable: false, collation: "SQL_Latin1_General_CP1_CS_AS"),
+                    code = table.Column<string>(type: "text", nullable: false),
                     emp_status = table.Column<string>(type: "text", nullable: false),
-                    created_by_code = table.Column<string>(type: "text", nullable: true, collation: "SQL_Latin1_General_CP1_CS_AS"),
+                    created_by_code = table.Column<string>(type: "text", nullable: true),
                     birth_day = table.Column<DateOnly>(type: "date", nullable: false),
                     user_status = table.Column<string>(type: "text", nullable: true),
                     first_name = table.Column<string>(type: "text", nullable: false),
@@ -93,7 +93,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     classe_name = table.Column<string>(type: "text", nullable: false),
                     capacity = table.Column<int>(type: "integer", nullable: true),
                     type_of_classe = table.Column<string>(type: "text", nullable: false),
-                    employee_code = table.Column<string>(type: "text", nullable: false, collation: "SQL_Latin1_General_CP1_CS_AS")
+                    employee_code = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -110,7 +110,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                 name: "employees_contracts",
                 columns: table => new
                 {
-                    emp_code = table.Column<string>(type: "text", nullable: false, collation: "SQL_Latin1_General_CP1_CS_AS"),
+                    emp_code = table.Column<string>(type: "text", nullable: false),
                     contract_code = table.Column<string>(type: "text", nullable: false),
                     real_starting_date = table.Column<DateOnly>(type: "date", nullable: false),
                     real_end_date = table.Column<DateOnly>(type: "date", nullable: true),
@@ -144,7 +144,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     grade = table.Column<string>(type: "text", nullable: false),
                     department = table.Column<string>(type: "text", nullable: false),
                     faculty = table.Column<string>(type: "text", nullable: false),
-                    employee_code = table.Column<string>(type: "text", nullable: false, collation: "SQL_Latin1_General_CP1_CS_AS")
+                    employee_code = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -162,7 +162,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                 columns: table => new
                 {
                     permanent_code = table.Column<string>(type: "text", nullable: false),
-                    employee_code = table.Column<string>(type: "text", nullable: true, collation: "SQL_Latin1_General_CP1_CS_AS"),
+                    employee_code = table.Column<string>(type: "text", nullable: true),
                     birth_day = table.Column<DateOnly>(type: "date", nullable: false),
                     user_status = table.Column<string>(type: "text", nullable: true),
                     first_name = table.Column<string>(type: "text", nullable: false),
@@ -200,7 +200,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     summer = table.Column<int>(type: "integer", nullable: true),
                     autumn = table.Column<int>(type: "integer", nullable: true),
                     winter = table.Column<int>(type: "integer", nullable: true),
-                    employee_code = table.Column<string>(type: "text", nullable: false, collation: "SQL_Latin1_General_CP1_CS_AS"),
+                    employee_code = table.Column<string>(type: "text", nullable: false),
                     program_title = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -324,8 +324,8 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     end_time = table.Column<string>(type: "text", nullable: false),
                     session_course = table.Column<string>(type: "text", nullable: false),
                     year_course = table.Column<string>(type: "text", nullable: false),
-                    employee_code = table.Column<string>(type: "text", nullable: false, collation: "SQL_Latin1_General_CP1_CS_AS"),
-                    taught_by = table.Column<string>(type: "text", nullable: true, collation: "SQL_Latin1_General_CP1_CS_AS")
+                    employee_code = table.Column<string>(type: "text", nullable: false),
+                    taught_by = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
