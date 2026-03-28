@@ -449,7 +449,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                 table: "employees_contracts",
                 column: "emp_code",
                 unique: true,
-                filter: "[IsContractOver] = 0");
+                filter: "\"is_contract_over\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "ix_programs_employee_code",

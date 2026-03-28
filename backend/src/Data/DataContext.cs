@@ -25,6 +25,8 @@ namespace MyUAAcademiaB.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            var isDevEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+
             /*BILLS*/
             modelBuilder.Entity<Bills>()
                 .HasKey(bi => new { bi.SessionStudy, bi.YearStudy, bi.PermanentCode });//, bi.ProgramTitle
@@ -196,7 +198,9 @@ namespace MyUAAcademiaB.Data
             modelBuilder.Entity<EmployeesContracts>()
                 .HasIndex(ec => new  { ec.EmpCode })
                 .IsUnique()
-                .HasFilter("[IsContractOver] = 0");
+                .HasFilter(isDevEnv
+                    ? "[IsContractOver] = 0"
+                    : "\"is_contract_over\" = false");
 
             /*PROGRAMS*/
             modelBuilder.Entity<Programs>()

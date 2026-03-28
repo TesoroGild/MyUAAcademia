@@ -481,7 +481,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("EmpCode")
                         .IsUnique()
                         .HasDatabaseName("ix_employees_contracts_emp_code")
-                        .HasFilter("[IsContractOver] = 0");
+                        .HasFilter("\"is_contract_over\" = false");
 
                     b.ToTable("employees_contracts", (string)null);
                 });

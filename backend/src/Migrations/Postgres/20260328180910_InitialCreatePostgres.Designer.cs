@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyUAAcademiaB.Migrations.Postgres
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20260328175355_InitialCreatePostgres")]
+    [Migration("20260328180910_InitialCreatePostgres")]
     partial class InitialCreatePostgres
     {
         /// <inheritdoc />
@@ -484,7 +484,7 @@ namespace MyUAAcademiaB.Migrations.Postgres
                     b.HasIndex("EmpCode")
                         .IsUnique()
                         .HasDatabaseName("ix_employees_contracts_emp_code")
-                        .HasFilter("[IsContractOver] = 0");
+                        .HasFilter("\"is_contract_over\" = false");
 
                     b.ToTable("employees_contracts", (string)null);
                 });
