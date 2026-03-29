@@ -4,7 +4,7 @@
   <br>
   <a href="https://myuaacademia.up.railway.app/home" target="_blank" rel="myua">
     <picture>
-      <img alt="homepage" src="./frontend/src/assets/img/apercu.png" height="60">
+      <img alt="homepage" src="./frontend/app/src/assets/img/apercu.png" height="60">
     </picture>
   </a>
   <br>
@@ -216,10 +216,6 @@ Arborescence des dossiers si c'est un monorepo
 
 **Problème 2** : PascalCase vs snake_case + dédoublement des tables.
 **Solution 2** : Utilisation de UseSnakeCaseNamingConvention en C# et mapping des tables.
-
-### 7. Cold start Railway
-**Problème** : L'application met ~60 secondes à répondre après une période d'inactivité.  
-**Solution** : Comportement inhérent aux services gratuits Railway qui mettent les containers en veille. Aucune action requise — l'app répond normalement après le premier cold start.
 
 
 > [!WARNING]
