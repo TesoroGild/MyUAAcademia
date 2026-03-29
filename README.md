@@ -4,7 +4,7 @@
   <br>
   <a href="https://myuaacademia.up.railway.app/home" target="_blank" rel="myua">
     <picture>
-      <img alt="homepage" src="./frontend/app/src/assets/img/apercu.png" width="500" center>
+      <img alt="homepage" src="./frontend/app/src/assets/img/apercu.png" width="800" center>
     </picture>
   </a>
   <br>
