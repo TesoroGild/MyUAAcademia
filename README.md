@@ -12,14 +12,10 @@
   <img src="https://img.shields.io/badge/dotnet%209.0-%23512BD4.svg?style=for-the-badge&logo=.net&logoColor=white" />
   <img src="https://img.shields.io/badge/C%23-%23239120.svg?style=for-the-badge&logo=c-sharp&logoColor=white" />
   <img src="https://img.shields.io/badge/EF%20Core-512BD4?style=for-the-badge&logo=.net&logoColor=white" />
-  
-  <br />
 
   <!-- Frontend -->
   <img src="https://img.shields.io/badge/React%2018.2.0-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" />
   <img src="https://img.shields.io/badge/Vite%208.0.3-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white" />
-  
-  <br />
 
   <!-- Database & Deploy -->
   <img src="https://img.shields.io/badge/PostgreSQL-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white" />
