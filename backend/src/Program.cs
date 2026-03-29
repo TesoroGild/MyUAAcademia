@@ -245,7 +245,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // 17. Envoie des migrations vers postgreSQL en prod
-if (!app.Environment.IsDevelopment()) // Si on est sur Railway
+if (!app.Environment.IsDevelopment())
 {
     using (var scope = app.Services.CreateScope())
     {
@@ -254,4 +254,6 @@ if (!app.Environment.IsDevelopment()) // Si on est sur Railway
     }
 }
 
+// 18. Redirection vers Swagger
+app.MapGet("/", () => Results.Redirect("/swagger"));
 app.Run();
