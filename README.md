@@ -1,14 +1,10 @@
 # MyUAAcademia
 <p align="center">
-  <br>
-  <br>
   <a href="https://myuaacademia.up.railway.app/home" target="_blank" rel="myua">
     <picture>
       <img alt="homepage" src="./frontend/app/src/assets/img/apercu.png" width="800" center>
     </picture>
   </a>
-  <br>
-  <br>
 </p>
 <br/>
 <p align="center">
@@ -162,10 +158,6 @@ npm run dev
 | `HTTPS_PASS` | Mot de passe du certificat HTTPS |
 | `DefaultConnection` | Chaine permettant la connexion avec SSMS |
 | `ASPNETCORE_ENVIRONMENT` | `Development` |
-
-
-## 📁 Structure du projet
-Arborescence des dossiers si c'est un monorepo
 
 
 ## 🚧 Roadmap
