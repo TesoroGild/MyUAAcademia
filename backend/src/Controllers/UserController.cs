@@ -315,15 +315,15 @@ namespace MyUAAcademiaB.Controllers
                 return StatusCode(400, ModelState);
             }
 
-            var isActivated = _userInterface.ValidateUserAccount(validationRequest);
+            var isValidated = _userInterface.ValidateUserAccount(validationRequest);
 
-            if (!isActivated)
+            if (!isValidated)
             {
                 ModelState.AddModelError("", "Erreur lors de la validation de l'employé.");
                 return StatusCode(500, ModelState);
             }
 
-            return Ok(isActivated);
+            return Ok(isValidated);
         }
 
         [HttpPut("students")]

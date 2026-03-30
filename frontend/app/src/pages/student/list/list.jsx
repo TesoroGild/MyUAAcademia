@@ -31,7 +31,9 @@ const StudentsList = ({ employeeCo }) => {
 
     setLoadingCode(permanentCode);
     try {
-      const response = await activeStudentAccountS({ code: permanentCode, isActivate: activate });
+      const activationRequest = { code: permanentCode, isActivate: activate }
+      console.log(activationRequest)
+      const response = await activeStudentAccountS(activationRequest);
       if (response) await getStudents();
       else console.warn("Échec activation de compte");
     } catch (e) { console.error(e); }
@@ -39,12 +41,14 @@ const StudentsList = ({ employeeCo }) => {
   };
 
   const validateUser = async (permanentCode) => {
-    setLoadingCode(permanentCode); // On réutilise le même loading pour le feedback
+    setLoadingCode(permanentCode);
     try {
-      // On suppose que ton service s'appelle validateStudentS
-      const response = await validateUserS({ code: permanentCode, isValidated: true }); 
+
+      const validationRequest = { code: permanentCode, isValidated: true }
+      console.log(validationRequest)
+      const response = await validateUserS(validationRequest); 
       if (response) {
-        await getStudents(); // Rafraîchir la liste
+        await getStudents();
       }
     } catch (e) {
       console.error("Erreur lors de la validation", e);
@@ -231,7 +235,7 @@ const StudentsList = ({ employeeCo }) => {
                               loading={isToggling}
                               // IMPORTANT : Désactivé si le dossier n'est pas encore validé
                               disabled={!isValidated} 
-                              onChange={(checked) => activeStudentAccount(student, checked)}
+                              onChange={(checked) => activeStudentAccount(isValidated, student.permanentCode, checked)}
                               size="small"
                             />
                             <div className="flex flex-col">

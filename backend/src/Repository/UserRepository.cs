@@ -121,13 +121,13 @@ namespace MyUAAcademiaB.Repository
         public bool ValidateUserAccount(ValidationRequest validationRequest)
         {
             var student = GetUser(validationRequest.Code);
-            int validateAccount;
-            if (validationRequest.IsValidated) validateAccount = 1;
-            else validateAccount = 0;
+            bool validateAccount;
+            if (validationRequest.IsValidated) validateAccount = true;
+            else validateAccount = false;
 
             if (student != null)
             {
-                student.UserStatus = validateAccount + "";
+                student.IsValidated = validateAccount;
                 _context.Users.Update(student);
                 _context.SaveChanges();
                 return true;

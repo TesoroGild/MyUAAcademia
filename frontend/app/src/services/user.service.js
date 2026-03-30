@@ -158,10 +158,10 @@ export const getStudentsNotInProgramS = async () => {
 }
 
 //Update
-export const activeStudentAccountS = async (validationRequest) => {
+export const activeStudentAccountS = async (activationRequest) => {
     console.log("USER SERVICE : ACTIVE USER ACCOUNT");
     try {
-        const response = await axios.put(`${backend_url}/User/students/activate`, validationRequest);
+        const response = await axios.put(`${backend_url}/User/students/activate`, activationRequest);
         return response.data;
     } catch (error) {
         console.error('Erreur :', error);
@@ -169,10 +169,10 @@ export const activeStudentAccountS = async (validationRequest) => {
     }
 }
 
-export const validateUserS = async (validateFile) => {
+export const validateUserS = async (validationRequest) => {
     console.log("USER SERVICE : VALIDE USER FOLDER");
     try {
-        const response = await axios.put(`${backend_url}/User/validate`, validateFile);
+        const response = await axios.put(`${backend_url}/User/validate`, validationRequest);
         return response.data;
     } catch (error) {
         throw error;
