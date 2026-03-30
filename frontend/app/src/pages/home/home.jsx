@@ -28,7 +28,7 @@ const PROGRAMS = [
   },
   {
     grade: "Baccalauréat",
-    label: "Licence",
+    label: "Baccalauréat",
     duration: "3 ans",
     description: "Socle académique fondamental, ouverture vers la recherche.",
     icon: (

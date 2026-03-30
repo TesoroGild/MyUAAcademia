@@ -3,10 +3,15 @@ import adminPicture from "../../../assets/img/Admin.jpg";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
-import { Datepicker, FileInput, Label } from "flowbite-react";
+import { FileInput, Label } from "flowbite-react";
 import { HiCheck, HiExclamation, HiX, HiExternalLink, HiSearch } from "react-icons/hi";
 import { createStudentS } from "../../../services/user.service";
 import { getProgramsS } from "../../../services/program.service";
+import DatePickerModule from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { fr } from "date-fns/locale";
+
+const DatePicker = DatePickerModule.default || DatePickerModule;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const inputCls = "border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition w-full bg-white";
@@ -337,9 +342,19 @@ const Create = ({ employeeCo }) => {
                 control={control}
                 rules={{ required: "La date de naissance est requise." }}
                 render={({ field }) => (
-                  <Datepicker
-                    selectedDate={field.value ? new Date(field.value) : null}
-                    onSelectedDateChanged={(date) => field.onChange(date.toISOString().split("T")[0])}
+                  <DatePicker
+                    locale={fr}
+                    dateFormat="dd/MM/yyyy"
+                    selected={field.value ? new Date(field.value) : null}
+                    onChange={(date) => field.onChange(date.toISOString().split("T")[0])}
+                    placeholderText="jj/mm/aaaa"
+                    showYearDropdown
+                    scrollableYearDropdown
+                    yearDropdownItemNumber={80}
+                    maxDate={new Date()}
+                    className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-700"
+                    popperPlacement="bottom-start"
+                    popperProps={{ strategy: "fixed" }}
                   />
                 )}
               />

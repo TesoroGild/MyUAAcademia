@@ -220,7 +220,6 @@ npm run dev
 > 
 > | Rôle | Code | Mot de passe |
 > |---|---|---|
-> | Administrateur | emp1 | Emma1234- |
 > | Professeur | CURS14151988RN0 | curry. |
 > | Professeur | FENR20351988PF0 | Rihanna1234- |
 > | Étudiant | ABAK1628199914 | ABAKbienvenido29. |

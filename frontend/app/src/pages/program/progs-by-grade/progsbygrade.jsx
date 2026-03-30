@@ -133,13 +133,15 @@ const ProgramsByGrade = () => {
                     </button>
 
                     {/* Bouton admission toujours visible */}
-                    <button
-                      onClick={() => navigateToAdmission(program)}
-                      className="shrink-0 flex items-center gap-1.5 bg-blue-800 hover:bg-blue-900 text-white text-xs font-medium px-4 py-2 rounded-lg transition-colors"
-                    >
-                      <HiAcademicCap className="w-3.5 h-3.5" />
-                      Admission
-                    </button>
+                    {!isOpen && (
+                      <button
+                        onClick={() => navigateToAdmission(program)}
+                        className="shrink-0 flex items-center gap-1.5 bg-blue-800 hover:bg-blue-900 text-white text-xs font-medium px-4 py-2 rounded-lg transition-colors"
+                      >
+                        <HiAcademicCap className="w-3.5 h-3.5" />
+                        Admission
+                      </button>
+                    )}
                   </div>
 
                   {/* Détails (accordéon) */}

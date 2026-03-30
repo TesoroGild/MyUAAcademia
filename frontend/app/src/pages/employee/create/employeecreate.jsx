@@ -3,11 +3,13 @@ import adminPicture from "../../../assets/img/Admin.jpg";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { fr } from "date-fns/locale";
 import { HiCheck, HiExclamation, HiX, HiSearch, HiLockClosed, HiBriefcase, HiClock, HiCurrencyDollar } from "react-icons/hi";
 import { createEmployee, getContractsS } from "../../../services/employee.service";
+import DatePickerModule from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { fr } from "date-fns/locale";
+
+const DatePicker = DatePickerModule.default || DatePickerModule;
 
 const inputCls = "border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition w-full bg-white";
 const readonlyCls = "border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-500 bg-slate-50 w-full cursor-not-allowed";

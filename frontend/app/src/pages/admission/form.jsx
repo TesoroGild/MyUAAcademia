@@ -4,11 +4,16 @@ import { FileInput, Label } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
-import Select from "react-select";
 import { getProgramsS } from "../../services/program.service";
-import DatePicker from "react-datepicker";
+// import Select from "react-select";
+// import DatePicker from "react-datepicker";
+import SelectModule from "react-select";
+import DatePickerModule from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { fr } from "date-fns/locale";
+
+const Select = SelectModule.default || SelectModule;
+const DatePicker = DatePickerModule.default || DatePickerModule;
 
 // ── Règles mot de passe ───────────────────────────────────────────────────────
 const RULES = [
@@ -144,20 +149,20 @@ const AdmissionForm = () => {
             <Controller name="birthDay" control={control}
                 rules={{ required: "La date de naissance est requise." }}
                 render={({ field }) => (
-                <DatePicker
-                    locale={fr}
-                    dateFormat="dd/MM/yyyy"
-                    selected={field.value ? new Date(field.value) : null}
-                    onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
-                    placeholderText="jj/mm/aaaa"
-                    showYearDropdown
-                    scrollableYearDropdown
-                    yearDropdownItemNumber={80}
-                    maxDate={new Date()}
-                    className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-700"
-                    popperPlacement="bottom-start"
-                    popperProps={{ strategy: "fixed" }}
-                />
+                  <DatePicker
+                      locale={fr}
+                      dateFormat="dd/MM/yyyy"
+                      selected={field.value ? new Date(field.value) : null}
+                      onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                      placeholderText="jj/mm/aaaa"
+                      showYearDropdown
+                      scrollableYearDropdown
+                      yearDropdownItemNumber={80}
+                      maxDate={new Date()}
+                      className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-700"
+                      popperPlacement="bottom-start"
+                      popperProps={{ strategy: "fixed" }}
+                  />
                 )}
             />
           </Field>
