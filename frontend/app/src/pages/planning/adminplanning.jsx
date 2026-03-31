@@ -84,7 +84,9 @@ const AdminPlanning = ({ user }) => {
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       <Sidebar user={user} profilePic={adminPicture} />
       <main className="flex-1 flex overflow-hidden">
-
+<ul>
+    {listeeeeeeee.map(item => <li key={item}>{item}</li>)}
+  </ul>
         {/* ── Panneau gauche ── */}
         <div className="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0">
           <div className="p-4 border-b border-slate-100 shrink-0">
