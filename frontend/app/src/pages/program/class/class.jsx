@@ -63,7 +63,7 @@ const SessionToggle = ({ label, name, register, error }) => (
 );
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const Class = ({ employeeCo }) => {
+const Class = ({ user }) => {
   const [courseList, setCourseList]   = useState([]);
   const [programs, setPrograms]       = useState([]);
   const [programTitle, setProgramTitle] = useState("");
@@ -122,7 +122,7 @@ const Class = ({ employeeCo }) => {
     }
     setIsLoading(true);
     try {
-      const payload = { ...data, employeeCode: employeeCo?.code, programTitle };
+      const payload = { ...data, employeeCode: user?.code, programTitle };
       const result  = await createCourseS(payload);
       if (result) {
         showAlert("success", panel === "create" ? `Cours "${data.sigle}" créé avec succès.` : `Cours "${data.sigle}" modifié.`);
@@ -145,7 +145,7 @@ const Class = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 flex overflow-hidden">
 

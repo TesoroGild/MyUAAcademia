@@ -76,7 +76,7 @@ const ProgramDropdown = ({ programs, selected, onSelect }) => {
 };
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const Subscribe = ({ userCo }) => {
+const Subscribe = ({ user }) => {
   const activeSessions = getActiveSessions();
 
   const [coursesAvailable, setCoursesAvailable]     = useState([]);
@@ -110,7 +110,7 @@ const Subscribe = ({ userCo }) => {
       const sc = activeSessions[0]?.session;
       if (sc) {
         const res = await getStudentSessionCoursesS({
-          permanentCode: userCo.permanentCode,
+          permanentCode: user.permanentCode,
           yearCourse: year + "",
           sessionCourse: sc,
         });
@@ -118,7 +118,7 @@ const Subscribe = ({ userCo }) => {
       }
 
       // Programmes inscrits (pour la dropdown)
-      const progRes = await getStudentProgramsS(userCo.permanentCode);
+      const progRes = await getStudentProgramsS(user.permanentCode);
       if (progRes.success) {
         const enrolled = progRes.programs.filter((p) => p.isEnrolled);
         setPrograms(enrolled);
@@ -132,7 +132,7 @@ const Subscribe = ({ userCo }) => {
         autumn: activeSessions.some((p) => p.session === "Automne"),
       };
 
-      const response = await getAvailableCoursesS(availablePeriods, userCo.permanentCode);
+      const response = await getAvailableCoursesS(availablePeriods, user.permanentCode);
       setCoursesAvailable(response);
     } catch (e) {
       console.error(e);
@@ -209,7 +209,7 @@ const Subscribe = ({ userCo }) => {
       const res = await enrollStudentsInCoursesS({
         cCourseIdsToAdd: cart.map((c) => c.ccourseId) || null,
         cCourseIdsToDrop: cartToDrop.map((ctd) => ctd.ccourseId) || null,
-        permanentCodes: [userCo.permanentCode],
+        permanentCodes: [user.permanentCode],
         programTitle: selectedProgram || programs[0].title
       });
       if (res.success) {
@@ -235,7 +235,7 @@ const Subscribe = ({ userCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={userCo} profilePic={userPicture} />
+      <Sidebar user={user} profilePic={userPicture} />
 
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}

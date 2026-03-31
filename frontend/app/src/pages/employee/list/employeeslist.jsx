@@ -18,7 +18,7 @@ const ROLE_BADGE = {
   employee:  "bg-slate-100 text-slate-600 border-slate-200",
 };
 
-const EmployeesList = ({ employeeCo }) => {
+const EmployeesList = ({ user }) => {
   const navigate = useNavigate();
   const [employees, setEmployees]                 = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
@@ -74,7 +74,7 @@ const EmployeesList = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 flex flex-col overflow-hidden">
 

@@ -43,14 +43,14 @@ import {
   HiPencilAlt, HiUserGroup, HiCalendar,
 } from "react-icons/hi";
 
-const AdminSpace = ({ employeeCo }) => {
-  const firstName = employeeCo?.firstName ?? "Administrateur";
+const AdminSpace = ({ user }) => {
+  const firstName = user?.firstName ?? "Administrateur";
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
 
       {/* Sidebar */}
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       {/* Main */}
       <main className="flex-1 overflow-y-auto">

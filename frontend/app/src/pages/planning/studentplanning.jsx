@@ -3,16 +3,16 @@ import Sidebar from "../sidebar/sidebar";
 import Header from '../header/header'
 import userPicture from '../../assets/img/User_Icon.png';
 
-const StudentPlanning = ({userCo}) => {
+const StudentPlanning = ({user}) => {
     return (<>
         <div>
             <div>
-                <Header userCo = {userCo}/>
+                <Header user = {user}/>
             </div>
 
             <div className="flex">
                 <div className="dash-div">
-                    <Sidebar userCo = {userCo} profilePic={userPicture} />
+                    <Sidebar user = {user} profilePic={userPicture} />
                 </div>
                 
                 <div>

@@ -50,7 +50,7 @@ const Alert = ({ type, message, action }) => {
 
 const fmtSalary = (v) => v ? `${Number(v).toLocaleString("fr-CA")} $` : "—";
 
-const EmployeeCreate = ({ employeeCo }) => {
+const EmployeeCreate = ({ user }) => {
   const navigate = useNavigate();
   const [alert, setAlert]                       = useState(null);
   const [isLoading, setIsLoading]               = useState(false);
@@ -60,7 +60,7 @@ const EmployeeCreate = ({ employeeCo }) => {
 
   const { register, control, handleSubmit, reset, setValue, formState: { errors } } = useForm({
     defaultValues: {
-      birthday: "", createdByCode: employeeCo?.code ?? "",
+      birthday: "", createdByCode: user?.code ?? "",
       email: "", empStatus: "", firstname: "", lastname: "",
       nas: "", phoneNumber: "", sexe: "", streetAddress: "",
       jobTitle: "", nationality: "",
@@ -117,7 +117,7 @@ const EmployeeCreate = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
       <main className="flex-1 overflow-y-auto">
         <div className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
           <div>

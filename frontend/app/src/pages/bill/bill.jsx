@@ -124,7 +124,7 @@ const BillDetail = ({ bill, courses, total, onPay }) => {
 };
 
 // ── Page principale ──────────────────────────────────────────────────────────
-const Bill = ({ userCo, userPermanentCode }) => {
+const Bill = ({ user }) => {
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear().toString();
 
@@ -138,7 +138,7 @@ const Bill = ({ userCo, userPermanentCode }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (userPermanentCode?.trim()) getStudentBills();
+    if (user.permanentCode?.trim()) getStudentBills();
   }, []);
 
   useEffect(() => {
@@ -148,7 +148,7 @@ const Bill = ({ userCo, userPermanentCode }) => {
   const getStudentBills = async () => {
     setIsLoading(true);
     try {
-      const bills = await getStudentBillsS(userPermanentCode);
+      const bills = await getStudentBillsS(user.permanentCode);
       setStudentBills(bills);
     } catch (e) { console.error(e); }
     finally { setIsLoading(false); }
@@ -156,13 +156,12 @@ const Bill = ({ userCo, userPermanentCode }) => {
 
   const getCourses = async (year, session) => {
     try {
-      const res = await getSessionCoursePriceS({ permanentCode: userPermanentCode, yearCourse: year, sessionCourse: session });
+      const res = await getSessionCoursePriceS({ permanentCode: user.permanentCode, yearCourse: year, sessionCourse: session });
       if (res.success) {
         setStudentCourses(res.courses);
-        return res.courses; // ← ajoute ça
       }
-      return [];
-    } catch (e) { console.error(e); return []; }
+      setStudentCourses([]);
+    } catch (e) { console.error(e); setStudentCourses([]); }
   };
 
   const calcTotal = (bill) => {
@@ -180,7 +179,7 @@ const Bill = ({ userCo, userPermanentCode }) => {
   const loadSession = async (year, session) => {
     const found = studentBills.find((b) => b.yearStudy == year && b.sessionStudy === session);
     if (found) {
-      const courses = await getCourses(year, session);
+      await getCourses(year, session);
       setBillToDisplay(found);
       setTotal(calcTotal(found));
     } else {
@@ -205,7 +204,7 @@ const Bill = ({ userCo, userPermanentCode }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={userCo} profilePic={userPicture} />
+      <Sidebar user={user} profilePic={userPicture} />
 
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}

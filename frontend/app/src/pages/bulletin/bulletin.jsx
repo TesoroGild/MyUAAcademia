@@ -8,21 +8,21 @@ import { getStudentProgramsS } from "../../services/program.service";
 
 // ── Table des mentions ────────────────────────────────────────────────────────
 const MENTIONS = [
-  { code: "A+, A, A-, tA", label: "Excellent" },
-  { code: "B+, B, B-, tB", label: "Très bien" },
-  { code: "C+, C, C-, tC", label: "Bien" },
-  { code: "D+, D",         label: "Passable" },
-  { code: "E",             label: "Échec" },
-  { code: "EXE",           label: "Exemption" },
-  { code: "H",             label: "Hors programme" },
-  { code: "I",             label: "Incomplet" },
-  { code: "K",             label: "Exemption (reconnaissance des acquis)" },
-  { code: "L",             label: "Échoué, repris et réussi" },
-  { code: "R",             label: "Résultat reporté" },
-  { code: "S",             label: "Exigence satisfaite" },
-  { code: "*",             label: "Résultat non disponible" },
-  { code: "**",            label: "Activité sans crédit universitaire" },
-  { code: "#",             label: "Délai autorisé pour la remise du résultat" },
+  { result: "A+, A, A-, tA", label: "Excellent" },
+  { result: "B+, B, B-, tB", label: "Très bien" },
+  { result: "C+, C, C-, tC", label: "Bien" },
+  { result: "D+, D",         label: "Passable" },
+  { result: "E",             label: "Échec" },
+  { result: "EXE",           label: "Exemption" },
+  { result: "H",             label: "Hors programme" },
+  { result: "I",             label: "Incomplet" },
+  { result: "K",             label: "Exemption (reconnaissance des acquis)" },
+  { result: "L",             label: "Échoué, repris et réussi" },
+  { result: "R",             label: "Résultat reporté" },
+  { result: "S",             label: "Exigence satisfaite" },
+  { result: "*",             label: "Résultat non disponible" },
+  { result: "**",            label: "Activité sans crédit universitaire" },
+  { result: "#",             label: "Délai autorisé pour la remise du résultat" },
 ];
 
 const GPA_TABLE = [
@@ -67,14 +67,14 @@ const LegendModal = ({ open, onClose }) => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100">
-                  <th className="text-left py-2 px-3 text-xs text-slate-500 font-medium">Code</th>
+                  <th className="text-left py-2 px-3 text-xs text-slate-500 font-medium">Résultat</th>
                   <th className="text-left py-2 px-3 text-xs text-slate-500 font-medium">Signification</th>
                 </tr>
               </thead>
               <tbody>
                 {MENTIONS.map((m, i) => (
                   <tr key={i} className={`border-b border-slate-50 ${i % 2 === 1 ? "bg-slate-50" : ""}`}>
-                    <td className="py-2.5 px-3 font-mono text-xs font-semibold text-slate-800">{m.code}</td>
+                    <td className="py-2.5 px-3 font-mono text-xs font-semibold text-slate-800">{m.result}</td>
                     <td className="py-2.5 px-3 text-xs text-slate-600">{m.label}</td>
                   </tr>
                 ))}
@@ -133,7 +133,7 @@ const ProgramDropdown = ({ programs, selected, onSelect }) => {
 };
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const Bulletin = ({ userCo }) => {
+const Bulletin = ({ user }) => {
   const location = useLocation();
   const studentDisplay = location.state?.studentToShow;
 
@@ -144,16 +144,16 @@ const Bulletin = ({ userCo }) => {
   const [totalCredit, setTotalCredit] = useState(0);
   const [legendOpen, setLegendOpen] = useState(false);
 
-  const targetCode = studentDisplay || userCo?.permanentCode;
+  const userCode = studentDisplay || user?.permanentCode;
 
   useEffect(() => {
-    if (targetCode) fetchAll();
+    if (userCode) fetchAll();
   }, []);
 
   const fetchAll = async () => {
     try {
       // Récupère les programmes inscrits
-      const progRes = await getStudentProgramsS(targetCode);
+      const progRes = await getStudentProgramsS(userCode);
       if (progRes.success) {
         const enrolled = progRes.programs.filter((p) => p.isEnrolled).map((p) => p.title);
         setPrograms(enrolled);
@@ -172,7 +172,7 @@ const Bulletin = ({ userCo }) => {
 
   const loadBulletin = async (programTitle) => {
     try {
-      const res = await getStudentBulletinS(targetCode);
+      const res = await getStudentBulletinS(userCode);
       const bulletins = res.bulletins ?? [];
       const filtered = programTitle
         ? bulletins.filter((b) => !b.programTitle || b.programTitle === programTitle)
@@ -207,7 +207,7 @@ const Bulletin = ({ userCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={userCo} profilePic={userPicture} />
+      <Sidebar user={user} profilePic={userPicture} />
 
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}

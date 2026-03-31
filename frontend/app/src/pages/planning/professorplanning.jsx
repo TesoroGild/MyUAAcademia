@@ -20,7 +20,7 @@ const getMondayOf = (d) => { const r=new Date(d); const day=r.getDay(); r.setDat
 const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
 const fmtDate = (d) => d.toLocaleDateString("fr-CA",{day:"numeric",month:"short"});
 
-export const ProfessorAcademicPlanning = ({ employeeCo }) => {
+export const ProfessorAcademicPlanning = ({ user }) => {
   const [courses, setCourses]     = useState([]);
   const [weekStart, setWeekStart] = useState(getMondayOf(new Date()));
   const today = new Date();
@@ -29,9 +29,9 @@ export const ProfessorAcademicPlanning = ({ employeeCo }) => {
 
   const load = async () => {
     try {
-      const res  = await getProfCourseS(employeeCo?.code || employeeCo?.userCod);
+      const res  = await getProfCourseS(user?.code);
       const all  = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
-      setCourses(all.filter((c) => c.professorCode === employeeCo?.code || c.professorCode === employeeCo?.userCode));
+      setCourses(all.filter((c) => c.taughtBy === user?.code));
     } catch (e) { console.error(e); }
   };
 
@@ -51,7 +51,7 @@ export const ProfessorAcademicPlanning = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={userPicture} />
+      <Sidebar user={user} profilePic={userPicture} />
       <main className="flex-1 flex flex-col overflow-hidden">
 
         <div className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">

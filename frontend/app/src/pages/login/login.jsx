@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Toast, ToastToggle } from "flowbite-react";
 import { HiExclamation, HiX } from "react-icons/hi";
 import { employeeLogin, userLogin } from "../../services/auth.service";
@@ -20,7 +20,7 @@ const CONFIG = {
     },
     setCoKey: "employee", // pour savoir quel setter appeler
   },
-  user: {
+  student: {
     title: "Espace Étudiant",
     subtitle: "Connectez-vous avec votre matricule étudiant.",
     codeLabel: "Matricule",
@@ -30,13 +30,14 @@ const CONFIG = {
     roleRedirects: {
       default: "/studentspace",
     },
-    setCoKey: "user",
+    setCoKey: "student",
   },
 };
 
-function Login({ type, setEmployeeCo, setUserCo }) {
+function Login({ type, setUser }) {
   const config = CONFIG[type];
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [form, setForm] = useState({ code: "", pwd: "" });
   const [codeFocused, setCodeFocused] = useState(false);
@@ -54,23 +55,23 @@ function Login({ type, setEmployeeCo, setUserCo }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const payload = type === "user" ? { permanentCode: form.code, pwd: form.pwd } : { code: form.code, pwd: form.pwd };
+      const payload = type === "student" ? { permanentCode: form.code, pwd: form.pwd } : { code: form.code, pwd: form.pwd };
 
       const result = await config.loginFn(payload);
 
       if (result.success) {
         const user = result.userConnected;
-        
-        if (config.setCoKey === "employee") {
-          setEmployeeCo((prev) => ({ ...prev, ...user }));
-        } else setUserCo((prev) => ({ ...prev, ...user }));
+        setUser((prev) => ({ ...prev, ...user }));
 
         localStorage.setItem("justLoggedIn", true);
         localStorage.setItem("userRole", user.userRole);
+        localStorage.setItem("user", JSON.stringify(user));
 
         const role = user.userRole.toLowerCase();
         const redirect = config.roleRedirects[role] ?? config.roleRedirects.default;
-        navigate(redirect);
+        const from = location.state?.from?.pathname || redirect;
+        console.log(from)
+        navigate(from, { replace: true });
       } else {
         showError(result.message);
       }
@@ -115,11 +116,11 @@ function Login({ type, setEmployeeCo, setUserCo }) {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3">
-                          <Avatar img={uaLogo} bordered size="sm" />
-                          <span className="font-semibold text-slate-800 text-sm tracking-wide uppercase">
-                              MyUA Academia
-                          </span>
-                    </div>
+            <Avatar img={uaLogo} bordered size="sm" />
+            <span className="font-semibold text-slate-800 text-sm tracking-wide uppercase">
+                MyUA Academia
+            </span>
+          </div>
           <h1 className="text-xl font-bold text-slate-900">{config.title}</h1>
           <p className="text-sm text-slate-500 mt-1">{config.subtitle}</p>
         </div>

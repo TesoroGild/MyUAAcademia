@@ -94,7 +94,7 @@ const EditModal = ({ open, onClose, form, onChange, onSubmit, showAlert }) => {
 };
 
 // ── Page principale ──────────────────────────────────────────────────────────
-const EmployeeDetails = ({ employeeCo }) => {
+const EmployeeDetails = ({ user }) => {
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState({
@@ -108,8 +108,8 @@ const EmployeeDetails = ({ employeeCo }) => {
   const [profileModForm, setProfileModForm] = useState({ code: "", phoneNumber: "", lastname: "", firstname: "", pwd: "" });
 
   useEffect(() => {
-    if (employeeCo) getEmployee(employeeCo.code);
-  }, [employeeCo]);
+    if (user) getEmployee(user.code);
+  }, [user]);
 
   const getEmployee = async (code) => {
     try {
@@ -152,7 +152,7 @@ const EmployeeDetails = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}

@@ -22,7 +22,7 @@ const getMondayOf = (d) => { const r=new Date(d); const day=r.getDay(); r.setDat
 const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
 const fmtDate = (d) => d.toLocaleDateString("fr-CA",{day:"numeric",month:"short"});
 
-const AdminPlanning = ({ employeeCo }) => {
+const AdminPlanning = ({ user }) => {
   const [mode, setMode]               = useState("prof");
   const [professors, setProfessors]   = useState([]);
   const [rooms, setRooms]             = useState([]);
@@ -47,7 +47,7 @@ const AdminPlanning = ({ employeeCo }) => {
 
   const courses = selected
     ? mode === "prof"
-      ? allCourses.filter((c) => c.professorCode === selected.code)
+      ? allCourses.filter((c) => c.taughtBy === selected.code)
       : allCourses.filter((c) => c.classeName   === selected.classeName)
     : [];
 
@@ -70,7 +70,11 @@ const AdminPlanning = ({ employeeCo }) => {
   };
 
   const handleSelect = (item) => {
-    setSelected(selected?.code===item.code || selected?.classeName===item.classeName ? null : item);
+    if (mode === "prof") {
+      setSelected(selected?.code === item.code ? null : item);
+    } else {
+      setSelected(selected?.classeName === item.classeName ? null : item);
+    }
     setSelectedBlock(null);
   };
 
@@ -78,7 +82,7 @@ const AdminPlanning = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
       <main className="flex-1 flex overflow-hidden">
 
         {/* ── Panneau gauche ── */}

@@ -21,7 +21,7 @@ const plageOverlaps = (plage, courseStart, courseEnd) => {
   return cs < pe && ce > ps;
 };
 
-const ProfessorRooms = ({ employeeCo }) => {
+const ProfessorRooms = ({ user }) => {
   const [rooms, setRooms]               = useState([]);
   const [allCourses, setAllCourses]     = useState([]);
   const [search, setSearch]             = useState("");
@@ -78,7 +78,7 @@ const ProfessorRooms = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={profPicture} />
+      <Sidebar user={user} profilePic={profPicture} />
 
       <main className="flex-1 overflow-y-auto">
 

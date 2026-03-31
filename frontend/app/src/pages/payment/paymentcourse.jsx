@@ -18,7 +18,7 @@ import { payBill } from "../../services/bill.service.js";
 //Icons
 import { HiInformationCircle } from "react-icons/hi";
 
-const PaymentCourse = ({userCo}) => {
+const PaymentCourse = ({user}) => {
     //States
     const location = useLocation();
     const [bill, setBill] = useState(location.state.billToDisplay);
@@ -81,12 +81,12 @@ const PaymentCourse = ({userCo}) => {
     return (
         <div>
             <div>
-                <Header userCo = {userCo}/>
+                <Header user = {user}/>
             </div>
 
             <div className="flex">
                 <div className="dash-div">
-                    <Sidebar userCo = {userCo} profilePic={userPicture}  />
+                    <Sidebar user = {user} profilePic={userPicture}  />
                 </div>
             
                 <div className="w-full mx-4 mt-2">

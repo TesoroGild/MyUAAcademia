@@ -32,14 +32,14 @@ const MOCK_COURSES = [
   },
 ];
  
-const ProfessorSpace = ({ employeeCo }) => {
-  const firstName = employeeCo?.firstName ?? "Professeur";
+const ProfessorSpace = ({ user }) => {
+  const firstName = user?.firstName ?? "Professeur";
  
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
  
       {/* Sidebar */}
-      <Sidebar userCo={employeeCo} profilePic={profPicture} />
+      <Sidebar user={user} profilePic={profPicture} />
  
       {/* Main */}
       <main className="flex-1 overflow-y-auto">

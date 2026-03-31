@@ -12,7 +12,7 @@ import logo2 from '../../assets/img/UA_Logo2.jpg';
 //Services
 import { logoutS } from '../../services/auth.service';
 
-function Header({userCo}) {
+function Header({user}) {
   //States
     
   //Functions
@@ -46,10 +46,10 @@ function Header({userCo}) {
           }
         >
           <Dropdown.Header>
-            { userCo ? 
+            { user ? 
               (<>
-                <span className="block text-sm">{userCo.firstName} {userCo.lastName}</span>
-                <span className="block truncate text-sm font-medium">{userCo.professionalEmail}</span>
+                <span className="block text-sm">{user.firstName} {user.lastName}</span>
+                <span className="block truncate text-sm font-medium">{user.professionalEmail}</span>
               </>) : (
                 <span className="block text-sm">Nobody</span>
               )
@@ -77,7 +77,7 @@ function Header({userCo}) {
             </Link>
           </Dropdown.Item>
           <Dropdown.Divider />
-          { userCo && (
+          { user && (
             <Dropdown.Item onClick={logout}>Déconnexion</Dropdown.Item>
           )}
         </Dropdown>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiCheck, HiX, HiExclamation, HiEye, HiEyeOff, HiArrowLeft } from "react-icons/hi";
-import { verifyUserForResetS, modifyPasswordS } from "../../../services/auth.service";
+import { verifyUserForResetS, modifyPasswordS } from "../../services/auth.service";
 
 // ── Règles de complexité ──────────────────────────────────────────────────────
 const RULES = [
@@ -42,14 +42,14 @@ const AlertBox = ({ type, message }) => {
 };
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const ResetPassword = () => {
+const ResetPassword = ({user}) => {
   const navigate = useNavigate();
 
   // Étapes : "identify" → "reset" → "success"
   const [step, setStep]                       = useState("identify");
   const [userCode, setUserCode]               = useState("");
   const [personalEmail, setPersonalEmail]     = useState("");
-  const [verifiedUser, setVerifiedUser]       = useState(null);  // { userCode, userRole, firstName, lastName }
+  const [verifiedUser, setVerifiedUser]       = useState(null);
   const [newPassword, setNewPassword]         = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [alert, setAlert]                     = useState(null);
@@ -86,7 +86,6 @@ const ResetPassword = () => {
     if (!userCode.trim() || !personalEmail.trim()) return;
     setIsLoading(true);
     try {
-      // Le back vérifie que ce code + email correspondent bien à un utilisateur
       const res = await verifyUserForResetS({ code: userCode, email: personalEmail });
       if (res.success) {
         setVerifiedUser(res.user);
@@ -195,42 +194,44 @@ const ResetPassword = () => {
         {alert && <div className="mb-4"><AlertBox type={alert.type} message={alert.message}/></div>}
 
         {/* ── Étape 1 : Identification ── */}
-        {step === "identify" && (
-          <form onSubmit={handleIdentify} className="flex flex-col gap-5">
-            <p className="text-sm text-slate-600">
-              Renseignez votre code d'utilisateur et l'email associé à votre compte pour réinitialiser votre mot de passe.
-            </p>
+        {!!user.code && (
+          step === "identify" && (
+            <form onSubmit={handleIdentify} className="flex flex-col gap-5">
+              <p className="text-sm text-slate-600">
+                Renseignez votre code d'utilisateur et l'email associé à votre compte pour réinitialiser votre mot de passe.
+              </p>
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="userCode" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                Code utilisateur
-              </label>
-              <input id="userCode" type="text" value={userCode}
-                onChange={(e) => setUserCode(e.target.value)}
-                placeholder="ex. NOMP12345678"
-                required
-                className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 transition"
-              />
-              <p className="text-xs text-slate-400">Votre code permanent (étudiant) ou code employé.</p>
-            </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="userCode" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                  Code utilisateur
+                </label>
+                <input id="userCode" type="text" value={userCode}
+                  onChange={(e) => setUserCode(e.target.value)}
+                  placeholder="ex. NOMP12345678"
+                  required
+                  className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 transition"
+                />
+                <p className="text-xs text-slate-400">Votre code permanent (étudiant) ou code employé.</p>
+              </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="personalEmail" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                Email personnel
-              </label>
-              <input id="personalEmail" type="email" value={personalEmail}
-                onChange={(e) => setPersonalEmail(e.target.value)}
-                placeholder="votre@email.com"
-                required
-                className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 transition"
-              />
-            </div>
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="personalEmail" className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                  Email personnel
+                </label>
+                <input id="personalEmail" type="email" value={personalEmail}
+                  onChange={(e) => setPersonalEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  required
+                  className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 transition"
+                />
+              </div>
 
-            <button type="submit" disabled={isLoading || !userCode.trim() || !personalEmail.trim()}
-              className="w-full bg-blue-800 hover:bg-blue-900 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium rounded-lg py-2.5 text-sm transition-colors">
-              {isLoading ? "Vérification..." : "Vérifier mon identité"}
-            </button>
-          </form>
+              <button type="submit" disabled={isLoading || !userCode.trim() || !personalEmail.trim()}
+                className="w-full bg-blue-800 hover:bg-blue-900 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium rounded-lg py-2.5 text-sm transition-colors">
+                {isLoading ? "Vérification..." : "Vérifier mon identité"}
+              </button>
+            </form>
+          )
         )}
 
         {/* ── Étape 2 : Nouveau mot de passe ── */}

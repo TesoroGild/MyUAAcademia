@@ -45,7 +45,7 @@ const Alert = ({ type, message }) => {
 };
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const ProgramCreate = ({ employeeCo }) => {
+const ProgramCreate = ({ user }) => {
   const [programs, setPrograms]   = useState([]);
   const [panel, setPanel]         = useState(null);   // null | "create" | "edit" | "delete"
   const [selected, setSelected]   = useState(null);   // programme sélectionné pour edit/delete
@@ -56,7 +56,7 @@ const ProgramCreate = ({ employeeCo }) => {
     defaultValues: {
       title: "", programName: "", descriptions: "",
       grade: "", department: "", faculty: "",
-      employeeCode: employeeCo?.code ?? "",
+      employeeCode: user?.code ?? "",
     },
   });
 
@@ -75,7 +75,7 @@ const ProgramCreate = ({ employeeCo }) => {
   };
 
   const openCreate = () => {
-    reset({ title: "", programName: "", descriptions: "", grade: "", department: "", faculty: "", employeeCode: employeeCo?.code ?? "" });
+    reset({ title: "", programName: "", descriptions: "", grade: "", department: "", faculty: "", employeeCode: user?.code ?? "" });
     setSelected(null);
     setPanel("create");
   };
@@ -128,7 +128,7 @@ const ProgramCreate = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 flex overflow-hidden">
 

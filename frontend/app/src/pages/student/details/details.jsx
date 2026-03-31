@@ -73,12 +73,12 @@ const EditModal = ({ open, onClose, form, onChange, onSubmit, showAlert, fields 
 };
 
 // ── Page principale ──────────────────────────────────────────────────────────
-const StudentDetails = ({ userCo }) => {
+const StudentDetails = ({ user }) => {
   const { permanentcode } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const user = location.state?.userInProcess;
-  const isAdmin = userCo?.userRole?.toLowerCase() === "admin" || userCo?.userRole?.toLowerCase() === "employee";
+  const userToDisplay = location.state?.userInProcess;
+  const isAdmin = user?.userRole?.toLowerCase() === "admin" || user?.userRole?.toLowerCase() === "director";
 
   const [student, setStudent] = useState({
     firstName: "", lastName: "", sexe: "", userRole: "",
@@ -101,7 +101,7 @@ const StudentDetails = ({ userCo }) => {
   };
 
   useEffect(() => {
-    if (user) setStudent(user); else getStudent();
+    if (userToDisplay) setStudent(userToDisplay); else getStudent();
     getFiles();
     getStudentPrograms();
   }, []);
@@ -190,7 +190,7 @@ const StudentDetails = ({ userCo }) => {
   if (!student.permanentCode) {
     return (
       <div className="flex h-screen bg-slate-50">
-        <Sidebar userCo={userCo} profilePic={userPicture} />
+        <Sidebar user={user} profilePic={userPicture} />
         <main className="flex-1 flex items-center justify-center text-slate-400 text-sm">Aucun étudiant trouvé.</main>
       </div>
     );
@@ -198,7 +198,7 @@ const StudentDetails = ({ userCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={userCo} profilePic={userPicture} />
+      <Sidebar user={user} profilePic={userPicture} />
 
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}

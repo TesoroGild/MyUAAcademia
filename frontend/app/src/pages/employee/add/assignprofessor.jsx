@@ -20,7 +20,7 @@ const Alert = ({ type, message }) => {
 };
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const AssignProfessor = ({ employeeCo }) => {
+const AssignProfessor = ({ user }) => {
   const [programs, setPrograms]               = useState([]);
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [programSearch, setProgramSearch]     = useState("");
@@ -65,7 +65,7 @@ const AssignProfessor = ({ employeeCo }) => {
       courses.forEach((c) => {
         if (c.taughtBy) init[c.id] = { profCode: c.taughtBy, profName: c.professorName ?? c.taughtBy, saved: true, saving: false };
       });
-      console.log(courses)
+      (courses)
       setAssignments(init);
     } catch (e) { console.error(e); }
   };
@@ -114,7 +114,7 @@ const AssignProfessor = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}

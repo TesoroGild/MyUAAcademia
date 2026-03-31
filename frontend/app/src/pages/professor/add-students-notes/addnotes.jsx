@@ -44,7 +44,7 @@ const Breadcrumb = ({ items, onNavigate }) => (
 );
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const AddStudentsNotes = ({ employeeCo }) => {
+const AddStudentsNotes = ({ user }) => {
   const location     = useLocation();
   const directCourse = location.state?.classeCourse; // accès direct depuis ProfessorSpace
 
@@ -66,9 +66,9 @@ const AddStudentsNotes = ({ employeeCo }) => {
   const loadCourses = async () => {
     setIsLoading(true);
     try {
-      const res  = await getProfCourseS(employeeCo?.code || employeeCo?.userCode);
+      const res  = await getProfCourseS(user?.code);
       const all  = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
-      const mine = all.filter((c) => c.professorCode === employeeCo?.code || c.professorCode === employeeCo?.userCode);
+      const mine = all.filter((c) => c.taughtBy === user?.code);
       setAllCourses(mine);
     } catch(e) { console.error(e); }
     finally { setIsLoading(false); }
@@ -156,7 +156,7 @@ const AddStudentsNotes = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={profPicture} />
+      <Sidebar user={user} profilePic={profPicture} />
 
       <main className="flex-1 overflow-y-auto">
 

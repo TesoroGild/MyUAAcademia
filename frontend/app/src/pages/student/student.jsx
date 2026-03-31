@@ -6,11 +6,11 @@ import AdminHeader from "../header/adminheader";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 
-const Student = ({employeeCo}) => {
+const Student = ({user}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
-                <Sidebar userCo = {employeeCo} />
+                <Sidebar user = {user} />
             </div>
                 
             <div className="w-full">

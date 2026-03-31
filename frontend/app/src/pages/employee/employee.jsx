@@ -6,11 +6,11 @@ import AdminHeader from "../header/adminheader";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from 'react-router-dom';
 
-const Employee = ({employeeCo}) => {
+const Employee = ({user}) => {
     return (<>
         <div className="flex">
             <div className="dash-div">
-                <Sidebar userCo = {employeeCo} />
+                <Sidebar user = {user} />
             </div>
                 
             <div className="w-full">

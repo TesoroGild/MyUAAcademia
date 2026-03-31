@@ -12,9 +12,8 @@ import { getCourseGradeS } from "../../services/bulletin.service"
 // "pending" = pas encore pris
 const getCourseStatus = (sigle, studentCourses) => {
   const found = studentCourses.find((c) => c.sigle === sigle);
-  console.log(found)
   if (!found) return "pending";
-  //const grade = getCourseGradeS({ code: userCo.permanentCode, course: sigle });
+  //const grade = getCourseGradeS({ code: user.permanentCode, course: sigle });
   if (found.mention && found.mention !== "E") return "done";
   return "ongoing";
 };
@@ -85,7 +84,7 @@ const ProgramDropdown = ({ programs, selected, onSelect }) => {
 };
 
 // ── Page principale ──────────────────────────────────────────────────────────
-const Progress = ({ userCo }) => {
+const Progress = ({ user }) => {
   const [programs, setPrograms] = useState([]);
   const [selectedProgram, setSelectedProgram] = useState(null);
   const [programCourses, setProgramCourses] = useState([]);
@@ -103,8 +102,8 @@ const Progress = ({ userCo }) => {
   const fetchInitial = async () => {
     try {
       const [progRes, coursRes] = await Promise.all([
-        getStudentProgramsS(userCo.permanentCode),
-        getStudentCoursesS(userCo.permanentCode),
+        getStudentProgramsS(user.permanentCode),
+        getStudentCoursesS(user.permanentCode),
       ]);
 
       if (progRes.success) {
@@ -140,7 +139,7 @@ const Progress = ({ userCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={userCo} profilePic={userPicture} />
+      <Sidebar user={user} profilePic={userPicture} />
 
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}

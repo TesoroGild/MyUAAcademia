@@ -62,7 +62,7 @@ const fmtWorkShift = (v) => {
 };
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const ContractCreate = ({ employeeCo }) => {
+const ContractCreate = ({ user }) => {
   const [contracts, setContracts]   = useState([]);
   const [panel, setPanel]           = useState(null);   // null | "create" | "view"
   const [selected, setSelected]     = useState(null);
@@ -86,7 +86,7 @@ const ContractCreate = ({ employeeCo }) => {
   const loadContracts = async () => {
     try {
       const res  = await getContractsS();
-      console.log(res)
+      (res)
       setContracts(Array.isArray(res) ? res : res?.contracts ?? res?.data ?? []);
     } catch (e) { console.error(e); }
   };
@@ -116,7 +116,7 @@ const ContractCreate = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 flex overflow-hidden">
 

@@ -32,7 +32,7 @@ const Breadcrumb = ({ items, onNavigate }) => (
 );
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const ProfessorCourses = ({ employeeCo }) => {
+const ProfessorCourses = ({ user }) => {
   // "grade" | "program" | "courses" | "students"
   const [view, setView]                   = useState("grade");
   const [allCourses, setAllCourses]       = useState([]);   // tous les cours assignés au prof
@@ -48,13 +48,7 @@ const ProfessorCourses = ({ employeeCo }) => {
   const loadCourses = async () => {
     setIsLoading(true);
     try {
-      const res = await getProfCourseS(employeeCo.code || employeeCo.userCode);
-      // const all = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
-      // // Filtre sur les cours du prof connecté
-      // const mine = all.filter(
-      //   (c) => c.taughtBy === employeeCo?.code || c.taughtBy === employeeCo?.userCode
-      // );
-      // console.log(mine)
+      const res = await getProfCourseS(user.code);
       setAllCourses(res.courses);
     } catch (e) { console.error(e); }
     finally { setIsLoading(false); }
@@ -123,7 +117,7 @@ const ProfessorCourses = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={profPicture} />
+      <Sidebar user={user} profilePic={profPicture} />
 
       <main className="flex-1 overflow-y-auto">
 

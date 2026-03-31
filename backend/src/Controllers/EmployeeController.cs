@@ -134,7 +134,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpGet("employee/{code}")]
         [ProducesResponseType(200, Type = typeof(EmployeeTDDto))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "admin, director")]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetEmployee(string code)
         {
             if (!_employeeInterface.EmployeeExists(code)) return NotFound();

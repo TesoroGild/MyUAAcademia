@@ -92,6 +92,8 @@ export const logoutS = async () => {
   try {
     const response = await axios.post(`${backend_url}/Auth/logout`, {}, {withCredentials: true});
     localStorage.clear();
+    //setUser(null);
+    localStorage.removeItem("user");
     return { success: true, response: response.data };
   } catch (error) {
     console.error('Erreur :', error);

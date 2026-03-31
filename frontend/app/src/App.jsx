@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // ── Public ────────────────────────────────────────────────────────────────────
 import Home             from "./pages/home/home.jsx";
@@ -10,9 +11,9 @@ import AdmissionBill    from "./pages/admission/bill.jsx";
 import PaymentAdmission from "./pages/admission/payment.jsx";
 import AdmissionVerify  from "./pages/admission/verify.jsx";
 import Contact          from "./pages/contact/contact";
-import Notfound         from "./pages/not-found/notfound";
-import Registration     from "./pages/registration/registration.jsx";
-import ResetPassword   from "./pages/employee/change-pwd/resetpassword.jsx";
+import Notfound         from "./pages/specials/notfound.jsx";
+import ResetPassword   from "./pages/change-pwd/resetpassword.jsx";
+import Forbidden from "./pages/specials/forbidden.jsx";
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 import Login            from "./pages/login/login";
@@ -58,16 +59,9 @@ import { getUserBySessionS } from "./services/auth.service.js";
 const App = () => {
   const navigate = useNavigate();
 
-  const [userCo, setUserCo] = useState({
-    firstName: "", lastName: "", permanentCode: "", userRole: "",
-  });
-
-  const [employeeCo, setEmployeeCo] = useState({
-    firstName: "", lastName: "", code: "",
-  });
-
-  const [employeeTRC, setEmployeeTRC] = useState({
-    firstName: "", lastName: "", code: "",
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
   });
 
   useEffect(() => { getUserBySession(); }, []);
@@ -76,26 +70,26 @@ const App = () => {
     try {
       const justLoggedIn = localStorage.getItem("justLoggedIn");
       const userRole     = localStorage.getItem("userRole");
+      const stored = localStorage.getItem("user");
       if (!justLoggedIn) return;
 
-      const response = await getUserBySessionS();
-
-      if (response.success) {
-        const role = response.userConnected.userRole?.toLowerCase();
-
-        if (role === "student") {
-          setUserCo(response.userConnected);
-        } else if (role === "professor") {
-          setEmployeeCo(response.userConnected);
-        } else if (role === "admin") {
-          setEmployeeCo(response.userConnected);
-        }
+      if (stored) {
+        setUser(JSON.parse(stored));
+        return;
       } else {
-        localStorage.clear();
-        const role = userRole?.toLowerCase();
-        if (role === "student") navigate("/login/user");
-        else navigate("/login/employee");
+        const response = await getUserBySessionS();
+  
+        if (response.success) {
+          setUser(response.userConnected);
+          localStorage.setItem("user", JSON.stringify(response.userConnected));
+        } else {
+          localStorage.clear();
+          const role = userRole?.toLowerCase();
+          if (role === "student") navigate("/login/user");
+          else navigate("/login/employee");
+        }
       }
+
     } catch (error) {
       console.error(error);
     }
@@ -114,48 +108,74 @@ const App = () => {
         <Route path="/admission/payment"  element={<PaymentAdmission />} />
         <Route path="/admission/verify"   element={<AdmissionVerify />} />
         <Route path="/contact"            element={<Contact />} />
-        <Route path="/registration"       element={<Registration setUserCo={setUserCo} setEmployeeCo={setEmployeeCo} />} />
-        <Route path="/login/user"         element={<Login type="user"     setUserCo={setUserCo}     setEmployeeCo={setEmployeeCo} />} />
-        <Route path="/login/employee"     element={<Login type="employee" setEmployeeCo={setEmployeeCo} setUserCo={setUserCo} />} />
+        <Route path="/login/user"         element={<Login type="student" setUser={setUser} />} />
+        <Route path="/login/employee"     element={<Login type="employee" setUser={setUser} />} />
+        <Route path="/forbidden"          element={<Forbidden />} />
 
         {/* ── Users ── */}
-        <Route path="/resetpwd"  element={<ResetPassword employeeTRC={employeeTRC} />} />
+        <Route path="/resetpwd"  element={<ResetPassword user={user} />} />
 
         {/* ── Student ── */}
-        <Route path="/studentspace"       element={<StudentSpace userCo={userCo} />} />
-        <Route path="/bill/courses"       element={<Bill userCo={userCo} userPermanentCode={userCo.permanentCode} />} />
-        <Route path="/bulletin"           element={<Bulletin userCo={userCo} />} />
-        <Route path="/calendar"           element={<Calendar userCo={userCo} />} />
-        <Route path="/payment/courses"    element={<PaymentCourse userCo={userCo} />} />
-        <Route path="/progress"           element={<Progress userCo={userCo} />} />
-        <Route path="/subscribe"          element={<Subscribe userCo={userCo} />} />
-        <Route path="/student/:permanentcode" element={<StudentDetails userCo={userCo} />} />
+        <Route element={<ProtectedRoute 
+            allowedRoles={["student"]}
+            redirectPath="/login/user"
+          />} 
+        >
+          <Route path="/studentspace"           element={<StudentSpace user={user} />} />
+          <Route path="/bill/courses"           element={<Bill user={user} />} />
+          <Route path="/bulletin"               element={<Bulletin user={user} />} />
+          <Route path="/calendar"               element={<Calendar user={user} />} />
+          <Route path="/payment/courses"        element={<PaymentCourse user={user} />} />
+          <Route path="/progress"               element={<Progress user={user} />} />
+          <Route path="/subscribe"              element={<Subscribe user={user} />} />
+          <Route path="/student/:permanentcode" element={<StudentDetails user={user} />} />
+        </Route>
+
+        {/* ── Employees ── */}
+        <Route element={<ProtectedRoute 
+            allowedRoles={["admin", "director", "professor"]}
+            redirectPath="/login/employee"
+          />} 
+        >
+          <Route path="/employee/:usercode"             element={<EmployeeDetails user={user} />} />
+        </Route>
 
         {/* ── Professor ── */}
-        <Route path="/professorspace"     element={<ProfessorSpace   employeeCo={employeeCo} />} />
-        <Route path="/professor/grades"   element={<AddStudentsNotes employeeCo={employeeCo} />} />
-        <Route path="/professorplanning"  element={<ProfessorAcademicPlanning   employeeCo={employeeCo} />} />
-        <Route path="/professor/courses" element={<ProfessorCourses employeeCo={employeeCo} />} />
-        <Route path="/professor/rooms"   element={<ProfessorRooms   employeeCo={employeeCo} />} />
+        <Route element={<ProtectedRoute 
+            allowedRoles={["professor"]}
+            redirectPath="/login/employee"
+          />} 
+        >
+          <Route path="/professorspace"     element={<ProfessorSpace   user={user} />} />
+          <Route path="/professor/grades"   element={<AddStudentsNotes user={user} />} />
+          <Route path="/professorplanning"  element={<ProfessorAcademicPlanning   user={user} />} />
+          <Route path="/professor/courses"  element={<ProfessorCourses user={user} />} />
+          <Route path="/professor/rooms"    element={<ProfessorRooms   user={user} />} />
+        </Route>
 
         {/* ── Admin ── */}
-        <Route path="/adminspace"                     element={<AdminSpace      employeeCo={employeeCo} />} />
-        <Route path="/adminplanning"                  element={<AdminPlanning   employeeCo={employeeCo} />} />
-        <Route path="/employee/program/program"       element={<ProgramCreate   employeeCo={employeeCo} />} />
-        <Route path="/employee/program/class"         element={<Class           employeeCo={employeeCo} />} />
-        <Route path="/employee/program/classroom"     element={<Classroom       employeeCo={employeeCo} />} />
-        <Route path="/employee/program/course"        element={<CourseCreate    employeeCo={employeeCo} />} />
-        <Route path="/employee/employee/assign-course" element={<AssignProfessor employeeCo={employeeCo} />} />
-        <Route path="/employee/employees"             element={<Employee        employeeCo={employeeCo} />} />
-        <Route path="/employee/employee/create"       element={<EmployeeCreate  employeeCo={employeeCo} />} />
-        <Route path="/employee/employee/list"         element={<EmployeesList   employeeCo={employeeCo} />} />
-        <Route path="/employee/:usercode"             element={<EmployeeDetails employeeCo={employeeCo} />} />
-        <Route path="/employee/students"              element={<Student         employeeCo={employeeCo} />} />
-        <Route path="/employee/student/list"          element={<StudentList     employeeCo={employeeCo} />} />
-        <Route path="/employee/student/create"        element={<CourseEnrollment employeeCo={employeeCo} />} />
-        <Route path="/employee/student/course"        element={<Course          employeeCo={employeeCo} />} />
-        <Route path="/employee/student/inscription"   element={<Inscription     employeeCo={employeeCo} />} />
-        <Route path="/employee/contracts"    element={<ContractCreate employeeCo={employeeCo} />} />
+        <Route element={<ProtectedRoute 
+            allowedRoles={["admin", "director"]}
+            redirectPath="/login/employee"
+          />} 
+        >
+          <Route path="/adminspace"                     element={<AdminSpace      user={user} />} />
+          <Route path="/adminplanning"                  element={<AdminPlanning   user={user} />} />
+          <Route path="/employee/program/program"       element={<ProgramCreate   user={user} />} />
+          <Route path="/employee/program/class"         element={<Class           user={user} />} />
+          <Route path="/employee/program/classroom"     element={<Classroom       user={user} />} />
+          <Route path="/employee/program/course"        element={<CourseCreate    user={user} />} />
+          <Route path="/employee/employee/assign-course" element={<AssignProfessor user={user} />} />
+          <Route path="/employee/employees"             element={<Employee        user={user} />} />
+          <Route path="/employee/employee/create"       element={<EmployeeCreate  user={user} />} />
+          <Route path="/employee/employee/list"         element={<EmployeesList   user={user} />} />
+          <Route path="/employee/students"              element={<Student         user={user} />} />
+          <Route path="/employee/student/list"          element={<StudentList     user={user} />} />
+          <Route path="/employee/student/create"        element={<CourseEnrollment user={user} />} />
+          <Route path="/employee/student/course"        element={<Course          user={user} />} />
+          <Route path="/employee/student/inscription"   element={<Inscription     user={user} />} />
+          <Route path="/employee/contracts"             element={<ContractCreate user={user} />} />
+        </Route>
 
         {/* ── Fallback ── */}
         <Route path="/notfound" element={<Notfound />} />

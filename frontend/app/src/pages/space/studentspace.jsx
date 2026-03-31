@@ -23,14 +23,14 @@ const StatCard = ({ label, value, sub }) => (
   </div>
 );
 
-const StudentSpace = ({ userCo }) => {
-  const firstName = userCo?.firstName ?? "Étudiant";
+const StudentSpace = ({ user }) => {
+  const firstName = user?.firstName ?? "Étudiant";
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
 
       {/* Sidebar */}
-      <Sidebar userCo={userCo} profilePic={userPicture} />
+      <Sidebar user={user} profilePic={userPicture} />
 
       {/* Main */}
       <main className="flex-1 overflow-y-auto">
@@ -50,12 +50,12 @@ const StudentSpace = ({ userCo }) => {
           {/* ── Stats ── */}
           <section>
             <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">
-              Dossier académique
+              Dossier académique (TODO)
             </h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard label="Crédits complétés"  value={userCo?.creditsCompleted ?? "—"} sub="sur 90 requis" />
-              <StatCard label="Moyenne générale"   value={userCo?.gpa ?? "—"}             sub="sur 4.0" />
-              <StatCard label="Cours actifs"        value={userCo?.activeCourses ?? "—"}   sub="ce trimestre" />
+              <StatCard label="Crédits complétés"  value={user?.creditsCompleted ?? "—"} sub="sur 90 requis" />
+              <StatCard label="Moyenne générale"   value={user?.gpa ?? "—"}             sub="sur 4.0" />
+              <StatCard label="Cours actifs"        value={user?.activeCourses ?? "—"}   sub="ce trimestre" />
               <StatCard label="Statut"              value="Actif"                           sub="Inscrit au programme" />
             </div>
           </section>
@@ -65,9 +65,9 @@ const StudentSpace = ({ userCo }) => {
             {/* ── Cours en cours ── */}
             <section className="lg:col-span-2 bg-white border border-slate-200 rounded-xl p-6">
               <h2 className="text-sm font-semibold text-slate-900 mb-4">Cours en cours</h2>
-              {userCo?.courses?.length > 0 ? (
+              {user?.courses?.length > 0 ? (
                 <div className="flex flex-col divide-y divide-slate-100">
-                  {userCo.courses.map((course) => (
+                  {user.courses.map((course) => (
                     <div key={course.sigle} className="py-3 flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-slate-900">{course.name}</p>
@@ -81,14 +81,14 @@ const StudentSpace = ({ userCo }) => {
                 </div>
               ) : (
                 <div className="text-sm text-slate-400 py-4 text-center">
-                  Aucun cours chargé — connecte tes données API ici.
+                  Aucun cours chargé.
                 </div>
               )}
             </section>
 
             {/* ── Événements ── */}
             <section className="bg-white border border-slate-200 rounded-xl p-6">
-              <h2 className="text-sm font-semibold text-slate-900 mb-4">À venir</h2>
+              <h2 className="text-sm font-semibold text-slate-900 mb-4">À venir (fictif)</h2>
               <div className="flex flex-col gap-3">
                 {MOCK_EVENTS.map((ev) => (
                   <div

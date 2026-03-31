@@ -49,7 +49,7 @@ const CapacityBadge = ({ capacity }) => {
 };
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const Classroom = ({ employeeCo }) => {
+const Classroom = ({ user }) => {
   const [classroomList, setClassroomList] = useState([]);
   const [panel, setPanel]       = useState(null);   // null | "create" | "edit" | "close"
   const [selected, setSelected] = useState(null);
@@ -101,7 +101,7 @@ const Classroom = ({ employeeCo }) => {
     }
     setIsLoading(true);
     try {
-      const payload = { ...data, employeeCode: employeeCo?.code };
+      const payload = { ...data, employeeCode: user?.code };
       const result  = await createClassroomS(payload);
       if (result) {
         showAlert("success", panel === "create"
@@ -130,7 +130,7 @@ const Classroom = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 flex overflow-hidden">
 

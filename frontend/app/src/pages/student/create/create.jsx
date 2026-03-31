@@ -210,7 +210,7 @@ const ProgramSection = ({ programs, register, errors, onProgramSelect }) => {
 };
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const Create = ({ employeeCo }) => {
+const Create = ({ user }) => {
   const navigate   = useNavigate();
   const [programs, setPrograms]           = useState([]);
   const [formattedNumber, setFormattedNumber] = useState("");
@@ -266,7 +266,7 @@ const Create = ({ employeeCo }) => {
       fd.append("streetAddress", data.streetAddress);
       fd.append("programTitle",  data.programTitle);
       fd.append("userRole",      data.userRole);
-      fd.append("employeeCode",  employeeCo?.code);
+      fd.append("employeeCode",  user?.code);
       if (data.userStatus)       fd.append("userStatus",      data.userStatus);
       if (data.identityProof?.[0]) fd.append("identityProof", data.identityProof[0]);
       if (data.schoolTranscript?.[0]) fd.append("schoolTranscript", data.schoolTranscript[0]);
@@ -296,7 +296,7 @@ const Create = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 overflow-y-auto">
 

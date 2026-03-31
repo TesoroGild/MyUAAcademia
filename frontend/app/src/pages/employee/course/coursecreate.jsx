@@ -53,7 +53,7 @@ const SeanceCard = ({ seance }) => (
 );
 
 // ── Page principale ───────────────────────────────────────────────────────────
-const CourseCreate = ({ employeeCo }) => {
+const CourseCreate = ({ user }) => {
   const [programs, setPrograms]       = useState([]);
   const [courses, setCourses]         = useState([]);
   const [classrooms, setClassrooms]   = useState([]);
@@ -104,7 +104,7 @@ const CourseCreate = ({ employeeCo }) => {
       startTime:     data.startTime,
       endTime:       data.endTime,
       yearCourse:    data.yearCourse,
-      employeeCode:  employeeCo?.code,
+      employeeCode:  user?.code,
     };
 
     // Doublon
@@ -153,7 +153,7 @@ const CourseCreate = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 overflow-y-auto">
 

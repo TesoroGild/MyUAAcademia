@@ -14,10 +14,10 @@ import { GiPathDistance } from "react-icons/gi";
 
 // ── Nav config par rôle ──────────────────────────────────────────────────────
 
-const getNavItems = (userCo) => {
-  const role = userCo?.userRole?.toLowerCase();
-  const code = userCo?.permanentCode || "";
-  const empCode = userCo?.code || "";
+const getNavItems = (user) => {
+  const role = user?.userRole?.toLowerCase();
+  const code = user?.permanentCode || "";
+  const empCode = user?.code || "";
 
   if (role === "student") return [
     { label: "Tableau de bord", icon: HiChartPie, to: "/studentspace" },
@@ -150,10 +150,10 @@ const NavItem = ({ item }) => {
 
 // ── Composant principal ───────────────────────────────────────────────────────
 
-const Sidebar = ({ userCo, profilePic }) => {
+const Sidebar = ({ user, profilePic }) => {
   const navigate = useNavigate();
-  const role = userCo?.userRole?.toLowerCase();
-  const navItems = getNavItems(userCo);
+  const role = user?.userRole?.toLowerCase();
+  const navItems = getNavItems(user);
 
   const roleLabel = {
     student:   "Étudiant",
@@ -183,10 +183,10 @@ const Sidebar = ({ userCo, profilePic }) => {
           <Avatar img={profilePic} bordered size="md" rounded />
           <div className="min-w-0">
             <p className="text-sm font-semibold text-slate-900 truncate">
-              {userCo?.firstName} {userCo?.lastName}
+              {user?.firstName} {user?.lastName}
             </p>
             <p className="text-xs text-slate-400 truncate">
-              {userCo?.permanentCode || userCo?.userCode || roleLabel}
+              {user?.permanentCode || user?.code || roleLabel}
             </p>
             <span className="inline-block mt-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
               {roleLabel}

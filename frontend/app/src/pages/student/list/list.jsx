@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { HiCheck, HiExclamation, HiSearch, HiExternalLink, HiX } from "react-icons/hi";
 import { activeStudentAccountS, getStudentsS, validateUserS } from "../../../services/user.service";
 
-const StudentsList = ({ employeeCo }) => {
+const StudentsList = ({ user }) => {
   const navigate = useNavigate();
   const [students, setStudents]               = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
@@ -32,7 +32,6 @@ const StudentsList = ({ employeeCo }) => {
     setLoadingCode(permanentCode);
     try {
       const activationRequest = { code: permanentCode, isActivate: activate }
-      console.log(activationRequest)
       const response = await activeStudentAccountS(activationRequest);
       if (response) await getStudents();
       else console.warn("Échec activation de compte");
@@ -45,7 +44,6 @@ const StudentsList = ({ employeeCo }) => {
     try {
 
       const validationRequest = { code: permanentCode, isValidated: true }
-      console.log(validationRequest)
       const response = await validateUserS(validationRequest); 
       if (response) {
         await getStudents();
@@ -83,7 +81,7 @@ const StudentsList = ({ employeeCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={employeeCo} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={adminPicture} />
 
       <main className="flex-1 flex flex-col overflow-hidden">
 

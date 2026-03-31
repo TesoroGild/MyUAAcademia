@@ -19,7 +19,6 @@ export const downloadStudentFileS = async (code, fileName) => {
     const response = await axios.get(`${backend_url}/User/test/StudentsAdmission/${code}/${fileName}`,
         { responseType: 'blob' }
     );
-    console.log(response.data);
     return {
         success: true,
         studentFile: response.data

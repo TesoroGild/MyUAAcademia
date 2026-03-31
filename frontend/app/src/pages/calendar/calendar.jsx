@@ -62,7 +62,7 @@ const COLORS = [
 ];
 
 // ── Composant principal ───────────────────────────────────────────────────────
-const Calendar = ({ userCo }) => {
+const Calendar = ({ user }) => {
   const [courses, setCourses] = useState([]);
   const [weekStart, setWeekStart] = useState(() => {
     const session = getActiveSession();
@@ -79,7 +79,7 @@ const Calendar = ({ userCo }) => {
   const loadCourses = async (session) => {
     try {
       const res = await getStudentSessionCoursesS({
-        permanentCode: userCo.permanentCode,
+        permanentCode: user.permanentCode,
         yearCourse: year + "",
         sessionCourse: session,
       });
@@ -123,7 +123,7 @@ const Calendar = ({ userCo }) => {
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar userCo={userCo} profilePic={userPicture} />
+      <Sidebar user={user} profilePic={userPicture} />
 
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}
