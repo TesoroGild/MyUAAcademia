@@ -158,15 +158,13 @@ npm run dev
 
 ## 🚧 Roadmap
 ### Frontend
-- [ ] Espace admin/employé - Planning établissement : vue hebdomadaire filtrée...
-- [ ] Gestion de la modification de mot de passe.
 - [ ] Choisir entre des fichiers regroupés dans des dossiers et des fichiers regroupés qui ne le sont pas.
 - [ ] Espace étudiant - cours terminé en vert.
 - [ ] Espace professeur - ajout de plusieurs notes avec import CSV.
 - [ ] Gestion de certaines erreurs renvoyées par le backend.
 
 ### Backend
-- [ ] Réorganisation des fichiers : Trier les models et les dtos (et autres...).
+- [ ] Réorganisation des fichiers : Models & Dto; Files.
 
 
 ## 🐛 Troubleshooting
@@ -220,7 +218,7 @@ npm run dev
 > 
 > | Rôle | Code | Mot de passe |
 > |---|---|---|
-> | Professeur | CURS14151988RN0 | curry. |
+> | Professeur | CURS14151988RN0 | Curry1234-. |
 > | Professeur | FENR20351988PF0 | Rihanna1234- |
-> | Étudiant | ABAK1628199914 | ABAKbienvenido29. |
+> | Étudiant | ABAK1628199914 | Koffi1234-. |
 > | Étudiant | CHEW7758200122 | Wei1234- |
