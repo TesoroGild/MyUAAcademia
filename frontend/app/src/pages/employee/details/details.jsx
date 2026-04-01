@@ -1,14 +1,16 @@
-import {
-  HiExclamation, HiOutlinePencilAlt, HiOutlineQuestionMarkCircle,
-} from "react-icons/hi";
+import { HiOutlinePencilAlt } from "react-icons/hi";
+
 import logo from "../../../assets/img/UA_Logo.png";
-import Sidebar from "../../sidebar/sidebar";
 import adminPicture from "../../../assets/img/Admin.jpg";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Avatar, Tooltip } from "flowbite-react";
+
+import Sidebar from "../../sidebar/sidebar";
+
 import { getEmployeeS } from "../../../services/employee.service";
 import { updateUser } from "../../../services/profile.service";
+
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Avatar } from "flowbite-react";
 
 // ── Petit composant champ info ───────────────────────────────────────────────
 const InfoRow = ({ label, value }) => (
@@ -35,7 +37,7 @@ const RoleBadge = ({ role }) => {
 };
 
 // ── Modal modification ───────────────────────────────────────────────────────
-const EditModal = ({ open, onClose, form, onChange, onSubmit, showAlert }) => {
+const EditModal = ({ open, onClose, form, onChange, onSubmit, showAlert, role }) => {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose}>
@@ -62,19 +64,13 @@ const EditModal = ({ open, onClose, form, onChange, onSubmit, showAlert }) => {
           ))}
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center gap-1.5">
-              <label htmlFor="pwd" className="text-sm font-medium text-slate-700">Nouveau mot de passe</label>
-              <Tooltip content="Laisser vide pour ne pas modifier">
-                <HiOutlineQuestionMarkCircle className="w-4 h-4 text-slate-400" />
-              </Tooltip>
+              <Link 
+                to={`/resetpwd?role=${role === "student" ? "student" : "employee"}`}
+                className="text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+              >
+                Modifier votre mot de passe?
+              </Link>
             </div>
-            <input
-              type="password"
-              id="pwd"
-              name="pwd"
-              value={form.pwd ?? ""}
-              onChange={onChange}
-              className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition"
-            />
           </div>
           {showAlert && (
             <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
@@ -238,6 +234,7 @@ const EmployeeDetails = ({ user }) => {
         onChange={handleModifyChange}
         onSubmit={updateProfile}
         showAlert={showAlert}
+        role={user.userRole}
       />
     </div>
   );

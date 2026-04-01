@@ -16,6 +16,7 @@ namespace MyUAAcademiaB.Interfaces
         /*READ*/
         Employees GetEmployee(string code);
         ICollection<Employees> GetEmployees();
+        Employees GetUserForReset(ResetCredentialsDto resetCredentials);
         //ICollection<EmployeeV2Dto> GetEmployeesV2();
 
         /*UPDATE*/

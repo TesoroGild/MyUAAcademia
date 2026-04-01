@@ -15,9 +15,10 @@ namespace MyUAAcademiaB.Interfaces
         /*READ*/
         ICollection<Users> GetProfessors();
         ICollection<Users> GetStudents();
-        ICollection<Users> GetStudentsV2();
         ICollection<UserV3Dto> GetStudentsByCodes(ICollection<string> permanentCodes);
+        ICollection<Users> GetStudentsV2();
         Users GetUser(string permanentCode);
+        Users GetUserForReset(ResetCredentialsDto resetCredentials);
         //ICollection<StudentFiles> GetStudentFiles(string permanentCode);
         ICollection<Users> GetUsers();
         ICollection<Users> GetUsersByName(string userName);

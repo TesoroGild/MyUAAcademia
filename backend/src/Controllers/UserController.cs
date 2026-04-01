@@ -31,7 +31,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("exist")]
         [ProducesResponseType(200, Type = typeof(VerifiedUserDto))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "student")]
+        //[Authorize(Roles = "student")]
         public IActionResult GetUser([FromBody] ExistCredentialsDto credentials)
         {
             if (!_userInterface.UserExistsV1(credentials.Code, credentials.Email))

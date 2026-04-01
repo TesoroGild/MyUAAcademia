@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MyUAAcademiaB.Data;
+using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 
@@ -51,6 +53,11 @@ namespace MyUAAcademiaB.Repository
             return _context.Employees
                 .OrderBy(u => u.LastName)
                 .ToList();
+        }
+
+        public Employees GetUserForReset(ResetCredentialsDto resetCredentials)
+        {
+            return _context.Employees.SingleOrDefault(e => e.Code == resetCredentials.Code && e.PersonalEmail == resetCredentials.Email);
         }
 
 

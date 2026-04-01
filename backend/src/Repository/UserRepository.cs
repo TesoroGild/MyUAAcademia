@@ -60,6 +60,11 @@ namespace MyUAAcademiaB.Repository
                 .ToList();
         }
 
+        public Users GetUserForReset(ResetCredentialsDto resetCredentials)
+        {
+            return _context.Users.SingleOrDefault(e => e.PermanentCode == resetCredentials.Code && e.PersonalEmail == resetCredentials.Email);
+        }
+
         public ICollection<UserV3Dto> GetStudentsByCodes(ICollection<string> permanentCodes)
         {
             var students = _context.Users.Where(u => permanentCodes.Contains(u.PermanentCode))

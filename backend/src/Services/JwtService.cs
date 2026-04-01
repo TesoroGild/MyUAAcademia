@@ -34,16 +34,45 @@ namespace MyUAAcademiaB.Services
                 new Claim(JwtRegisteredClaimNames.Sub, code),
                 new Claim(JwtRegisteredClaimNames.Iat, unixTimestamp.ToString(), ClaimValueTypes.Integer64),
                 new Claim(ClaimTypes.Role, userRole)
-
             };
 
 
             var token = new JwtSecurityToken(
                 issuer: issuer,
-                audience: issuer, //bonnes pratiques, mettre un diff. ici c'est le meme car c'est un seul serveur qui est utilise
+                audience: issuer, //bonnes pratiques, mettre #. ici c'est le meme car c'est un seul serveur qui est utilise
                 claims: claims,
                 notBefore: now,
                 expires: now.AddHours(expiryHours),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string GenerateResetToken(string code, string userRole)
+        {
+            var secretKey = _configuration["ResetKey"];
+            var issuer = _configuration["ResetIssuer"];
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var now = DateTime.UtcNow;
+            var unixTimestamp = new DateTimeOffset(now).ToUnixTimeSeconds();
+
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, code),
+                new Claim(JwtRegisteredClaimNames.Iat, unixTimestamp.ToString(), ClaimValueTypes.Integer64),
+                new Claim(ClaimTypes.Role, userRole)
+            };
+
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: issuer,
+                claims: claims,
+                notBefore: now,
+                expires: now.AddMinutes(10),
                 signingCredentials: creds
             );
 

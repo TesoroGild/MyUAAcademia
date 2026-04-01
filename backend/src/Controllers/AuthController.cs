@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 using MyUAAcademiaB.Services;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace MyUAAcademiaB.Controllers
@@ -61,7 +63,6 @@ namespace MyUAAcademiaB.Controllers
         public IActionResult AuthenticateStudent([FromBody] LoginCredentialsStudent loginCredentialsStudent)
         {
             if (loginCredentialsStudent == null) return BadRequest("Format invalide.");
-            //var test = _authService.HashPassword(loginCredentialsStudent.PermanentCode, loginCredentialsStudent.Pwd);
 
             var auth = _authService.AuthenticateUser(loginCredentialsStudent);
             var userConnected = auth.User;
@@ -72,7 +73,6 @@ namespace MyUAAcademiaB.Controllers
             }
             else
             {
-                //var jwtService = new JwtService();
                 var token = _jwtService.GenerateToken(loginCredentialsStudent.PermanentCode, userConnected.UserRole);
 
                 Response.Cookies.Append("SESSION_ID", token, new CookieOptions
@@ -85,6 +85,70 @@ namespace MyUAAcademiaB.Controllers
                 });
 
                 var userMapped = _mapper.Map<StudentCoDto>(userConnected);
+
+                return Ok(userMapped);
+            }
+        }
+
+        [HttpPost("prelogin")]
+        [ProducesResponseType(200, Type = typeof(EmployeeCoDto))]
+        [ProducesResponseType(400)]
+        public IActionResult AuthenticateuserForReset([FromBody] ResetCredentialsDto resetCredentials)
+        {
+            if (resetCredentials == null) return BadRequest("Format invalide.");
+
+            var user = _employeeInterface.GetUserForReset(resetCredentials);
+        
+            if (user == null)
+            {
+                return StatusCode(400, new { message = "Identifiants invalides." });
+            }
+            else
+            {
+                var resetToken = _jwtService.GenerateResetToken(user.Code, user.UserRole);
+
+                Response.Cookies.Append("RESET_TOKEN", resetToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(10),
+                    Path = "/api/Auth/reset"
+                });
+
+                var userMapped = _mapper.Map<EmployeeCoDto>(user);
+
+                return Ok(userMapped);
+            }
+        }
+
+        [HttpPost("prelogin2")]
+        [ProducesResponseType(200, Type = typeof(EmployeeCoDto))]
+        [ProducesResponseType(400)]
+        public IActionResult AuthenticateUser1ForReset([FromBody] ResetCredentialsDto resetCredentials)
+        {
+            if (resetCredentials == null) return BadRequest("Format invalide.");
+
+            var user = _userInterface.GetUserForReset(resetCredentials);
+
+            if (user == null)
+            {
+                return StatusCode(400, new { message = "Identifiants invalides." });
+            }
+            else
+            {
+                var resetToken = _jwtService.GenerateResetToken(user.PermanentCode, user.UserRole);
+
+                Response.Cookies.Append("RESET_TOKEN", resetToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(10),
+                    Path = "/api/Auth/reset"
+                });
+
+                var userMapped = _mapper.Map<StudentCoDto>(user);
 
                 return Ok(userMapped);
             }
@@ -139,40 +203,88 @@ namespace MyUAAcademiaB.Controllers
 
 
         //UPDATE
-        [HttpPut("reset-password")]
+        [HttpPut("reset/password")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "admin, director, professor")]
         public async Task<IActionResult> UpdatePassword([FromBody] ResetPasswordCredentials resetPasswordCredentials)
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");
 
-            var hashedPwd = _authService.HashPassword(resetPasswordCredentials.UserCode, resetPasswordCredentials.NewPwd);
-            resetPasswordCredentials.NewPwd = "";
-            resetPasswordCredentials.NewPwd = hashedPwd;
-            var res = await _employeeInterface.UpdatePasswordAsync(resetPasswordCredentials);
+            string token = Request.Cookies["RESET_TOKEN"] ?? Request.Cookies["SESSION_ID"];
 
-            if (res <= 0) return Unauthorized();
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Action non autorisée." });
 
-            return Ok(true);
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+                var userCodeFromToken = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+                if (string.IsNullOrEmpty(userCodeFromToken)) return Unauthorized(new { message = "Token invalide." });
+
+                var hashedPwd = _authService.HashPassword(userCodeFromToken, resetPasswordCredentials.NewPwd);
+
+                resetPasswordCredentials.UserCode = userCodeFromToken;
+                resetPasswordCredentials.NewPwd = hashedPwd;
+
+                var res = await _employeeInterface.UpdatePasswordAsync(resetPasswordCredentials);
+
+                if (res <= 0) return StatusCode(500, new { message = "Échec de la mise à jour." });
+
+                if (Request.Cookies.ContainsKey("RESET_TOKEN"))
+                {
+                    Response.Cookies.Delete("RESET_TOKEN");
+                }
+
+                return Ok(new { message = "Mot de passe mis à jour avec succès." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Erreur lors de la lecture de l'identité." });
+            }
         }
 
-        [HttpPut("reset-password2")]
+        [HttpPut("reset/password2")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
-        [Authorize(Roles = "student")]
         public async Task<IActionResult> UpdatePassword1([FromBody] ResetPasswordCredentials resetPasswordCredentials)
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");
 
-            var hashedPwd = _authService.HashPassword(resetPasswordCredentials.UserCode, resetPasswordCredentials.NewPwd);
-            resetPasswordCredentials.NewPwd = "";
-            resetPasswordCredentials.NewPwd = hashedPwd;
-            var res = await _userInterface.UpdatePasswordAsync(resetPasswordCredentials);
+            string token = Request.Cookies["RESET_TOKEN"] ?? Request.Cookies["SESSION_ID"];
 
-            if (res <= 0) return Unauthorized();
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized(new { message = "Action non autorisée." });
 
-            return Ok(true);
+            try
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+                var userCodeFromToken = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+
+                if (string.IsNullOrEmpty(userCodeFromToken)) return Unauthorized(new { message = "Token invalide." });
+
+                var hashedPwd = _authService.HashPassword(userCodeFromToken, resetPasswordCredentials.NewPwd);
+
+                resetPasswordCredentials.UserCode = userCodeFromToken;
+                resetPasswordCredentials.NewPwd = hashedPwd;
+
+                var res = await _userInterface.UpdatePasswordAsync(resetPasswordCredentials);
+
+                if (res <= 0) return StatusCode(500, new { message = "Échec de la mise à jour." });
+
+                if (Request.Cookies.ContainsKey("RESET_TOKEN"))
+                {
+                    Response.Cookies.Delete("RESET_TOKEN");
+                }
+
+                return Ok(new { message = "Mot de passe mis à jour avec succès." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Erreur lors de la lecture de l'identité." });
+            }
         }
     }
 }

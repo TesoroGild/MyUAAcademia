@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { HiCheck, HiX, HiExclamation, HiEye, HiEyeOff, HiArrowLeft } from "react-icons/hi";
-import { verifyUserForResetS, modifyPasswordS } from "../../services/auth.service";
+import { verifyUserForResetS, verifyUser1ForResetS, modifyPasswordS, modifyPassword1S } from "../../services/auth.service";
+import { ro } from "date-fns/locale";
 
 // ── Règles de complexité ──────────────────────────────────────────────────────
 const RULES = [
@@ -44,18 +45,22 @@ const AlertBox = ({ type, message }) => {
 // ── Page principale ───────────────────────────────────────────────────────────
 const ResetPassword = ({user}) => {
   const navigate = useNavigate();
+  const isConnected = !!user;
+  const [searchParams] = useSearchParams();
+  const role = searchParams.get("role");
 
   // Étapes : "identify" → "reset" → "success"
-  const [step, setStep]                       = useState("identify");
+  const [step, setStep]                       = useState(isConnected ? "reset" : "identify");
+  const [verifiedUser, setVerifiedUser]       = useState(isConnected ? user : null);
   const [userCode, setUserCode]               = useState("");
   const [personalEmail, setPersonalEmail]     = useState("");
-  const [verifiedUser, setVerifiedUser]       = useState(null);
   const [newPassword, setNewPassword]         = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [alert, setAlert]                     = useState(null);
   const [isLoading, setIsLoading]             = useState(false);
   const [countdown, setCountdown]             = useState(5);
   const [loginRoute, setLoginRoute]           = useState("/login/employee");
+  const [routeRole, setRouteRole]             = useState("");
 
   const passwordsMatch = newPassword !== "" && newPassword === confirmPassword;
   const allRulesPassed = RULES.every((r) => r.test(newPassword));
@@ -86,12 +91,17 @@ const ResetPassword = ({user}) => {
     if (!userCode.trim() || !personalEmail.trim()) return;
     setIsLoading(true);
     try {
-      const res = await verifyUserForResetS({ code: userCode, email: personalEmail });
+      let res;
+
+      if (role == "student")
+        res = await verifyUser1ForResetS({ code: userCode, email: personalEmail });
+      else res = await verifyUserForResetS({ code: userCode, email: personalEmail });
+
       if (res.success) {
         setVerifiedUser(res.user);
         setStep("reset");
       } else {
-        showAlert("error", res.message ?? "Aucun compte trouvé avec ces informations.");
+        showAlert("error", res.message);
       }
     } catch {
       showAlert("warning", "Impossible de contacter le serveur.");
@@ -108,14 +118,19 @@ const ResetPassword = ({user}) => {
 
     setIsLoading(true);
     try {
-      const res = await modifyPasswordS({ 
-        userCode: verifiedUser.userCode, 
+      const userResetCred = {
+        userCode: userCode, 
         currentPwd: "", 
         newPwd: newPassword 
-      });
+      }
+      let res;
+
+      if (role == "student")
+        res = await modifyPassword1S(userResetCred);
+      else res = await modifyPasswordS(userResetCred);
+
       if (res.success) {
-        const role  = (res.userRole ?? verifiedUser?.userRole ?? "").toLowerCase();
-        const route = (role === "student" || role === "professor") ? "/login/user" : "/login/employee";
+        const route = (role === "student") ? "/login/user" : "/login/employee";
         setLoginRoute(route);
         setStep("success");
         startCountdown(route);
@@ -154,14 +169,17 @@ const ResetPassword = ({user}) => {
       </div>
     );
   }
-
+  
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-8 w-full max-w-md">
 
         {/* Header */}
         <div className="mb-6">
-          <button onClick={() => step === "reset" ? setStep("identify") : navigate(-1)}
+          <button onClick={() => step === "reset" && !isConnected
+              ? setStep("identify")
+              : navigate(isConnected ? -1 : "/login/employee")
+            }
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-blue-700 transition-colors mb-4">
             <HiArrowLeft className="w-3.5 h-3.5"/>
             {step === "reset" ? "Modifier mes informations" : "Retour à la connexion"}
@@ -172,30 +190,36 @@ const ResetPassword = ({user}) => {
             </div>
             <div>
               <p className="text-sm font-semibold text-slate-900">
-                {step === "identify" ? "Réinitialiser mon mot de passe" : `Bonjour, ${verifiedUser?.firstName}`}
+                {isConnected ? "Changer mon mot de passe" : "Réinitialiser mon mot de passe"}
               </p>
               <p className="text-xs text-slate-400">
-                {step === "identify" ? "Étape 1 sur 2 — Vérification de votre identité" : "Étape 2 sur 2 — Nouveau mot de passe"}
+                {isConnected
+                  ? "Vous êtes connecté — définissez votre nouveau mot de passe directement"
+                  : step === "identify"
+                    ? "Étape 1 sur 2 — Vérification de votre identité"
+                    : "Étape 2 sur 2 — Nouveau mot de passe"
+                }
               </p>
             </div>
           </div>
 
           {/* Barre d'étapes */}
-          <div className="flex gap-2 mt-5">
-            {["identify","reset"].map((s, i) => (
-              <div key={s} className={`h-1 flex-1 rounded-full transition-colors ${
-                step === "identify" && i === 0 ? "bg-blue-700" :
-                step === "reset"               ? "bg-blue-700" : "bg-slate-200"
-              }`}/>
-            ))}
-          </div>
+          {!isConnected && (
+            <div className="flex gap-2 mt-5">
+              {["identify", "reset"].map((s, i) => (
+                <div key={s} className={`h-1 flex-1 rounded-full transition-colors ${
+                  step === "identify" && i === 0 ? "bg-blue-700" :
+                  step === "reset" ? "bg-blue-700" : "bg-slate-200"
+                }`}/>
+              ))}
+            </div>
+          )}
         </div>
 
         {alert && <div className="mb-4"><AlertBox type={alert.type} message={alert.message}/></div>}
 
         {/* ── Étape 1 : Identification ── */}
-        {!!user.code && (
-          step === "identify" && (
+        {step === "identify" && (
             <form onSubmit={handleIdentify} className="flex flex-col gap-5">
               <p className="text-sm text-slate-600">
                 Renseignez votre code d'utilisateur et l'email associé à votre compte pour réinitialiser votre mot de passe.
@@ -232,7 +256,7 @@ const ResetPassword = ({user}) => {
               </button>
             </form>
           )
-        )}
+        }
 
         {/* ── Étape 2 : Nouveau mot de passe ── */}
         {step === "reset" && (
@@ -240,7 +264,7 @@ const ResetPassword = ({user}) => {
 
             <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs text-slate-600">
               Compte vérifié — <span className="font-semibold">{verifiedUser?.firstName} {verifiedUser?.lastName}</span>
-              {" · "}<span className="font-mono">{verifiedUser?.userCode ?? userCode}</span>
+              {" · "}<span className="font-mono">{verifiedUser?.code ?? userCode}</span>
             </div>
 
             {/* Nouveau mdp */}

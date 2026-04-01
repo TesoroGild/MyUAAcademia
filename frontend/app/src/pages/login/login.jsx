@@ -16,6 +16,7 @@ const CONFIG = {
     loginFn: employeeLogin,
     roleRedirects: {
       admin: "/adminspace",
+      director: "/adminspace",
       default: "/professorspace",
     },
     setCoKey: "employee", // pour savoir quel setter appeler
@@ -70,7 +71,6 @@ function Login({ type, setUser }) {
         const role = user.userRole.toLowerCase();
         const redirect = config.roleRedirects[role] ?? config.roleRedirects.default;
         const from = location.state?.from?.pathname || redirect;
-        console.log(from)
         navigate(from, { replace: true });
       } else {
         showError(result.message);
@@ -81,6 +81,13 @@ function Login({ type, setUser }) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleForgotPassword = () => {
+    // On passe le type actuel dans l'URL pour la page suivante
+    // Si type est "user", on peut le transformer en "student" si tu préfères ce mot
+    const roleParam = type === "student" ? "student" : "employee";
+    navigate(`/resetpwd?role=${roleParam}`);
   };
 
   return (
@@ -194,7 +201,7 @@ function Login({ type, setUser }) {
         </form>
 
         {/* Back */}
-        <button onClick={() => navigate("/resetpwd")}
+        <button onClick={handleForgotPassword}
           className="mt-4 text-xs text-slate-400 hover:text-slate-600 transition-colors">
           Mot de passe oublié ?
         </button>
