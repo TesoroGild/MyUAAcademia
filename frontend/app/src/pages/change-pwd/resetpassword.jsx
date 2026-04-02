@@ -60,7 +60,6 @@ const ResetPassword = ({user}) => {
   const [isLoading, setIsLoading]             = useState(false);
   const [countdown, setCountdown]             = useState(5);
   const [loginRoute, setLoginRoute]           = useState("/login/employee");
-  const [routeRole, setRouteRole]             = useState("");
 
   const passwordsMatch = newPassword !== "" && newPassword === confirmPassword;
   const allRulesPassed = RULES.every((r) => r.test(newPassword));

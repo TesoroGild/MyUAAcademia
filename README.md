@@ -216,9 +216,10 @@ npm run dev
 > 
 > L'application est peuplée avec des données fictives pour explorer toutes les fonctionnalités sans création de compte.
 > 
-> | Rôle | Code | Mot de passe |
+> | Rôle | Code | Mail de reset |
 > |---|---|---|
-> | Professeur | CURS14151988RN0 | Curry1234-. |
-> | Professeur | FENR20351988PF0 | Rihanna1234- |
-> | Étudiant | ABAK1628199914 | Koffi1234-. |
-> | Étudiant | CHEW7758200122 | Wei1234- |
+> | Professeur | CURS14151988RN0 | stephen@curry.gsw |
+> | Professeur | FENR20351988PF0 | rihanna@yopmail.com |
+> | Étudiant | ABAK1628199914 | koffi1abalo10@gmail.com |
+> | Étudiant | CHEW7758200122 | w.chen.ca@gmail.com |
+> | Étudiant | SMIM7031200061 | michsmith@icloud.com |

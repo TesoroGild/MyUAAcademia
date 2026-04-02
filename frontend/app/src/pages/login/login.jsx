@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Toast, ToastToggle } from "flowbite-react";
-import { HiExclamation, HiX } from "react-icons/hi";
+import { HiExclamation, HiEye, HiEyeOff, HiX } from "react-icons/hi";
 import { employeeLogin, userLogin } from "../../services/auth.service";
 import uaLogo from '../../assets/img/UA_Logo2.jpg';
 import { Avatar } from "flowbite-react";
@@ -46,6 +46,7 @@ function Login({ type, setUser }) {
   const [errorToast, setErrorToast] = useState({ show: false, message: "" });
   const [warnToast, setWarnToast] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
 
   const showError = (msg) => {
     setErrorToast({ show: true, message: msg });
@@ -162,17 +163,26 @@ function Login({ type, setUser }) {
             <label htmlFor="pwd" className="text-sm font-medium text-slate-700">
               Mot de passe
             </label>
-            <input
-              type="password"
-              id="pwd"
-              name="pwd"
-              placeholder="••••••••"
-              value={form.pwd}
-              onChange={(e) => setForm({ ...form, pwd: e.target.value })}
-              onBlur={() => setPwdFocused(true)}
-              required
-              className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition"
-            />
+            <div>
+              <input
+                type={showPwd ? "text" : "password"}
+                id="pwd"
+                name="pwd"
+                placeholder="••••••••"
+                value={form.pwd}
+                onChange={(e) => setForm({ ...form, pwd: e.target.value })}
+                onBlur={() => setPwdFocused(true)}
+                required
+                className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPwd(!showPwd)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
+              >
+                {showPwd ? <HiEyeOff className="w-4 h-4"/> : <HiEye className="w-4 h-4"/>}
+              </button>
+            </div>
             {pwdFocused && !form.pwd && (
               <span className="text-xs text-red-500">
                 Veuillez saisir votre mot de passe.

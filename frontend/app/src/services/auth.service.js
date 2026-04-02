@@ -7,8 +7,7 @@ const backend_url = import.meta.env.VITE_API_URL;
 export const modifyPasswordS = async(changePwdCredentials) => {
   console.log("EMPLOYEE SERVICE : MODIFY PASSWORD");
   try {
-    const res = await axios.put(`${backend_url}/Auth/reset/password`, changePwdCredentials, { withCredentials: true });
-    console.log(res)
+    await axios.put(`${backend_url}/Auth/reset/password`, changePwdCredentials, { withCredentials: true });
     return { success: true }
   } catch (error) {
     if (error.response) {
@@ -29,8 +28,7 @@ export const modifyPasswordS = async(changePwdCredentials) => {
 export const modifyPassword1S = async(changePwdCredentials) => {
   console.log("USER SERVICE : MODIFY PASSWORD");
   try {
-    const res = await axios.put(`${backend_url}/Auth/reset/password2`, changePwdCredentials, { withCredentials: true });
-    console.log(res)
+    await axios.put(`${backend_url}/Auth/reset/password2`, changePwdCredentials, { withCredentials: true });
     return { success: true, message: "" }
   } catch (error) {
     console.error('Erreur :', error);
@@ -146,7 +144,6 @@ export const verifyUser1ForResetS = async (credentials) => {
   console.log("AUTH SERVICE : GET-USER");
   try {
     const response = await axios.post(`${backend_url}/Auth/prelogin2`, credentials, {withCredentials: true});
-    console.log(response)
     return { 
       success: true, 
       user: response.data 
