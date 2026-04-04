@@ -15,6 +15,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var frontendUrl = builder.Configuration["FRONTEND_URL"];
+var dockerFrontendUrl = builder.Configuration["DOCKER_FRONTEND_URL"];
 
 // 1. Config Kestrel (port, HTTP vs HTTPS)
 builder.WebHost.ConfigureKestrel(options =>
@@ -43,9 +44,6 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 
 // 3. AutoMapper
 builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfiles));
-
-// Add services to the container.
-//builder.Services.AddTransient<Seed>();
 
 // 4. Repositories
 builder.Services.AddScoped<IBillInterface, BillRepository>();
@@ -84,7 +82,8 @@ builder.Services.AddAuthentication("Bearer")
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Issuer"],
-            ValidAudience = builder.Configuration["Issuer"],//builder.Configuration["Audience"]),
+            ValidAudience = builder.Configuration["Issuer"],
+            //builder.Configuration["Audience"]),
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Key"]))
         };
@@ -143,21 +142,11 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // 8. CORS (un seul bloc, une seule politique)
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowSpecificOrigin", builder =>
-//    {
-//        builder.WithOrigins(frontendUrl)
-//               .AllowAnyHeader()
-//               .AllowAnyMethod()
-//               .AllowCredentials();
-//    });
-//});
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(frontendUrl)
+        policy.WithOrigins(frontendUrl, dockerFrontendUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -167,26 +156,24 @@ builder.Services.AddCors(options =>
 // 9. Base de données
 builder.Services.AddDbContext<DataContext>(options =>
 {
+    var npgsqlConn = "";
     if (builder.Environment.IsDevelopment())
     {
-        options.UseSqlServer(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
-            x => x.MigrationsAssembly("MyUAAcademiaB")
-        );
+        npgsqlConn = builder.Configuration.GetConnectionString("DefaultConnection");
     }
     else
-    {
+    { 
         var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
         var uri = new Uri(databaseUrl);
         var userInfo = uri.UserInfo.Split(':');
-        var npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
-
-        options.UseNpgsql(npgsqlConn, x =>
-        {
-            x.MigrationsAssembly("MyUAAcademiaB");
-            x.MigrationsHistoryTable("__EFMigrationsHistory", "myuaacademia");
-        }).UseSnakeCaseNamingConvention();
+        npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
     }
+
+    options.UseNpgsql(npgsqlConn, x =>
+    {
+        x.MigrationsAssembly("MyUAAcademiaB");
+        x.MigrationsHistoryTable("__EFMigrationsHistory", "public");
+    }).UseSnakeCaseNamingConvention();
 });
 
 // 10. Logging
@@ -196,17 +183,6 @@ builder.Logging.AddDebug();
 // ══════════════════════════════════════════
 var app = builder.Build(); // séparation config / pipeline
 // ══════════════════════════════════════════
-
-// Seed
-//if (args.Length == 1 && args[0].ToLower() == "seeddata")
-//    SeedData(app);
-
-//void SeedData(IHost app)
-//{
-//    var scopedFactory = app.Services.GetService<IServiceScopeFactory>();
-//    using var scope = scopedFactory.CreateScope();
-//    scope.ServiceProvider.GetService<Seed>().SeedDataContext();
-//}
 
 // 11. Swagger UI
 app.UseSwagger();
@@ -241,17 +217,14 @@ app.MapControllers();
 // 16. HTTPS redirection (en dev uniquement, car en prod c'est géré par le reverse proxy)
 if (app.Environment.IsDevelopment())
 {
-    app.UseHttpsRedirection();
+    app.UseHttpsRedirection();//???????????????????????????
 }
 
-// 17. Envoie des migrations vers postgreSQL en prod
-if (!app.Environment.IsDevelopment())
+// 17. Envoie des migrations vers postgreSQL
+using (var scope = app.Services.CreateScope())
 {
-    using (var scope = app.Services.CreateScope())
-    {
-        var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-        db.Database.Migrate();
-    }
+    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+    db.Database.Migrate();
 }
 
 // 18. Redirection vers Swagger

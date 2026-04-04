@@ -1,0 +1,75 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: postgres_myua
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    #restart: always
+    build: 
+      context: .
+      dockerfile: backend/src/Dockerfile
+    container_name: csharp_backend
+    ports:
+      - "5000:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - Audience=${Audience}
+      - DOCKER_FRONTEND_URL=${DOCKER_FRONTEND_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - HTTPS_PASS=${HTTPS_PASS}
+      - HTTPS_FILE=${HTTPS_FILE}
+      - Issuer=${Issuer}
+      - Key=${Key}
+      - ResetKey=${ResetKey}
+      - ResetIssuer=${ResetIssuer}
+    # healthcheck:
+    #   test: ["CMD-SHELL", "curl -f http://localhost:8080/swagger/index.html || exit 1"]
+      # interval: 10s
+      # timeout: 5s
+      # retries: 5
+      # start_period: 30s
+
+  frontend:
+    restart: always
+    build: 
+      context: .
+      dockerfile: frontend/app/Dockerfile
+      args:
+        - VITE_API_URL
+        - VITE_PORT
+        - VITE_SSL_CERT_FILE
+        - VITE_SSL_KEY_FILE
+        - VITE_YOUR_SERVICE_ID
+        - VITE_YOUR_TEMPLATE_ID
+        - VITE_YOUR_PUBLIC_KEY
+    container_name: react_frontend
+    env_file:
+      - frontend/app/.env
+    ports:
+      - "3000:80"
+    depends_on:
+      db:
+        condition: service_healthy
+      # backend:
+      #   condition: service_healthy
+
+volumes:
+  postgres_data:

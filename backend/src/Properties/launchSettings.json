@@ -6,7 +6,8 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "FRONTEND_URL": "http://localhost:5173"
+        "FRONTEND_URL": "http://localhost:5173",
+        "DOCKER_FRONTEND_URL": "http://localhost:3000"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:5018"
@@ -18,6 +19,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "FRONTEND_URL": "https://localhost:5173",
+        "DOCKER_FRONTEND_URL": "https://localhost:3000",
         "PORT": "7245"
       },
       "sslPort": 7245,

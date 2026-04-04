@@ -405,5 +405,5 @@ src/appsettings.Development.json
 appsettings.*.json
 !appsettings.json
 
-*.p12
+**/*.p12
 src/Migrations/SSMS

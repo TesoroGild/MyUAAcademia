@@ -25,11 +25,11 @@ namespace MyUAAcademiaB.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var isDevEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
-            if (!isDevEnv)
-            {
-                modelBuilder.HasDefaultSchema("myuaacademia");
-            }
+            //var isDevEnv = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
+            //if (!isDevEnv)
+            //{
+            //    modelBuilder.HasDefaultSchema("myuaacademia");
+            //}
             /*BILLS*/
             modelBuilder.Entity<Bills>()
                 .HasKey(bi => new { bi.SessionStudy, bi.YearStudy, bi.PermanentCode });//, bi.ProgramTitle
@@ -56,17 +56,17 @@ namespace MyUAAcademiaB.Data
             /*CLASSES*/
             modelBuilder.Entity<Classes>()
                 .HasKey(cl => cl.ClasseName);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                modelBuilder.Entity<Classes>()
-                    .Property(cl => cl.EmployeeCode)
-                    .UseCollation("SQL_Latin1_General_CP1_CS_AS");
-            }
-            else
-            {
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            //{
+            //    modelBuilder.Entity<Classes>()
+            //        .Property(cl => cl.EmployeeCode)
+            //        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //}
+            //else
+            //{
                 modelBuilder.Entity<Classes>()
                     .Property(cl => cl.EmployeeCode);
-            }
+            //}
 
             /*CONTRACTS*/
             modelBuilder.Entity<Contracts>()
@@ -80,17 +80,17 @@ namespace MyUAAcademiaB.Data
                 .WithMany(p => p.Courses)
                 .HasForeignKey(c => c.ProgramTitle)
                 .OnDelete(DeleteBehavior.Restrict);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                modelBuilder.Entity<Courses>()
-                    .Property(c => c.EmployeeCode)
-                    .UseCollation("SQL_Latin1_General_CP1_CS_AS");
-            }
-            else
-            {
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            //{
+            //    modelBuilder.Entity<Courses>()
+            //        .Property(c => c.EmployeeCode)
+            //        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //}
+            //else
+            //{
                 modelBuilder.Entity<Courses>()
                     .Property(c => c.EmployeeCode);
-            }
+            //}
 
             /*CLASSES-COURSES*/
             modelBuilder.Entity<ClassesCourses>()
@@ -113,17 +113,17 @@ namespace MyUAAcademiaB.Data
                 .WithMany(e => e.ClassesCourses)
                 .HasForeignKey(cc => cc.EmployeeCode)
                 .OnDelete(DeleteBehavior.Restrict);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                modelBuilder.Entity<ClassesCourses>()
-                    .Property(cc => cc.EmployeeCode)
-                    .UseCollation("SQL_Latin1_General_CP1_CS_AS");
-            }
-            else
-            {
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            //{
+            //    modelBuilder.Entity<ClassesCourses>()
+            //        .Property(cc => cc.EmployeeCode)
+            //        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //}
+            //else
+            //{
                 modelBuilder.Entity<ClassesCourses>()
                     .Property(cc => cc.EmployeeCode);
-            }
+            //}
             //Ajout de prof
             modelBuilder.Entity<ClassesCourses>()
                 .HasOne(cc => cc.TaughtByProfessor)
@@ -131,17 +131,17 @@ namespace MyUAAcademiaB.Data
                 .HasForeignKey(cc => cc.TaughtBy)
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired(false);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                modelBuilder.Entity<ClassesCourses>()
-                    .Property(cc => cc.TaughtBy)
-                    .UseCollation("SQL_Latin1_General_CP1_CS_AS");
-            }
-            else
-            {
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            //{
+            //    modelBuilder.Entity<ClassesCourses>()
+            //        .Property(cc => cc.TaughtBy)
+            //        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //}
+            //else
+            //{
                 modelBuilder.Entity<ClassesCourses>()
                     .Property(cc => cc.TaughtBy);
-            }
+            //}
             // Contrainte salle : jamais 2 cours en même temps dans la même salle
             modelBuilder.Entity<ClassesCourses>()
                 .HasIndex(cc => new { cc.ClasseName, cc.StartTime, cc.Jours, cc.SessionCourse, cc.YearCourse })
@@ -158,22 +158,22 @@ namespace MyUAAcademiaB.Data
                 .HasOne(u => u.CreatedBy)
                 .WithMany(u => u.CreatedEmployees)
                 .HasForeignKey(u => u.CreatedByCode);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                modelBuilder.Entity<Employees>()
-                    .Property(e => e.Code)
-                    .UseCollation("SQL_Latin1_General_CP1_CS_AS");
-                modelBuilder.Entity<Employees>()
-                    .Property(e => e.CreatedByCode)
-                    .UseCollation("SQL_Latin1_General_CP1_CS_AS");
-            }
-            else
-            {
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            //{
+            //    modelBuilder.Entity<Employees>()
+            //        .Property(e => e.Code)
+            //        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //    modelBuilder.Entity<Employees>()
+            //        .Property(e => e.CreatedByCode)
+            //        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //}
+            //else
+            //{
                 modelBuilder.Entity<Employees>()
                     .Property(e => e.Code);
                 modelBuilder.Entity<Employees>()
                     .Property(e => e.CreatedByCode);
-            }
+            //}
 
             /*EMPLOYEES-CONTRACTS*/
             modelBuilder.Entity<EmployeesContracts>()
@@ -187,38 +187,36 @@ namespace MyUAAcademiaB.Data
                 .HasOne(ec => ec.Contract)
                 .WithMany(c => c.EmployeesContracts)
                 .HasForeignKey(ec => ec.ContractCode);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                modelBuilder.Entity<EmployeesContracts>()
-                    .Property(ec => ec.EmpCode)
-                    .UseCollation("SQL_Latin1_General_CP1_CS_AS");
-            }
-            else
-            {
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            //{
+            //    modelBuilder.Entity<EmployeesContracts>()
+            //        .Property(ec => ec.EmpCode)
+            //        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //}
+            //else
+            //{
                 modelBuilder.Entity<EmployeesContracts>()
                     .Property(ec => ec.EmpCode);
-            }
+            //}
             modelBuilder.Entity<EmployeesContracts>()
                 .HasIndex(ec => new  { ec.EmpCode })
                 .IsUnique()
-                .HasFilter(isDevEnv
-                    ? "[IsContractOver] = 0"
-                    : "\"is_contract_over\" = false");
+                .HasFilter("\"is_contract_over\" = false");
 
             /*PROGRAMS*/
             modelBuilder.Entity<Programs>()
                 .HasKey(p => p.Title);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                modelBuilder.Entity<Programs>()
-                    .Property(p => p.EmployeeCode)
-                    .UseCollation("SQL_Latin1_General_CP1_CS_AS");
-            }
-            else
-            {
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            //{
+            //    modelBuilder.Entity<Programs>()
+            //        .Property(p => p.EmployeeCode)
+            //        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //}
+            //else
+            //{
                 modelBuilder.Entity<Programs>()
                     .Property(p => p.EmployeeCode);
-            }
+            //}
 
             /*STUDENT-FILES*/
             modelBuilder.Entity<StudentFiles>()
@@ -252,17 +250,17 @@ namespace MyUAAcademiaB.Data
             /*USERS*/
             modelBuilder.Entity<Users>()
                 .HasKey(cl => cl.PermanentCode);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-            {
-                modelBuilder.Entity<Users>()
-                    .Property(cl => cl.EmployeeCode)
-                    .UseCollation("SQL_Latin1_General_CP1_CS_AS");
-            }
-            else
-            {
+            //if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+            //{
+            //    modelBuilder.Entity<Users>()
+            //        .Property(cl => cl.EmployeeCode)
+            //        .UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            //}
+            //else
+            //{
                 modelBuilder.Entity<Users>()
                     .Property(cl => cl.EmployeeCode);
-            }
+            //}
         }
     }
 }

@@ -1,0 +1,49 @@
+# IDEs
+**/.vs
+**/.vscode
+**/.idea
+
+**/bin
+**/obj
+**/*.user
+**/node_modules
+**/npm-debug.log
+
+# Git
+**/.git
+**/.gitignore
+**/.github
+
+# Docker
+**/docker-compose*
+**/Dockerfile*
+
+# Env
+**/.env
+**/.env.*
+**/.env.local
+
+# Others
+**/.classpath
+**/.project
+**/.settings
+**/.toolstarget
+**/*.user
+**/*.dbmdl
+**/*.jfm
+**/azds.yaml
+**/charts
+**/secrets.dev.yaml
+**/values.dev.yaml
+
+
+
+
+
+
+
+
+
+
+
+
