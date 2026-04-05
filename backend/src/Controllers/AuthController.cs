@@ -41,7 +41,6 @@ namespace MyUAAcademiaB.Controllers
             }
             else
             {
-                //var jwtService = new JwtService();
                 var token = _jwtService.GenerateToken(loginCredentials.Code, userConnected.UserRole);
 
                 Response.Cookies.Append("SESSION_ID", token, new CookieOptions
