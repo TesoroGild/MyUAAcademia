@@ -27,7 +27,7 @@ const getNavItems = (user) => {
       label: "Cours", icon: RiGraduationCapFill,
       children: [
         { label: "Inscription",  to: "/subscribe" },
-        { label: "Calendrier",   to: "/calendar" },
+        { label: "Emplois du temps",   to: "/StudentPlanning" },
       ],
     },
     { label: "Cheminement", icon: GiPathDistance, to: "/progress" },
@@ -41,11 +41,10 @@ const getNavItems = (user) => {
       label: "Cours", icon: RiGraduationCapFill,
       children: [
         { label: "Dispensés",  to: "/professor/courses" },
-        { label: "Calendrier",   to: "/professorplanning" },
+        { label: "Emplois du temps",   to: "/professorplanning" },
         { label: "Salles",   to: "/professor/rooms" },
       ],
     },
-    { label: "Planning",   icon: HiTable,    to: "/professorplanning" },
     { label: "Saisie des notes", icon: HiPencilAlt,  to: "/professor/grades" },
   ];
 
@@ -80,7 +79,7 @@ const getNavItems = (user) => {
         { label: "Créer un contrat",   to: "/employee/contracts" }
       ],
     },
-    { label: "Planning",   icon: HiTable,    to: "/adminplanning" },
+    { label: "Emplois du temps",   icon: HiTable,    to: "/adminplanning" },
   ];
 };
 

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MyUAAcademiaB.Dto;
@@ -16,13 +15,14 @@ namespace MyUAAcademiaB.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController(IAuthService authService, IMapper mapper, IEmployeeInterface employeeInterface,
-        IUserInterface userInterface, JwtService jwtService) : ControllerBase
+        IUserInterface userInterface, JwtService jwtService, IConfiguration configuration) : ControllerBase
     {
         private readonly IAuthService _authService = authService;
         private readonly IMapper _mapper = mapper;
         private readonly IEmployeeInterface _employeeInterface = employeeInterface;
         private readonly IUserInterface _userInterface = userInterface;
         private readonly JwtService _jwtService = jwtService;
+        private readonly IConfiguration _configuration = configuration;
 
         //CREATE
         [HttpPost("login")]
@@ -223,17 +223,19 @@ namespace MyUAAcademiaB.Controllers
                 var validationParams = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("ResetKey"))),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["ResetKey"])),
                     ValidateIssuer = true,
-                    ValidIssuer = Environment.GetEnvironmentVariable("ResetIssuer"),
+                    ValidIssuer = _configuration["ResetIssuer"],
                     ValidateAudience = true,
-                    ValidAudience = Environment.GetEnvironmentVariable("ResetIssuer"),
+                    ValidAudience = _configuration["ResetIssuer"],
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
 
                 var principal = handler.ValidateToken(token, validationParams, out _);
-                var userCodeFromToken = principal.FindFirstValue("sub");
+                var userCodeFromToken = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? principal.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                    ?? principal.FindFirstValue("sub");
 
                 if (string.IsNullOrEmpty(userCodeFromToken))
                     return Unauthorized(new { message = "Token invalide." });
@@ -279,10 +281,25 @@ namespace MyUAAcademiaB.Controllers
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-                var userCodeFromToken = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                var validationParams = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["ResetKey"])),
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["ResetIssuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["ResetIssuer"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
 
-                if (string.IsNullOrEmpty(userCodeFromToken)) return Unauthorized(new { message = "Token invalide." });
+                var principal = handler.ValidateToken(token, validationParams, out _);
+                var userCodeFromToken = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? principal.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                    ?? principal.FindFirstValue("sub");
+
+                if (string.IsNullOrEmpty(userCodeFromToken))
+                    return Unauthorized(new { message = "Token invalide." });
 
                 var hashedPwd = _authService.HashPassword(userCodeFromToken, resetPasswordCredentials.NewPwd);
 

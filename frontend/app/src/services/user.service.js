@@ -2,17 +2,8 @@ import axios from 'axios';
 
 const backend_url = import.meta.env.VITE_API_URL;
 
-/********************************/
-/*         USERS LVL 1          */
-/********************************/
-
-//################################
-//          STUDENTS
-//################################
-
 //Create
 export const admissionS = async (studentToRegister) => {
-    console.log("USER SERVICE : ADMISSION STUDENTS");
     try {
         const response = await axios.post(
             `${backend_url}/User/students`, 
@@ -32,7 +23,6 @@ export const admissionS = async (studentToRegister) => {
 } 
 
 export const createStudentS = async (studentToRegister) => {
-  console.log("USER SERVICE : CREATE STUDENTS");
   try {
     const response = await axios.post(`${backend_url}/User/students`, studentToRegister);
     return { success: true, studentRegistered: response.data }
@@ -51,29 +41,38 @@ export const createStudentS = async (studentToRegister) => {
 
 //Read
 export const getStudentS = async (permanentCode) => {
-    console.log("USER SERVICE : GET STUDENT");
     try {
         const response = await axios.get(`${backend_url}/User/students/${permanentCode}`);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
 export const getStudentsS = async () => {
-    console.log("USER SERVICE : GET STUDENTS");
     try {
         const response = await axios.get(`${backend_url}/User/students`);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
 export const getStudentsInProgramS = async (classeCourse) => {
-    console.log("USER SERVICE : GET STUDENTS IN MY COURSE");
     try {
         const response = await axios.get(`${backend_url}/User/program/${classeCourse}`);
         return { 
@@ -96,7 +95,6 @@ export const getStudentsInProgramS = async (classeCourse) => {
 }
 
 export const getProgramStudentsS = async (progTitle) => {
-    console.log("USER SERVICE : GET STUDENTS IN PROGRAM");
     try {
         const response = await axios.get(`${backend_url}/UserProgram/students-in-the-program/${progTitle}`);
         return { 
@@ -119,18 +117,22 @@ export const getProgramStudentsS = async (progTitle) => {
 }
 
 export const getStudentsInfosS = async () => {
-  console.log("USER SERVICE : GET STUDENTS WITH MORE INFOS");
   try {
       const response = await axios.get(`${backend_url}/User/studentsV2`);
       return response.data;
   } catch (error) {
-      console.error('Erreur :', error);
-      throw error;
+      if (error.response) {
+      return {
+        success: false,
+        message: error.response.data[""]?.[0] || error.response?.data?.message
+      };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur" };
   }
 }
 
 export const getStudentsNotInProgramS = async () => {
-    console.log("USER SERVICE : GET STUDENTS NOT IN PROGRAM");
     try {
         const response = await axios.get(`${backend_url}/UserProgram/students-not-in-a-program`);
         return { success: true, studentsNotEnrolled: response.data }
@@ -148,41 +150,35 @@ export const getStudentsNotInProgramS = async () => {
 
 //Update
 export const activeStudentAccountS = async (activationRequest) => {
-    console.log("USER SERVICE : ACTIVE USER ACCOUNT");
     try {
         const response = await axios.put(`${backend_url}/User/students/activate`, activationRequest);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
 export const validateUserS = async (validationRequest) => {
-    console.log("USER SERVICE : VALIDE USER FOLDER");
     try {
         const response = await axios.put(`${backend_url}/User/validate`, validationRequest);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
-
-//Delete
-
-//################################
-//          PROFESSORS
-//################################
-
-
-/********************************/
-/*         USERS LVL 2          */
-/********************************/
-
-//Create
-
-//Read
-
-//Update
 
 //Delete

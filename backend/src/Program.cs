@@ -178,7 +178,6 @@ builder.Services.AddDbContext<DataContext>(options =>
 // 10. Logging
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
-builder.Services.AddHealthChecks();
 
 // ══════════════════════════════════════════
 var app = builder.Build(); // séparation config / pipeline
@@ -228,6 +227,5 @@ using (var scope = app.Services.CreateScope())
 }
 
 // 18. Redirection vers Swagger
-app.MapHealthChecks("/health");
 app.MapGet("/", () => Results.Redirect("/swagger"));
 app.Run();

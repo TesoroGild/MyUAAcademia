@@ -22,7 +22,7 @@ import Login            from "./pages/login/login";
 import StudentSpace     from "./pages/space/studentspace.jsx";
 import Bill             from "./pages/bill/bill";
 import Bulletin         from "./pages/bulletin/bulletin";
-import Calendar         from "./pages/calendar/calendar";
+import StudentPlanning  from "./pages/planning/studentplanning.jsx";
 import PaymentCourse    from "./pages/payment/paymentcourse.jsx";
 import Progress         from "./pages/progress/progress";
 import Subscribe        from "./pages/subscribe/subscribe";
@@ -46,12 +46,10 @@ import AssignProfessor  from "./pages/employee/add/assignprofessor.jsx";
 import EmployeeDetails  from "./pages/employee/details/details.jsx";
 import EmployeeCreate   from "./pages/employee/create/employeecreate.jsx";
 import EmployeesList    from "./pages/employee/list/employeeslist.jsx";
-import Employee         from "./pages/employee/employee.jsx";
 import Inscription      from "./pages/student/inscription/inscription.jsx";
 import Course           from "./pages/student/course/course.jsx";
 import CourseEnrollment from "./pages/student/create/create.jsx";
 import StudentList      from "./pages/student/list/list.jsx";
-import Student          from "./pages/student/student";
 import ContractCreate   from "./pages/employee/contract/contract.jsx";
 
 import { getUserBySessionS } from "./services/auth.service.js";
@@ -124,7 +122,7 @@ const App = () => {
           <Route path="/studentspace"           element={<StudentSpace user={user} />} />
           <Route path="/bill/courses"           element={<Bill user={user} />} />
           <Route path="/bulletin"               element={<Bulletin user={user} />} />
-          <Route path="/calendar"               element={<Calendar user={user} />} />
+          <Route path="/StudentPlanning"               element={<StudentPlanning user={user} />} />
           <Route path="/payment/courses"        element={<PaymentCourse user={user} />} />
           <Route path="/progress"               element={<Progress user={user} />} />
           <Route path="/subscribe"              element={<Subscribe user={user} />} />
@@ -166,10 +164,8 @@ const App = () => {
           <Route path="/employee/program/classroom"     element={<Classroom       user={user} />} />
           <Route path="/employee/program/course"        element={<CourseCreate    user={user} />} />
           <Route path="/employee/employee/assign-course" element={<AssignProfessor user={user} />} />
-          <Route path="/employee/employees"             element={<Employee        user={user} />} />
           <Route path="/employee/employee/create"       element={<EmployeeCreate  user={user} />} />
           <Route path="/employee/employee/list"         element={<EmployeesList   user={user} />} />
-          <Route path="/employee/students"              element={<Student         user={user} />} />
           <Route path="/employee/student/list"          element={<StudentList     user={user} />} />
           <Route path="/employee/student/create"        element={<CourseEnrollment user={user} />} />
           <Route path="/employee/student/course"        element={<Course          user={user} />} />

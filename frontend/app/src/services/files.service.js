@@ -3,18 +3,25 @@ import axios from 'axios';
 const backend_url = import.meta.env.VITE_API_URL;
 
 export const getFilesS = async (studentCode) => {
-    console.log("FILE SERVICE : GET FILES");
   try {
     const response = await axios.get(`${backend_url}/User/files/${studentCode}`);
-    return response.data; // tableau de fichiers avec FileName et Url
+    return {
+      succes: true,
+      files: response.data
+    } // tableau de fichiers avec FileName et Url
   } catch (error) {
-    console.error('Erreur lors de la récupération des fichiers:', error);
-    return [];
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data[""]?.[0] || error.response?.data?.message
+      };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur" };
   }
 };
 
 export const downloadStudentFileS = async (code, fileName) => {
-  console.log("FILE SERVICE : DOWNLOAD FILES");
   try {
     const response = await axios.get(`${backend_url}/User/test/StudentsAdmission/${code}/${fileName}`,
         { responseType: 'blob' }
@@ -24,7 +31,13 @@ export const downloadStudentFileS = async (code, fileName) => {
         studentFile: response.data
     }
   } catch (error) {
-    console.error('Erreur lors de la récupération des fichiers:', error);
-    return [];
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data[""]?.[0] || error.response?.data?.message
+      };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur" };
   }
 };

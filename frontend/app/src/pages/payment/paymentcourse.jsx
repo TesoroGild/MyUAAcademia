@@ -1,6 +1,5 @@
 //Reusable
 import Sidebar from "../sidebar/sidebar.jsx";
-import Header from '../header/header';
 import userPicture from '../../assets/img/User_Icon.png';
 
 //React
@@ -23,6 +22,8 @@ const PaymentCourse = ({user}) => {
     const location = useLocation();
     const [bill, setBill] = useState(location.state.billToDisplay);
     const [total, setTotal] = useState(0);
+    const [warnToast, setWarnToast] = useState(false);
+    const [loading, setLoading] = useState(false);
      
     //Functions
     useEffect(() => {
@@ -70,23 +71,32 @@ const PaymentCourse = ({user}) => {
                 alert("Paiement effectué avec succès !");
                 navigate('/bill/courses');
             } else {
-                console.log(response.message);
+                showError(response.message);
             }
         } catch (error) {
-            console.log(error);
+            setWarnToast(true);
+            setTimeout(() => setWarnToast(false), 5000);
+            setLoading(false);
         }
     }
+
+    const firstName = user?.firstName ?? "Etudiant";
 
     //Return
     return (
         <div>
-            <div>
-                <Header user = {user}/>
-            </div>
-
-            <div className="flex">
-                <div className="dash-div">
-                    <Sidebar user = {user} profilePic={userPicture}  />
+            <Sidebar user = {user} profilePic={userPicture}  />
+            
+            <main className="flex-1 overflow-y-auto">
+            
+                {/* Top bar */}
+                <div className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
+                    <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                        Bonjour, {firstName} 👋
+                        </p>
+                        <p className="text-xs text-slate-400">Tableau de bord — Administration</p>
+                    </div>
                 </div>
             
                 <div className="w-full mx-4 mt-2">
@@ -248,7 +258,7 @@ const PaymentCourse = ({user}) => {
                         </section>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     );
 }
