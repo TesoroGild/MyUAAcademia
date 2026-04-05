@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
-using MyUAAcademiaB;
 using MyUAAcademiaB.Data;
 using MyUAAcademiaB.Helper;
 using MyUAAcademiaB.Interfaces;
@@ -179,6 +178,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 // 10. Logging
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
+builder.Services.AddHealthChecks();
 
 // ══════════════════════════════════════════
 var app = builder.Build(); // séparation config / pipeline
@@ -217,7 +217,7 @@ app.MapControllers();
 // 16. HTTPS redirection (en dev uniquement, car en prod c'est géré par le reverse proxy)
 if (app.Environment.IsDevelopment())
 {
-    app.UseHttpsRedirection();//???????????????????????????
+    app.UseHttpsRedirection();
 }
 
 // 17. Envoie des migrations vers postgreSQL
@@ -228,5 +228,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 // 18. Redirection vers Swagger
+app.MapHealthChecks("/health");
 app.MapGet("/", () => Results.Redirect("/swagger"));
 app.Run();

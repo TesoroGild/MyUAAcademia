@@ -29,23 +29,22 @@ services:
       db:
         condition: service_healthy
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_URLS=
       - Audience=${Audience}
+      - DATABASE_URL=${DATABASE_URL}
       - DOCKER_FRONTEND_URL=${DOCKER_FRONTEND_URL}
       - FRONTEND_URL=${FRONTEND_URL}
-      - HTTPS_PASS=${HTTPS_PASS}
-      - HTTPS_FILE=${HTTPS_FILE}
       - Issuer=${Issuer}
       - Key=${Key}
       - ResetKey=${ResetKey}
       - ResetIssuer=${ResetIssuer}
-    # healthcheck:
-    #   test: ["CMD-SHELL", "curl -f http://localhost:8080/swagger/index.html || exit 1"]
-      # interval: 10s
-      # timeout: 5s
-      # retries: 5
-      # start_period: 30s
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   frontend:
     restart: always
@@ -55,8 +54,6 @@ services:
       args:
         - VITE_API_URL
         - VITE_PORT
-        - VITE_SSL_CERT_FILE
-        - VITE_SSL_KEY_FILE
         - VITE_YOUR_SERVICE_ID
         - VITE_YOUR_TEMPLATE_ID
         - VITE_YOUR_PUBLIC_KEY
@@ -68,8 +65,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      # backend:
-      #   condition: service_healthy
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres_data:

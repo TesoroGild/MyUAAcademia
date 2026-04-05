@@ -134,14 +134,11 @@ npm run dev
 ### Frontend (`frontend/.env`)
 | Variable | Description |
 |---|---|
-| `VITE_API_URL` | URL de base du backend ex: `https://localhost:port/api` |
+| `VITE_API_URL` | URL de base du backend ex: `http://localhost:port/api` |
 | `VITE_PORT` | Port d'écoute de l'application ex: `8080` |
 | `VITE_YOUR_SERVICE_ID` | Secrets pour l'envoi de mail. |
 | `VITE_YOUR_TEMPLATE_ID` | Secrets pour l'envoi de mail. |
 | `VITE_YOUR_PUBLIC_KEY` | Secrets pour l'envoi de mail. |
-| `HTTPS` | Booléan disant si l'application est lancée en https ou non ex: `false` |
-| `VITE_SSL_CERT_FILE` | Lien vers la certification télechargée ex:    `chemin/yourfile.pem` |
-| `VITE_SSL_KEY_FILE` | Lien vers la clée de certification ex: `chemin/yourfile-key.pem` |
 
 ### Backend (`appsettings.json` ou variables d'env)
 | Variable | Description |
@@ -150,10 +147,7 @@ npm run dev
 | `DefaultConnection` | Connection string SQL Server |
 | `Key` | Clé secrète JWT |
 | `Issuer` | Issuer JWT |
-| `HTTPS_FILE` | Chemin vers le certificat HTTPS |
-| `HTTPS_PASS` | Mot de passe du certificat HTTPS |
-| `DefaultConnection` | Chaine permettant la connexion avec SSMS |
-| `ASPNETCORE_ENVIRONMENT` | `Development` |
+| `ASPNETCORE_ENVIRONMENT` | `Production` |
 
 
 ## 🚧 Roadmap
