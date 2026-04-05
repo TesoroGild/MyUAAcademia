@@ -148,6 +148,8 @@ npm run dev
 | `Key` | Clé secrète JWT |
 | `Issuer` | Issuer JWT |
 | `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `ResetKey` | Clé secrète pour mot de passe oublié |
+| `ResetIssuer` | Issuer pour mot de passe oublié |
 
 
 ## 🚧 Roadmap
