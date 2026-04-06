@@ -107,10 +107,12 @@ https://myuaacademia.up.railway.app/home
 - [Visual Studio 2022](https://visualstudio.microsoft.com/)
 - [Visual Studio](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Stable&version=VS18&source=VSLandingPage&cid=2500&passive=false)
 - [Postgres](https://www.tigerdata.com/go/best-postgres-db?igaag=195097200220&igaat=&igacm=23666553031&igacr=800632907665&igakw=postgresql&igamt=e&igant=g&default_plan=performance&utm_medium=cpc&utm_source=google&utm_term=postgresql&utm_campaign=&hsa_acc=9771591554&hsa_cam=23666553031&hsa_grp=195097200220&hsa_ad=800632907665&hsa_src=g&hsa_tgt=kwd-95389463&hsa_kw=postgresql&hsa_mt=e&hsa_net=adwords&hsa_ver=3&gad_source=1&gad_campaignid=23666553031&gbraid=0AAAAAqmV8gUHu4V1mTaa5PSdeUJkwD5L6&gclid=Cj0KCQjwkMjOBhC5ARIsADIdb3ctwKPXZqXAYf7i70ERZlDsNMEY7KjABWTO7V0Qx4gQUUhJACBPOw8aAoc9EALw_wcB)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installé et lancé
 
 
 ## ⚙️ Installation
-### Frontend
+### Visual Studio et Visual Studio Code
+#### Frontend
 Cloner le projet :
 ```bash
 git clone https://github.com/TesoroGild/MyUAAcademia
@@ -126,10 +128,31 @@ npm run dev
 ```
 ---
 
-### Backend
+#### Backend
 - Ouvrir le dossier backend dans visual studio et laisser la magie opérer.
 - Ensuite, remplir la connecting string comme suit : "Host=host; Port=port; Database=databse; Username=username; Password=pwd"
 - Lancer le backend en cliquant sur le boutton start vert plein (en dessous de Outils).
+
+### Docker
+#### Démarrage
+```bash
+git clone https://github.com/TesoroGild/MyUAAcademia
+cd MyUAAcademia/
+docker-compose up --build
+```
+
+L'application est ensuite accessible sur :
+- Frontend : http://localhost:3000
+- API : http://localhost:5000
+- Base de données : localhost:5432
+
+#### Arrêt
+```bash
+docker-compose down        # arrête les containers
+docker-compose down -v     # arrête et supprime les volumes (réinitialise la BD)
+```
+
+> **Note** : Les variables sensibles (connexion BD, clés JWT) sont définies dans un fichier `.env` à créer à la racine. Un fichier `.env.example` est fourni comme modèle.
 
 ## 🔧 Variables d'environnement
 ### Frontend (`frontend/.env`)
@@ -148,10 +171,11 @@ npm run dev
 | `DefaultConnection` | Chaine de connexion à postgres |
 | `Key` | Clé secrète JWT |
 | `Issuer` | Issuer JWT |
-| `ASPNETCORE_ENVIRONMENT` | `Production` |
+| `ASPNETCORE_ENVIRONMENT` | `Production` (docker) |
 | `ResetKey` | Clé secrète pour mot de passe oublié |
 | `ResetIssuer` | Issuer pour mot de passe oublié |
-
+| `DOCKER_FRONTEND_URL` | URL du frontend docker |
+| `DATABASE_URL` | URL de la base de données |
 
 ## 🚧 Roadmap
 ### Frontend
