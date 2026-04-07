@@ -21,7 +21,7 @@ services:
     restart: always
     build: 
       context: .
-      dockerfile: backend/src/Dockerfile
+      dockerfile: backend/src/Dockerfile.local
     container_name: csharp_backend
     ports:
       - "5000:8080"
@@ -50,7 +50,7 @@ services:
     restart: always
     build: 
       context: .
-      dockerfile: frontend/app/Dockerfile
+      dockerfile: frontend/app/Dockerfile.local
       args:
         - VITE_API_URL
         - VITE_PORT
