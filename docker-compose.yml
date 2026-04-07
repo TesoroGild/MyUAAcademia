@@ -50,7 +50,7 @@ services:
     restart: always
     build: 
       context: .
-      dockerfile: frontend/app/Dockerfile.local
+      dockerfile: frontend/app/Dockerfile
       args:
         - VITE_API_URL
         - VITE_PORT
