@@ -6,9 +6,9 @@ RUN mkdir -p /app && chown -R node:node /app
 USER node
 WORKDIR /app
 
-COPY --chown=node:node frontend/app/package*.json ./
+COPY --chown=node:node package*.json ./
 RUN npm ci
-COPY --chown=node:node frontend/app/ .
+COPY --chown=node:node . .
 
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
@@ -31,7 +31,7 @@ FROM nginx:alpine AS runner
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-COPY frontend/app/default.conf /etc/nginx/conf.d/default.conf
+COPY default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
