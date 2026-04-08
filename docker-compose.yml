@@ -31,7 +31,6 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
       - ASPNETCORE_URLS=
-      - Audience=${Audience}
       - DATABASE_URL=${DATABASE_URL}
       - FRONTEND_URL=${FRONTEND_URL}
       - Issuer=${Issuer}
@@ -52,13 +51,10 @@ services:
       dockerfile: frontend/app/Dockerfile.local
       args:
         - VITE_API_URL
-        - VITE_PORT
         - VITE_YOUR_SERVICE_ID
         - VITE_YOUR_TEMPLATE_ID
         - VITE_YOUR_PUBLIC_KEY
     container_name: react_frontend
-    env_file:
-      - frontend/app/.env
     ports:
       - "3000:80"
     depends_on:

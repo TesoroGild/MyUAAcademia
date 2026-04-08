@@ -11,14 +11,13 @@ RUN npm ci
 COPY --chown=node:node . .
 
 ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
-ARG VITE_PORT
-ENV VITE_PORT=$VITE_PORT
 ARG VITE_YOUR_SERVICE_ID
-ENV VITE_YOUR_SERVICE_ID=$VITE_YOUR_SERVICE_ID
 ARG VITE_YOUR_TEMPLATE_ID
-ENV VITE_YOUR_TEMPLATE_ID=$VITE_YOUR_TEMPLATE_ID
 ARG VITE_YOUR_PUBLIC_KEY
+
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_YOUR_SERVICE_ID=$VITE_YOUR_SERVICE_ID
+ENV VITE_YOUR_TEMPLATE_ID=$VITE_YOUR_TEMPLATE_ID
 ENV VITE_YOUR_PUBLIC_KEY=$VITE_YOUR_PUBLIC_KEY
 
 RUN npm run build
@@ -27,7 +26,7 @@ RUN npm run build
 # ══════════════════════════════════════════
 # STAGE 2 — Serve
 # ══════════════════════════════════════════
-FROM nginx:latest AS runner
+FROM nginx:alpine AS runner
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
@@ -35,5 +34,4 @@ COPY default.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
-#CMD ["nginx", "-g", "daemon off;"]
-CMD ["/bin/sh", "-c", "envsubst '$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+CMD ["nginx", "-g", "daemon off;"]

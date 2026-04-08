@@ -8,10 +8,6 @@ namespace MyUAAcademiaB.Services
     public class JwtService
     {
         private readonly IConfiguration _configuration;
-        //private readonly string _secretKey = Environment.GetEnvironmentVariable("Key");
-        //private readonly string _issuer = Environment.GetEnvironmentVariable("Issuer");
-        //private readonly string _audience = Environment.GetEnvironmentVariable("Audience");
-        //private readonly int _expiryHours = 2;
 
         public JwtService(IConfiguration configuration)
         {
