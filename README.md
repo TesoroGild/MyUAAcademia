@@ -160,9 +160,9 @@ docker-compose down -v     # arrête et supprime les volumes (réinitialise la B
 |---|---|
 | `VITE_API_URL` | URL de base du backend ex: `http://localhost:port/api` |
 | `VITE_PORT` | Port d'écoute de l'application ex: `8080` |
-| `VITE_YOUR_SERVICE_ID` | Secrets pour l'envoi de mail. |
-| `VITE_YOUR_TEMPLATE_ID` | Secrets pour l'envoi de mail. |
-| `VITE_YOUR_PUBLIC_KEY` | Secrets pour l'envoi de mail. |
+| `VITE_YOUR_SERVICE_ID` | Secrets pour l'envoi de mail |
+| `VITE_YOUR_TEMPLATE_ID` | Secrets pour l'envoi de mail |
+| `VITE_YOUR_PUBLIC_KEY` | Secrets pour l'envoi de mail |
 
 ### Backend (`appsettings.json` ou variables d'env)
 | Variable | Description |
@@ -223,6 +223,10 @@ docker-compose down -v     # arrête et supprime les volumes (réinitialise la B
 
 **Problème 2** : PascalCase vs snake_case + dédoublement des tables.
 **Solution 2** : Utilisation de UseSnakeCaseNamingConvention en C# et mapping des tables.
+
+### 7. Déploiement
+**Problème 1** :
+**Solution 1** :
 
 
 > [!WARNING]
