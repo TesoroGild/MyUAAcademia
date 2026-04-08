@@ -1,26 +1,28 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 using MyUAAcademiaB.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace MyUAAcademiaB.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController(IAuthService authService, IMapper mapper, IEmployeeInterface employeeInterface,
-        IUserInterface userInterface, JwtService jwtService) : ControllerBase
+        IUserInterface userInterface, JwtService jwtService, IConfiguration configuration) : ControllerBase
     {
         private readonly IAuthService _authService = authService;
         private readonly IMapper _mapper = mapper;
         private readonly IEmployeeInterface _employeeInterface = employeeInterface;
         private readonly IUserInterface _userInterface = userInterface;
         private readonly JwtService _jwtService = jwtService;
+        private readonly IConfiguration _configuration = configuration;
 
         //CREATE
         [HttpPost("login")]
@@ -39,7 +41,6 @@ namespace MyUAAcademiaB.Controllers
             }
             else
             {
-                //var jwtService = new JwtService();
                 var token = _jwtService.GenerateToken(loginCredentials.Code, userConnected.UserRole);
 
                 Response.Cookies.Append("SESSION_ID", token, new CookieOptions
@@ -218,10 +219,25 @@ namespace MyUAAcademiaB.Controllers
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-                var userCodeFromToken = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                var validationParams = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["ResetKey"])),
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["ResetIssuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["ResetIssuer"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
 
-                if (string.IsNullOrEmpty(userCodeFromToken)) return Unauthorized(new { message = "Token invalide." });
+                var principal = handler.ValidateToken(token, validationParams, out _);
+                var userCodeFromToken = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? principal.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                    ?? principal.FindFirstValue("sub");
+
+                if (string.IsNullOrEmpty(userCodeFromToken))
+                    return Unauthorized(new { message = "Token invalide." });
 
                 var hashedPwd = _authService.HashPassword(userCodeFromToken, resetPasswordCredentials.NewPwd);
 
@@ -239,9 +255,13 @@ namespace MyUAAcademiaB.Controllers
 
                 return Ok(new { message = "Mot de passe mis à jour avec succès." });
             }
+            catch (SecurityTokenExpiredException)
+            {
+                return Unauthorized(new { message = "Token expiré." });
+            }
             catch (Exception)
             {
-                return StatusCode(500, new { message = "Erreur lors de la lecture de l'identité." });
+                return Unauthorized(new { message = "Token invalide." });
             }
         }
 
@@ -260,10 +280,25 @@ namespace MyUAAcademiaB.Controllers
             try
             {
                 var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-                var userCodeFromToken = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+                var validationParams = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["ResetKey"])),
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["ResetIssuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["ResetIssuer"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
 
-                if (string.IsNullOrEmpty(userCodeFromToken)) return Unauthorized(new { message = "Token invalide." });
+                var principal = handler.ValidateToken(token, validationParams, out _);
+                var userCodeFromToken = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? principal.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                    ?? principal.FindFirstValue("sub");
+
+                if (string.IsNullOrEmpty(userCodeFromToken))
+                    return Unauthorized(new { message = "Token invalide." });
 
                 var hashedPwd = _authService.HashPassword(userCodeFromToken, resetPasswordCredentials.NewPwd);
 

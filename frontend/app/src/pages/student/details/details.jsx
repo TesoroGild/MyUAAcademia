@@ -94,6 +94,8 @@ const StudentDetails = ({ user }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [profileModForm, setProfileModForm] = useState({ permanentCode: "", phoneNumber: "", nas: "", pwd: "" });
   const [toasts, setToasts] = useState({ error: false, warning: false, success: false, errorMsg: "" });
+  const [warnToast, setWarnToast] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const showToast = (type, msg = "") => {
     setToasts((t) => ({ ...t, [type]: true, errorMsg: msg }));
@@ -111,7 +113,14 @@ const StudentDetails = ({ user }) => {
   };
 
   const getFiles = async () => {
-    try { setFiles(await getFilesS(permanentcode)); } catch (e) { console.error(e); }
+    try {
+    const response = await getFilesS(permanentcode);
+     setFiles(response.files);
+    } catch {
+      setWarnToast(true);
+      setTimeout(() => setWarnToast(false), 5000);
+      setLoading(false);
+    }
   };
 
   const getStudentPrograms = async () => {

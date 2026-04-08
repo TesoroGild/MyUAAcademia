@@ -11,23 +11,33 @@ export const read = async (permanentCode) => {
 }
 
 export const update = async (profileToModify) => {
-  console.log("PROFILE SERVICE : UPDATE");
   try {
     const response = await axios.put(`${backend_url}/User/students`, profileToModify);
     return response.data;
   } catch (error) {
-    console.error('Erreur :', error);
-    throw error;
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data[""]?.[0] || error.response?.data?.message
+      };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur" };
   }
 }
 
 export const updateUser = async (profileToModify) => {
-  console.log("PROFILE SERVICE : UPDATE");
   try {
     const response = await axios.put(`${backend_url}/Employee/users`, profileToModify);
     return response.data;
   } catch (error) {
-    console.error('Erreur :', error);
-    throw error;
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data[""]?.[0] || error.response?.data?.message
+      };
+    }
+
+    return { success: false, message: "Impossible de contacter le serveur" };
   }
 }

@@ -2,51 +2,57 @@ import axios from 'axios';
 
 const backend_url = import.meta.env.VITE_API_URL;
 
-/********************************/
-/*         USERS LVL 1          */
-/********************************/
-
-//################################
-//          STUDENTS
-//################################
-
 //Create
 export const createProgramS = async (programToCreate) => {
-    console.log("PROGRAM SERVICE : CREATE PROGRAM");
     try {
         const response = await axios.post(`${backend_url}/Program/program`, programToCreate);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
 export const programRegistrationS = async (requestParams) => {
-    console.log("PROGRAM SERVICE : PROGRAM REGISTRATION");
     try {
         const response = await axios.post(`${backend_url}/UserProgram/register-student`, requestParams);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
 //Read
 export const getProgramsS = async () => {
-    console.log("PROGRAM SERVICE : GET PROGRAM");
     try {
         const response = await axios.get(`${backend_url}/Program/programs`);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
 export const getProgramsByGradeS = async (grade) => {
-    console.log("PROGRAM SERVICE : GET PROGRAM BY GRADE");
     try {
         const response = await axios.get(`${backend_url}/Program/programs/${grade}`);
         return {
@@ -54,13 +60,18 @@ export const getProgramsByGradeS = async (grade) => {
             programs: response.data
         }
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
 export const getStudentProgramsS = async (permanentcode) => {
-    console.log("PROGRAM SERVICE : GET ADMISSION PROGRAMS");
     try {
         const response = await axios.get(`${backend_url}/Program/${permanentcode}`);
         return {
@@ -68,15 +79,20 @@ export const getStudentProgramsS = async (permanentcode) => {
             programs: response.data
         };
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
 
 //Update
 export const registerToAProgramS = async (requestParams) => {
-    console.log("PROGRAM SERVICE : REGISTER TO A PROGRAM");
     try {
         const response = await axios.put(`${backend_url}/UserProgram/programs-admitted`, requestParams);
         return {
@@ -84,8 +100,14 @@ export const registerToAProgramS = async (requestParams) => {
             isEnrolleed: response.data
         }
     } catch (error) {
-        console.error('Erreur :', error);
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 

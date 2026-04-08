@@ -399,4 +399,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Mkcert files
-*.pem
+**/*.pem

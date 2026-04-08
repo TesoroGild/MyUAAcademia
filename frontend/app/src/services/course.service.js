@@ -9,19 +9,16 @@ const backend_url = import.meta.env.VITE_API_URL;
 
 //Create
 export const createCourseS = async (course) => {
-    console.log("COURSE SERVICE : CREATE COURSE");
     try {
         const response = await axios.post(`${backend_url}/Course/courses`, course);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
 
 //Register several students for a course
 export const enrollStudentsInCoursesS = async (requestParams) => {
-    console.log("COURSE SERVICE : CREATE COURSE-REGISTRATIONS");
     try {
         const response = await axios.post(`${backend_url}/UserCourse/students-courses`, requestParams);
         return {
@@ -29,12 +26,10 @@ export const enrollStudentsInCoursesS = async (requestParams) => {
             response: response.data
         };
     } catch (error) {
-        console.error('Erreur :', error.response.data);
-    
         if (error.response)
             return {
                 success: false,
-                message: error.response.data
+                message: error.response.data[""]?.[0] || error.response?.data?.message
             };
 
         return { success: false, message: "Impossible de contacter le serveur" };
@@ -44,40 +39,33 @@ export const enrollStudentsInCoursesS = async (requestParams) => {
 
 //Read
 export const getAvailableCoursesS = async (availablePeriods, permanentCode) => {
-    console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
         const response = await axios.post(`${backend_url}/ClasseCourse/courses/sessions/${permanentCode}`, availablePeriods);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
 
 export const getCoursesS = async () => {
-    console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
         const response = await axios.get(`${backend_url}/Course/courses`);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
 
 export const getProgramCoursesS = async (programsTitles) => {
-    console.log("COURSE SERVICE : GET COURSES AVAILABLE");
     try {
         const response = await axios.post(`${backend_url}/Course/courses/program`, programsTitles);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
 
 export const getStudentCoursesS = async (permanentCode) => {
-    console.log("COURSE SERVICE : GET STUDENT COURSES");
     try {
         const response = await axios.get(`${backend_url}/UserCourse/student-courses/${permanentCode}`);
         return {
@@ -85,12 +73,10 @@ export const getStudentCoursesS = async (permanentCode) => {
             courses: response.data
         }
     } catch (error) {
-        console.error('Erreur :', error.response.data);
-    
         if (error.response) {
             return {
                 success: false,
-                message: error.response.data
+                message: error.response.data[""]?.[0] || error.response?.data?.message
             };
         }
 
@@ -99,7 +85,6 @@ export const getStudentCoursesS = async (permanentCode) => {
 }
 
 export const getStudentSessionCoursesS = async (requestParams) => {
-    console.log("COURSE SERVICE : GET STUDENT SESSION COURSES");
     try {
         const response = await axios.post(`${backend_url}/ClasseCourse/student-session-courses`, requestParams);
         return {
@@ -107,12 +92,10 @@ export const getStudentSessionCoursesS = async (requestParams) => {
             courses: response.data
         }
     } catch (error) {
-        console.error('Erreur :', error.response);
-    
         if (error.response) {
             return {
                 success: false,
-                message: error.response.data
+                message: error.response.data[""]?.[0] || error.response?.data?.message
             };
         }
 
@@ -121,7 +104,6 @@ export const getStudentSessionCoursesS = async (requestParams) => {
 }
 
 export const getSessionCoursePriceS = async (requestParams) => {
-    console.log("COURSE SERVICE : GET STUDENT SESSION COURSES");
     try {
         const response = await axios.post(`${backend_url}/Course/student-session-courses`, requestParams);
         return {
@@ -129,8 +111,6 @@ export const getSessionCoursePriceS = async (requestParams) => {
             courses: response.data
         }
     } catch (error) {
-        console.error('Erreur :', error.response);
-    
         if (error.response) {
             return {
                 success: false,
@@ -157,24 +137,20 @@ export const updateCourses = async () => {
 
 //Create
 export const createClassroomS = async (course) => {
-    console.log("COURSE SERVICE : CREATE CLASSROOM");
     try {
         const response = await axios.post(`${backend_url}/Classe/classes`, course);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
 
 //Read
 export const getClassroomsS = async () => {
-    console.log("COURSE SERVICE : GET CLASSROOMS");
     try {
         const response = await axios.get(`${backend_url}/Classe/classes`);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
@@ -191,30 +167,25 @@ export const getClassroomsS = async () => {
 
 //Create
 export const createClasseCourseS = async (classeCourseToCreate) => {
-    console.log("COURSE SERVICE : CREATE CLASSE-COURSE");
     try {
         const response = await axios.post(`${backend_url}/ClasseCourse/classe-course`, classeCourseToCreate);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
 
 export const assignProfessorToClasseCourseS = async (profCourseIds) => {
-    console.log("COURSE SERVICE : ASSIGN PROFESSOR TO CLASSE-COURSE");
     try {
         const response = await axios.put(`${backend_url}/ClasseCourse/assign-prof-course`, profCourseIds, {withCredentials: true});
         return {
             success: true
         }
     } catch (error) {
-        console.error('Erreur :', error.response);
-    
         if (error.response) {
             return {
                 success: false,
-                message: error.response.data
+                message: error.response.data[""]?.[0] || error.response?.data?.message
             };
         }
 
@@ -224,40 +195,33 @@ export const assignProfessorToClasseCourseS = async (profCourseIds) => {
 
 //Read
 export const getClassesCoursesS = async () => {
-    console.log("COURSE SERVICE : GET CLASSES-COURSES");
     try {
         const response = await axios.get(`${backend_url}/ClasseCourse/classe-course`);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
 
 export const getClassesCoursesByProgramS = async (title) => {
-    console.log("COURSE SERVICE : GET CLASSES-COURSES-BY-PROGRAM");
     try {
         const response = await axios.get(`${backend_url}/ClasseCourse/classe-course/${title}`);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
 
 export const getProgramSessionCoursesS = async (sessionProgram) => {
-    console.log("COURSE SERVICE : GET COURSES BY SESSION YEAR");
     try {
         const response = await axios.post(`${backend_url}/ClasseCourse/classes-courses-by-program-session`, sessionProgram);
         return response.data;
     } catch (error) {
-        console.error('Erreur :', error);
         throw error;
     }
 }
 
 export const getProfCourseS = async (profCode) => {
-    console.log("COURSE SERVICE : GET PROFESSOR COURSES GRADE PROGRAM");
     try {
     const response = await axios.get(`${backend_url}/ClasseCourse/professor-courses/${profCode}`, {withCredentials: true});
     return { 
@@ -265,10 +229,9 @@ export const getProfCourseS = async (profCode) => {
       courses: response.data 
     };
   } catch (error) {
-    console.error('Erreur :', error);
     return { 
       success: false, 
-      message: error.response?.data?.message || "Aucun élement trouvé" 
+      message: error.response.data[""]?.[0] || error.response?.data?.message || "Aucun élement trouvé" 
     };
   }
 }
