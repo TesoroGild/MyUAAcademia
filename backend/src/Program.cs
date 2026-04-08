@@ -13,8 +13,6 @@ using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-var frontendUrl = builder.Configuration["FRONTEND_URL"];
-var dockerFrontendUrl = builder.Configuration["DOCKER_FRONTEND_URL"];
 
 // 1. Config Kestrel (port, HTTP vs HTTPS)
 builder.WebHost.ConfigureKestrel(options =>
@@ -145,7 +143,16 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(frontendUrl, dockerFrontendUrl)
+        var frontendUrl = "";  
+        if (builder.Environment.IsDevelopment())
+        {
+            frontendUrl = builder.Configuration["LOCAL_FRONTEND_URL"];
+        }
+        else
+        {
+            frontendUrl = builder.Configuration["FRONTEND_URL"];
+        }
+        policy.WithOrigins(frontendUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();

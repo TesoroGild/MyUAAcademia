@@ -33,7 +33,6 @@ services:
       - ASPNETCORE_URLS=
       - Audience=${Audience}
       - DATABASE_URL=${DATABASE_URL}
-      - DOCKER_FRONTEND_URL=${DOCKER_FRONTEND_URL}
       - FRONTEND_URL=${FRONTEND_URL}
       - Issuer=${Issuer}
       - Key=${Key}
