@@ -174,7 +174,7 @@ docker-compose down -v     # arrête et supprime les volumes (réinitialise la B
 | `ASPNETCORE_ENVIRONMENT` | `Production` (docker) |
 | `ResetKey` | Clé secrète pour mot de passe oublié |
 | `ResetIssuer` | Issuer pour mot de passe oublié |
-| `DOCKER_FRONTEND_URL` | URL du frontend docker |
+| `FRONTEND_URL` | URL du front en local |
 | `DATABASE_URL` | URL de la base de données |
 
 ## 🚧 Roadmap
