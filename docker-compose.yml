@@ -17,57 +17,57 @@ services:
       timeout: 5s
       retries: 5
  
-  # backend:
-  #   restart: always
-  #   build: 
-  #     context: .
-  #     dockerfile: backend/src/Dockerfile.local
-  #   container_name: csharp_backend
-  #   ports:
-  #     - "5000:8080"
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #   environment:
-  #     - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
-  #     - ASPNETCORE_URLS=
-  #     - DATABASE_URL=${DATABASE_URL}
-  #     - FRONTEND_URL=${FRONTEND_URL}
-  #     - Issuer=${Issuer}
-  #     - Key=${Key}
-  #     - ResetKey=${ResetKey}
-  #     - ResetIssuer=${ResetIssuer}
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8080' || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #     start_period: 30s
+  backend:
+    restart: always
+    build: 
+      context: .
+      dockerfile: backend/src/Dockerfile.local
+    container_name: csharp_backend
+    ports:
+      - "5000:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_URLS=
+      - DATABASE_URL=${DATABASE_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - Issuer=${Issuer}
+      - Key=${Key}
+      - ResetKey=${ResetKey}
+      - ResetIssuer=${ResetIssuer}
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/localhost/8080' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
-  # frontend:
-  #   restart: always
-  #   build: 
-  #     context: .
-  #     dockerfile: frontend/app/Dockerfile.local
-  #     args:
-  #       - VITE_API_URL
-  #       - VITE_YOUR_SERVICE_ID
-  #       - VITE_YOUR_TEMPLATE_ID
-  #       - VITE_YOUR_PUBLIC_KEY
-  #   container_name: react_frontend
-  #   ports:
-  #     - "3000:80"
-  #   depends_on:
-  #     db:
-  #       condition: service_healthy
-  #     backend:
-  #       condition: service_healthy
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "wget -qO- http://localhost:80 || exit 1"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 3
-  #     start_period: 10s
+  frontend:
+    restart: always
+    build: 
+      context: .
+      dockerfile: frontend/app/Dockerfile.local
+      args:
+        - VITE_API_URL
+        - VITE_YOUR_SERVICE_ID
+        - VITE_YOUR_TEMPLATE_ID
+        - VITE_YOUR_PUBLIC_KEY
+    container_name: react_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 volumes:
   postgres_data:
