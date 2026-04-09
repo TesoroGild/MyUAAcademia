@@ -113,6 +113,15 @@ const App = () => {
         {/* ── Users ── */}
         <Route path="/resetpwd"  element={<ResetPassword user={user} />} />
 
+        {/* ── Student & Admin ── */}
+        <Route element={<ProtectedRoute 
+            allowedRoles={["admin", "student", "director"]}
+            redirectPath="/login/user"
+          />} 
+        >
+          <Route path="/student/:permanentcode" element={<StudentDetails user={user} />} />
+        </Route>
+
         {/* ── Student ── */}
         <Route element={<ProtectedRoute 
             allowedRoles={["student"]}
@@ -126,7 +135,6 @@ const App = () => {
           <Route path="/payment/courses"        element={<PaymentCourse user={user} />} />
           <Route path="/progress"               element={<Progress user={user} />} />
           <Route path="/subscribe"              element={<Subscribe user={user} />} />
-          <Route path="/student/:permanentcode" element={<StudentDetails user={user} />} />
         </Route>
 
         {/* ── Employees ── */}

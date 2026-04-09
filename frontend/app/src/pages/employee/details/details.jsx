@@ -2,6 +2,7 @@ import { HiOutlinePencilAlt } from "react-icons/hi";
 
 import logo from "../../../assets/img/UA_Logo.png";
 import adminPicture from "../../../assets/img/Admin.jpg";
+import professorPicture from "../../../assets/img/Professor.jpg";
 
 import Sidebar from "../../sidebar/sidebar";
 
@@ -146,9 +147,13 @@ const EmployeeDetails = ({ user }) => {
     } catch (e) { console.error(e); }
   };
 
+  const profilePicture = user?.userRole?.toLowerCase() === "professor"
+    ? professorPicture
+    : adminPicture;
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar user={user} profilePic={adminPicture} />
+      <Sidebar user={user} profilePic={profilePicture} />
 
       <main className="flex-1 overflow-y-auto">
         {/* Top bar */}
@@ -176,7 +181,7 @@ const EmployeeDetails = ({ user }) => {
               <div className="p-6 flex gap-6 items-start">
                 {/* Photo */}
                 <div className="shrink-0 flex flex-col items-center gap-2">
-                  <Avatar img={adminPicture} bordered size="xl" rounded />
+                  <Avatar img={profilePicture} bordered size="xl" rounded />
                   <RoleBadge role={profile.userRole} />
                 </div>
                 {/* Infos pro */}

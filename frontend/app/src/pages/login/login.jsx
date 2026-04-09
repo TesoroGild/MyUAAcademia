@@ -163,7 +163,7 @@ function Login({ type, setUser }) {
             <label htmlFor="pwd" className="text-sm font-medium text-slate-700">
               Mot de passe
             </label>
-            <div>
+            <div className="relative">
               <input
                 type={showPwd ? "text" : "password"}
                 id="pwd"
@@ -173,7 +173,7 @@ function Login({ type, setUser }) {
                 onChange={(e) => setForm({ ...form, pwd: e.target.value })}
                 onBlur={() => setPwdFocused(true)}
                 required
-                className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2.5 pr-10 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition"
               />
               <button
                 type="button"

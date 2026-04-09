@@ -1,5 +1,6 @@
 import Sidebar from "../../sidebar/sidebar";
-import profPicture from "../../../assets/img/Professor.jpg";
+import professorPicture from "../../../assets/img/Professor.jpg";
+import adminPicture from "../../../assets/img/Admin.jpg";
 import { useEffect, useState } from "react";
 import { HiChevronRight, HiArrowLeft, HiAcademicCap, HiUserGroup, HiSearch, HiX } from "react-icons/hi";
 import { RiGraduationCapFill } from "react-icons/ri";
@@ -115,9 +116,13 @@ const ProfessorCourses = ({ user }) => {
   if (selectedProgram) breadcrumbs.push(selectedProgram);
   if (selectedCourse)  breadcrumbs.push(selectedCourse.courseSigle);
 
+  const profilePicture = user?.userRole?.toLowerCase() === "professor"
+      ? professorPicture
+      : adminPicture;
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
-      <Sidebar user={user} profilePic={profPicture} />
+      <Sidebar user={user} profilePic={profilePicture} />
 
       <main className="flex-1 overflow-y-auto">
 

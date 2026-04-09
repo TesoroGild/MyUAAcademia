@@ -195,7 +195,7 @@ const AdmissionForm = () => {
         </Section>
 
         {/* ── Programme ── */}
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-xl">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
             <p className="text-sm font-semibold text-slate-900">Programme</p>
             <p className="text-xs text-slate-400 mt-0.5">Maximum 2 programmes sélectionnables</p>
@@ -209,7 +209,7 @@ const AdmissionForm = () => {
                   classNamePrefix="select"
                   styles={{
                     control: (base) => ({ ...base, borderColor: "#cbd5e1", borderRadius: "0.5rem", fontSize: "0.875rem", minHeight: "42px" }),
-                    menu:    (base) => ({ ...base, fontSize: "0.875rem", zIndex: 50 }),
+                    menu:    (base) => ({ ...base, fontSize: "0.875rem", zIndex: 9999 }),
                   }}
                 />
               )}

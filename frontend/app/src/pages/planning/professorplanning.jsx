@@ -1,5 +1,5 @@
 import Sidebar from "../sidebar/sidebar";
-import userPicture from "../../assets/img/User_Icon.png";
+import userPicture from "../../assets/img/Professor.jpg";
 import { useEffect, useState } from "react";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import { getProfCourseS } from "../../services/course.service";
