@@ -1,34 +1,18 @@
 import logo2 from "../../assets/img/UA_Logo2.jpg";
 import { HiOutlineArrowLeft, HiOutlineArrowRight, HiEye, HiEyeOff, HiCheck, HiExclamation } from "react-icons/hi";
 import { FileInput, Label } from "flowbite-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { getProgramsS } from "../../services/program.service";
-// import Select from "react-select";
-// import DatePicker from "react-datepicker";
 import SelectModule from "react-select";
 import DatePickerModule from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { fr } from "date-fns/locale";
+import { RULES, getStrength } from "../../utils/password.util";
 
 const Select = SelectModule.default || SelectModule;
 const DatePicker = DatePickerModule.default || DatePickerModule;
-
-// ── Règles mot de passe ───────────────────────────────────────────────────────
-const RULES = [
-  { id: "length",  label: "Au moins 8 caractères",         test: (p) => p.length >= 8 },
-  { id: "upper",   label: "Au moins une lettre majuscule", test: (p) => /[A-Z]/.test(p) },
-  { id: "number",  label: "Au moins un chiffre",           test: (p) => /[0-9]/.test(p) },
-  { id: "special", label: "Au moins un caractère spécial", test: (p) => /[^A-Za-z0-9]/.test(p) },
-];
-const getStrength = (pwd) => {
-  const n = RULES.filter((r) => r.test(pwd)).length;
-  if (n <= 1) return { label: "Faible", color: "bg-red-500",   text: "text-red-600",   width: "w-1/4" };
-  if (n === 2) return { label: "Moyen",  color: "bg-amber-500", text: "text-amber-600", width: "w-2/4" };
-  if (n === 3) return { label: "Bien",   color: "bg-blue-500",  text: "text-blue-600",  width: "w-3/4" };
-  return              { label: "Fort",   color: "bg-green-500", text: "text-green-600", width: "w-full" };
-};
 
 const inputCls = "border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition w-full";
 

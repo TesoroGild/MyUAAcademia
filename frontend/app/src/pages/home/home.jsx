@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import uaLogo from '../../assets/img/UA_Logo2.jpg';
 import { Avatar } from "flowbite-react";
 
