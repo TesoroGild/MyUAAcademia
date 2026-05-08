@@ -34,7 +34,7 @@
 
         public IFormFile? SchoolTranscript { get; set; }
         public IFormFile? Picture { get; set; }
-        public IFormFile? IdentityProof { get; set; }        
+        public IFormFile? IdentityProof { get; set; }
 
         //public ICollection<Bills>? Bills { get; set; }
 

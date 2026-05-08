@@ -21,7 +21,7 @@ namespace MyUAAcademiaB.Repository
             _context.SaveChanges();
             return userProgramToRegister;
         }
-        
+
         /*READ*/
         public ICollection<string> GetStudentsInTheProgram(string progTitle)
         {
@@ -77,8 +77,26 @@ namespace MyUAAcademiaB.Repository
 
             return _context.SaveChanges();
         }
-        
+
 
         /*DELETE*/
+        public bool DeleteStudent(string permanentCode)
+        {
+            var studentProgram = GetStudentPrograms(permanentCode);
+            if (studentProgram != null)
+            {
+                foreach (ProgEnrFinDto sp in studentProgram)
+                {
+                    var record = _context.UserProgramEnrollments.Find(permanentCode, sp.Title);
+                    if (record != null)
+                    {
+                        _context.UserProgramEnrollments.Remove(record);
+                    }
+                }
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
     }
 }

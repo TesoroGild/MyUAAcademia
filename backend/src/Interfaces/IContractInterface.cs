@@ -12,7 +12,7 @@ namespace MyUAAcademiaB.Interfaces
 
         //CREATE
         Contracts CreateContract(Contracts contractToCreate);
-        
+
 
 
         //READ

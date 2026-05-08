@@ -205,7 +205,7 @@ const ResetPassword = ({user}) => {
         {step === "identify" && (
             <form onSubmit={handleIdentify} className="flex flex-col gap-5">
               <p className="text-sm text-slate-600">
-                Renseignez votre code d'utilisateur et l'email associé à votre compte pour réinitialiser votre mot de passe.
+                Renseignez votre code d&apos;utilisateur et l&apos;email associé à votre compte pour réinitialiser votre mot de passe.
               </p>
 
               <div className="flex flex-col gap-1.5">

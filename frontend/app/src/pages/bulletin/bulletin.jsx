@@ -1,6 +1,6 @@
 import Sidebar from "../sidebar/sidebar";
 import userPicture from "../../assets/img/User_Icon.png";
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { HiChevronDown, HiAcademicCap, HiInformationCircle, HiX } from "react-icons/hi";
 import { getStudentBulletinS } from "../../services/bulletin.service";
@@ -147,30 +147,31 @@ const Bulletin = ({ user }) => {
   const userCode = studentDisplay || user?.permanentCode;
 
   useEffect(() => {
-    if (userCode) fetchAll();
-  }, []);
-
-  const fetchAll = async () => {
-    try {
-      // Récupère les programmes inscrits
-      const progRes = await getStudentProgramsS(userCode);
-      if (progRes.success) {
-        const enrolled = progRes.programs.filter((p) => p.isEnrolled).map((p) => p.title);
-        setPrograms(enrolled);
-        if (enrolled.length > 0) {
-          setSelectedProgram(enrolled[0]);
-          await loadBulletin(enrolled[0]);
+    const fetchAll = async () => {
+      try {
+        // Récupère les programmes inscrits
+        const progRes = await getStudentProgramsS(userCode);
+        if (progRes.success) {
+          const enrolled = progRes.programs.filter((p) => p.isEnrolled).map((p) => p.title);
+          setPrograms(enrolled);
+          if (enrolled.length > 0) {
+            setSelectedProgram(enrolled[0]);
+            await loadBulletin(enrolled[0]);
+          }
+        } else {
+          // Fallback : bulletin sans filtre programme
+          await loadBulletin(null);
         }
-      } else {
-        // Fallback : bulletin sans filtre programme
+      } catch {
         await loadBulletin(null);
       }
-    } catch {
-      await loadBulletin(null);
-    }
-  };
+    };
 
-  const loadBulletin = async (programTitle) => {
+    if (userCode) fetchAll();
+  }, [loadBulletin, userCode]);
+
+
+  const loadBulletin = useCallback(async (programTitle) => {
     try {
       const res = await getStudentBulletinS(userCode);
       const bulletins = res.bulletins ?? [];
@@ -187,7 +188,7 @@ const Bulletin = ({ user }) => {
       setTotalCredit(credits);
       setAverage(res.average ?? 0);
     } catch (e) { console.error(e); }
-  };
+  }, [userCode])
 
   const handleProgramSelect = async (title) => {
     setSelectedProgram(title);

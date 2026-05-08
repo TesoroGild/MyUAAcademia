@@ -1,18 +1,18 @@
 import Sidebar from "../../sidebar/sidebar";
 import adminPicture from "../../../assets/img/Admin.jpg";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { HiCheck, HiExclamation, HiX, HiSearch, HiPlus } from "react-icons/hi";
 import { getProgramStudentsS } from "../../../services/user.service";
 import { enrollStudentsInCoursesS, getProgramSessionCoursesS } from "../../../services/course.service";
 import { getProgramsS } from "../../../services/program.service";
 
-const GRADE_BADGE = {
-  "Certificat":   "bg-slate-100 text-slate-600 border-slate-200",
-  "BTS":          "bg-teal-50 text-teal-700 border-teal-100",
-  "Baccalauréat": "bg-blue-50 text-blue-700 border-blue-100",
-  "Master":       "bg-violet-50 text-violet-700 border-violet-100",
-  "Doctorat":     "bg-amber-50 text-amber-700 border-amber-100",
-};
+// const GRADE_BADGE = {
+//   "Certificat":   "bg-slate-100 text-slate-600 border-slate-200",
+//   "BTS":          "bg-teal-50 text-teal-700 border-teal-100",
+//   "Baccalauréat": "bg-blue-50 text-blue-700 border-blue-100",
+//   "Master":       "bg-violet-50 text-violet-700 border-violet-100",
+//   "Doctorat":     "bg-amber-50 text-amber-700 border-amber-100",
+// };
 
 const Alert = ({ type, message }) => {
   const s = { success: "bg-green-50 border-green-200 text-green-700", error: "bg-red-50 border-red-200 text-red-700", warning: "bg-amber-50 border-amber-200 text-amber-700" }[type];
@@ -44,21 +44,21 @@ const CourseEnrollment = ({ user }) => {
   useEffect(() => { getPrograms(); }, []);
 
   useEffect(() => {
+    const getProgramSessionCourses = async () => {
+      try {
+        const res     = await getProgramSessionCoursesS({ programTitle, sessionCourse });
+        const courses = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
+        setClassesCourses(courses);
+        setFilteredCourses(courses);
+      } catch (e) { console.error(e); }
+    };
+
     if (sessionCourse && programTitle) getProgramSessionCourses();
   }, [sessionCourse, programTitle]);
 
   const showAlert = (type, message) => { setAlert({ type, message }); setTimeout(() => setAlert(null), 5000); };
 
   const getPrograms = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
-
-  const getProgramSessionCourses = async () => {
-    try {
-        const res     = await getProgramSessionCoursesS({ programTitle, sessionCourse });
-        const courses = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
-        setClassesCourses(courses);
-        setFilteredCourses(courses);
-    } catch (e) { console.error(e); }
-  };
 
   const handleProgramChange = async (title) => {
     setProgramTitle(title);
@@ -139,7 +139,7 @@ const CourseEnrollment = ({ user }) => {
 
           {/* ── Filtres contexte ── */}
           <div className="bg-white border border-slate-200 rounded-xl p-5">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Contexte d'inscription</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Contexte d&apos;inscription</p>
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Session</label>

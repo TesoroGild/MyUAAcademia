@@ -73,19 +73,20 @@ const StudentPlanning = ({ user }) => {
   const activeSession = getActiveSession();
 
   useEffect(() => {
-    if (activeSession) loadCourses(activeSession.session);
-  }, []);
+    const loadCourses = async (session) => {
+      try {
+        const res = await getStudentSessionCoursesS({
+          permanentCode: user.permanentCode,
+          yearCourse: year + "",
+          sessionCourse: session,
+        });
+        if (res.success) setCourses(res.courses);
+      } catch (e) { console.error(e); }
+    };
 
-  const loadCourses = async (session) => {
-    try {
-      const res = await getStudentSessionCoursesS({
-        permanentCode: user.permanentCode,
-        yearCourse: year + "",
-        sessionCourse: session,
-      });
-      if (res.success) setCourses(res.courses);
-    } catch (e) { console.error(e); }
-  };
+    if (activeSession) loadCourses(activeSession.session);
+  }, [user, activeSession]);
+
 
   // Bornes de navigation
   const sessionStart = activeSession ? getMondayOf(activeSession.start) : getMondayOf(today);
@@ -161,7 +162,7 @@ const StudentPlanning = ({ user }) => {
         {!activeSession && (
           <div className="p-8">
             <div className="bg-amber-50 border border-amber-200 text-amber-700 rounded-xl px-5 py-4 text-sm">
-              Aucune session active en ce moment. Le calendrier sera disponible à l'ouverture de la prochaine session.
+              Aucune session active en ce moment. Le calendrier sera disponible à l&apos;ouverture de la prochaine session.
             </div>
           </div>
         )}

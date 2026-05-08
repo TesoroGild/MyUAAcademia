@@ -99,7 +99,7 @@ namespace MyUAAcademiaB.Controllers
             if (resetCredentials == null) return BadRequest("Format invalide.");
 
             var user = _employeeInterface.GetUserForReset(resetCredentials);
-        
+
             if (user == null)
             {
                 return StatusCode(400, new { message = "Identifiants invalides." });

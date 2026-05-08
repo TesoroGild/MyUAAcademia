@@ -161,7 +161,7 @@ const AdminPlanning = ({ user }) => {
               <button onClick={()=>setWeekStart(addDays(weekStart,-7))} className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-700 transition-colors"><HiChevronLeft className="w-4 h-4 text-slate-600"/></button>
               <span className="text-sm font-medium text-slate-700 min-w-[150px] text-center">{fmtDate(weekStart)} – {fmtDate(addDays(weekStart,4))}</span>
               <button onClick={()=>setWeekStart(addDays(weekStart,7))} className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-700 transition-colors"><HiChevronRight className="w-4 h-4 text-slate-600"/></button>
-              <button onClick={()=>setWeekStart(getMondayOf(new Date()))} className="text-xs font-medium text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg transition-colors">Aujourd'hui</button>
+              <button onClick={()=>setWeekStart(getMondayOf(new Date()))} className="text-xs font-medium text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg transition-colors">Aujourd&apos;hui</button>
             </div>
           </div>
 

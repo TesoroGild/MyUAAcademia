@@ -11,12 +11,13 @@ namespace MyUAAcademiaB.Services
             DateTime enrollmentDate = DateTime.Now;
             DateOnly enrollmentDateOnly = DateOnly.FromDateTime(enrollmentDate);
             userProgramToRegister.EnrollmentDate = enrollmentDateOnly;
-            if (grade == "Doctorat")
-                userProgramToRegister.EndDateEstimate = enrollmentDateOnly.AddYears(4);
-            if (grade == "Baccalauréat")
-                userProgramToRegister.EndDateEstimate = enrollmentDateOnly.AddYears(3);
-            if (grade == "Master" || grade == "Certificat")
-                userProgramToRegister.EndDateEstimate = enrollmentDateOnly.AddYears(2);
+            userProgramToRegister.EndDateEstimate = grade switch
+            {
+                "Doctorat" => enrollmentDateOnly.AddYears(4),
+                "Baccalauréat" => enrollmentDateOnly.AddYears(3),
+                "Master" or "Certificat" => enrollmentDateOnly.AddYears(2),
+                _ => throw new ArgumentException($"Grade non reconnu : {grade}")
+            };
 
             return userProgramToRegister;
         }

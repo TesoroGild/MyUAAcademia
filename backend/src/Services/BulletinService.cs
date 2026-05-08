@@ -16,7 +16,7 @@ namespace MyUAAcademiaB.Services
         //private readonly _;
 
         public BulletinService(IBulletinInterface bulletinInterface, IMapper mapper, IUserCourseInterface userCourseInterface,
-            IClasseCourseInterface classeCourseInterface, ICourseInterface courseInterface, ISchoolReportService schoolReportService) 
+            IClasseCourseInterface classeCourseInterface, ICourseInterface courseInterface, ISchoolReportService schoolReportService)
         {
             _bulletinInterface = bulletinInterface;
             _mapper = mapper;

@@ -22,7 +22,7 @@ namespace MyUAAcademiaB.Controllers
         private readonly ICourseInterface _courseInterface;
         private readonly IBulletinInterface _bulletinInterface;
 
-        public UserCourseController(IClasseCourseInterface classeCourseInterface, IUserCourseInterface userCourseInterface, 
+        public UserCourseController(IClasseCourseInterface classeCourseInterface, IUserCourseInterface userCourseInterface,
             IMapper mapper, DataContext context, IBillService billService, IBulletinService bulletinService,
             ICourseInterface courseInterface, IBillInterface billInterface, IBulletinInterface bulletinInterface)
         {
@@ -97,7 +97,7 @@ namespace MyUAAcademiaB.Controllers
             if (today.Month >= 1 && today.Month <= 4) s = "Hiver";
             if (today.Month >= 5 && today.Month <= 8) s = "Été";
             if (today.Month >= 9 && today.Month <= 12) s = "Automne";
-            
+
             if (studentsCoursesToDrop.Count != 0)
             {
                 foreach (var studentId in userCourseToCreate.PermanentCodes)
@@ -155,7 +155,7 @@ namespace MyUAAcademiaB.Controllers
                     return StatusCode(500, ModelState);
                 }
             }
-            
+
             if (newStudentsCourses.Count != 0)
             {
                 var result1 = await _userCourseInterface.RegisterStudentsToCoursesAsync(newStudentsCourses);
@@ -185,7 +185,7 @@ namespace MyUAAcademiaB.Controllers
                     };
                     var responseBill = await _billService.CreateBill(billToCreate);
 
-                    if (responseBill == 404)    
+                    if (responseBill == 404)
                     {
                         ModelState.AddModelError("", "Cet utilisateur n'existe pas.");
                         return StatusCode(404, ModelState);

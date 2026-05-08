@@ -1,14 +1,13 @@
 import emailjs from "@emailjs/browser";
 import {
-  HiCheck, HiX, HiFire, HiOutlineDownload,
-  HiExclamation, HiOutlinePencilAlt, HiOutlineQuestionMarkCircle,
+  HiCheck, HiExclamation, HiX, HiFire, HiOutlineDownload, HiOutlinePencilAlt, HiOutlineQuestionMarkCircle,
 } from "react-icons/hi";
 import logo from "../../../assets/img/UA_Logo.png";
 import userPicture from "../../../assets/img/User_Icon.png";
 import Sidebar from "../../sidebar/sidebar";
-import React, { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { Avatar, Label, TextInput, Tooltip, Toast, ToastToggle } from "flowbite-react";
+import { Avatar, Tooltip, Toast, ToastToggle } from "flowbite-react";
 import { getStudentS } from "../../../services/user.service";
 import { downloadStudentFileS, getFilesS } from "../../../services/files.service";
 import { getStudentProgramsS, registerToAProgramS } from "../../../services/program.service";
@@ -95,7 +94,6 @@ const StudentDetails = ({ user }) => {
   const [profileModForm, setProfileModForm] = useState({ permanentCode: "", phoneNumber: "", nas: "", pwd: "" });
   const [toasts, setToasts] = useState({ error: false, warning: false, success: false, errorMsg: "" });
   const [warnToast, setWarnToast] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const showToast = (type, msg = "") => {
     setToasts((t) => ({ ...t, [type]: true, errorMsg: msg }));
@@ -103,27 +101,33 @@ const StudentDetails = ({ user }) => {
   };
 
   useEffect(() => {
-    if (userToDisplay) setStudent(userToDisplay); else getStudent();
+    const getStudent = async () => {
+      try { 
+        setStudent(await getStudentS(permanentcode)); 
+      } catch (e) { 
+        console.error(e); 
+      }
+    };
+
+    const getFiles = async () => {
+      try {
+      const response = await getFilesS(permanentcode);
+       setFiles(response.files);
+      } catch {
+        setWarnToast(true);
+        setTimeout(() => setWarnToast(false), 5000);
+      }
+    };
+
+    if (userToDisplay) setStudent(userToDisplay); 
+    else getStudent();
     getFiles();
     getStudentPrograms();
-  }, []);
+  }, [getStudentPrograms, permanentcode, userToDisplay]);
 
-  const getStudent = async () => {
-    try { setStudent(await getStudentS(permanentcode)); } catch (e) { console.error(e); }
-  };
 
-  const getFiles = async () => {
-    try {
-    const response = await getFilesS(permanentcode);
-     setFiles(response.files);
-    } catch {
-      setWarnToast(true);
-      setTimeout(() => setWarnToast(false), 5000);
-      setLoading(false);
-    }
-  };
 
-  const getStudentPrograms = async () => {
+  const getStudentPrograms = useCallback(async () => {
     try {
       const result = await getStudentProgramsS(permanentcode);
       if (result.success) {
@@ -136,7 +140,7 @@ const StudentDetails = ({ user }) => {
         setProgramsNotEnrolled(notEnrolled);
       }
     } catch (e) { console.error(e); }
-  };
+  }, [permanentcode])
 
   const downloadStudentFile = async (fileName) => {
     try {
@@ -223,6 +227,29 @@ const StudentDetails = ({ user }) => {
         </div>
 
         <div className="p-8 flex flex-col gap-6 max-w-5xl">
+          {/* Toasts */}
+          <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+              {warnToast && (
+                  <Toast>
+                    <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500">
+                        <HiExclamation className="h-5 w-5" />
+                    </div>
+                      <div className="ml-3 text-sm font-normal">
+                        Impossible de contacter le serveur. Veuillez réessayer.
+                    </div>
+                    <ToastToggle />
+                  </Toast>
+              )}
+              {/*errorToast.show && (
+                <Toast>
+                  <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500">
+                      <HiX className="h-5 w-5" />
+                  </div>
+                  <div className="ml-3 text-sm font-normal">{errorToast.message}</div>
+                  <ToastToggle />
+                </Toast>
+              )*/}
+          </div>
 
           {/* ── CARTE RECTO — Identité ── */}
           <section>
@@ -256,7 +283,7 @@ const StudentDetails = ({ user }) => {
               </div>
               <div className="border-t border-slate-100 px-6 py-3 bg-slate-50 flex gap-1 items-center">
                 <div className="w-2 h-2 rounded-full bg-blue-800" />
-                <span className="text-xs text-slate-400 tracking-wide">Academia — Carte officielle d'étudiant</span>
+                <span className="text-xs text-slate-400 tracking-wide">Academia — Carte officielle d&apos;étudiant</span>
               </div>
             </div>
           </section>
@@ -289,7 +316,7 @@ const StudentDetails = ({ user }) => {
           {/* ── Programmes inscrits ── */}
           {programsEnrolled.length > 0 && (
             <section>
-              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Programmes en cours d'obtention</h2>
+              <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Programmes en cours d&apos;obtention</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {programsEnrolled.map((p) => (
                   <div key={p.title} className="bg-white border border-green-200 rounded-xl p-5">

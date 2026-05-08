@@ -16,7 +16,7 @@ namespace MyUAAcademiaB.Interfaces
         ICollection<Courses> GetCoursesBySessionYear(CourseRequest progSesYr);
         ICollection<Courses> GetProgramCourses(string programTitle);
         ICollection<Courses> GetProgramCoursesByProgram(List<string> programsTitles);
-        ICollection<Courses> GetProgramCoursesBySigle(List<string> coursesSigles); 
+        ICollection<Courses> GetProgramCoursesBySigle(List<string> coursesSigles);
         ICollection<Courses> GetSessionCourses(SessionsAvailables sessionsAvailables);
         ICollection<Course1> GetSigleName(ICollection<string> coursesIds);
         ICollection<Courses> GetSessionCoursePrice(UserSessionInfos userSessionInfos);

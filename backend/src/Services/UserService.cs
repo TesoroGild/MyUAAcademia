@@ -5,7 +5,9 @@ using System.Text;
 namespace MyUAAcademiaB.Services
 {
     public class UserService : IUserService
-    { 
+    {
+        Random rnd = new Random();
+
         public string GenerateEmail(string firstName, string lastName)
         {
             var email = new StringBuilder();
@@ -19,7 +21,7 @@ namespace MyUAAcademiaB.Services
             return email.ToString();
         }
 
-        public string GeneratePermanentCode(string lastName, string firstName, DateOnly birthDay, char sexe)
+        public string GeneratePermanentCode(string lastName, string firstName, DateOnly birthDay, char sexe, Random rnd = null)
         {
             var codePermanent = new StringBuilder();
             codePermanent.Append(lastName.Substring(0, 3).ToUpper());
@@ -40,7 +42,7 @@ namespace MyUAAcademiaB.Services
             codePermanent.Append(month.ToString("D2"));
             codePermanent.Append(year.ToString("D4"));
 
-            Random rnd = new Random();
+            rnd ??= new Random();
             codePermanent.Append(rnd.Next(10, 99));
 
             return codePermanent.ToString();

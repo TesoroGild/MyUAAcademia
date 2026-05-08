@@ -1,7 +1,7 @@
 import Sidebar from "../../sidebar/sidebar";
 import adminPicture from "../../../assets/img/Admin.jpg";
-import React, { useEffect, useState } from "react";
-import { HiCheck, HiExclamation, HiX, HiSearch, HiPlus, HiTrash } from "react-icons/hi";
+import { useCallback, useEffect, useState } from "react";
+import { HiCheck, HiExclamation, HiX, HiSearch, HiPlus } from "react-icons/hi";
 import { getProgramsS, programRegistrationS } from "../../../services/program.service";
 import { getStudentsS } from "../../../services/user.service";
 
@@ -37,18 +37,22 @@ const Inscription = ({ user }) => {
   const [alert, setAlert]                               = useState(null);
   const [isLoading, setIsLoading]                       = useState(false);
 
-  useEffect(() => { getPrograms(); getStudents(); }, []);
+  useEffect(() => { 
+    const getPrograms = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
+    
+    getPrograms(); 
+    getStudents(); 
+  }, [getStudents]);
 
   const showAlert = (type, message) => { setAlert({ type, message }); setTimeout(() => setAlert(null), 5000); };
 
-  const getPrograms = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
-  const getStudents = async () => {
+  const getStudents = useCallback(async () => {
     try {
       const result = await getStudentsS();
       setStudents(result);
       setFilteredStudents(result);
     } catch { showAlert("warning", "Impossible de contacter le serveur."); }
-  };
+  }, [])
 
   const handleStudentSearch = (e) => {
     const term = e.target.value;
@@ -113,7 +117,7 @@ const Inscription = ({ user }) => {
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden flex flex-col">
               <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
                 <p className="text-sm font-semibold text-slate-900">Programme cible</p>
-                <p className="text-xs text-slate-400 mt-0.5">Sélectionnez le programme d'inscription</p>
+                <p className="text-xs text-slate-400 mt-0.5">Sélectionnez le programme d&apos;inscription</p>
               </div>
               <div className="p-5 flex flex-col gap-3 flex-1">
                 {selectedProgram ? (

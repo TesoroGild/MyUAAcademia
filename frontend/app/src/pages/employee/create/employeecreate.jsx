@@ -1,6 +1,6 @@
 import Sidebar from "../../sidebar/sidebar";
 import adminPicture from "../../../assets/img/Admin.jpg";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { HiCheck, HiExclamation, HiX, HiSearch, HiLockClosed, HiBriefcase, HiClock, HiCurrencyDollar } from "react-icons/hi";
@@ -167,7 +167,7 @@ const EmployeeCreate = ({ user }) => {
                 <option value="canadian">Canadien</option>
                 <option value="permanentresident">Résident permanent</option>
                 <option value="workpermit">Permis de travail</option>
-                <option value="studypermit">Permis d'études</option>
+                <option value="studypermit">Permis d&apos;études</option>
               </select>
             </Field>
             <Field label="NAS" required error={errors.nas?.message} hint="9 chiffres">
@@ -197,7 +197,7 @@ const EmployeeCreate = ({ user }) => {
           <div className="bg-white border border-slate-200 rounded-xl">
             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
               <p className="text-sm font-semibold text-slate-900">Poste et contrat</p>
-              <p className="text-xs text-slate-400 mt-0.5">Sélectionnez un contrat ouvert — les infos du poste s'afficheront en lecture seule. Vous saisissez ensuite les conditions propres à cet employé.</p>
+              <p className="text-xs text-slate-400 mt-0.5">Sélectionnez un contrat ouvert — les infos du poste s&apos;afficheront en lecture seule. Vous saisissez ensuite les conditions propres à cet employé.</p>
             </div>
             <div className="p-6 flex flex-col gap-5">
 
@@ -233,7 +233,7 @@ const EmployeeCreate = ({ user }) => {
                       </button>
                     ))}
                   </div>
-                  <p className="text-xs text-slate-400">Si aucun contrat ne correspond, créez-en un d'abord dans <strong>Gestion des contrats</strong>.</p>
+                  <p className="text-xs text-slate-400">Si aucun contrat ne correspond, créez-en un d&apos;abord dans <strong>Gestion des contrats</strong>.</p>
                 </div>
               ) : (
                 <div className="flex flex-col gap-4">

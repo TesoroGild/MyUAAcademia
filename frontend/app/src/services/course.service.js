@@ -13,7 +13,14 @@ export const createCourseS = async (course) => {
         const response = await axios.post(`${backend_url}/Course/courses`, course);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response?.data?.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
@@ -43,7 +50,14 @@ export const getAvailableCoursesS = async (availablePeriods, permanentCode) => {
         const response = await axios.post(`${backend_url}/ClasseCourse/courses/sessions/${permanentCode}`, availablePeriods);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
@@ -52,7 +66,14 @@ export const getCoursesS = async () => {
         const response = await axios.get(`${backend_url}/Course/courses`);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] ||error.response.data.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
@@ -61,7 +82,14 @@ export const getProgramCoursesS = async (programsTitles) => {
         const response = await axios.post(`${backend_url}/Course/courses/program`, programsTitles);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
@@ -123,9 +151,9 @@ export const getSessionCoursePriceS = async (requestParams) => {
 }
 
 //Update
-export const updateCourses = async () => {
+// export const updateCourses = async () => {
     
-}
+// }
 
 //Delete
 
@@ -141,7 +169,14 @@ export const createClassroomS = async (course) => {
         const response = await axios.post(`${backend_url}/Classe/classes`, course);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
@@ -151,7 +186,14 @@ export const getClassroomsS = async () => {
         const response = await axios.get(`${backend_url}/Classe/classes`);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
@@ -171,13 +213,20 @@ export const createClasseCourseS = async (classeCourseToCreate) => {
         const response = await axios.post(`${backend_url}/ClasseCourse/classe-course`, classeCourseToCreate);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
 export const assignProfessorToClasseCourseS = async (profCourseIds) => {
     try {
-        const response = await axios.put(`${backend_url}/ClasseCourse/assign-prof-course`, profCourseIds, {withCredentials: true});
+        await axios.put(`${backend_url}/ClasseCourse/assign-prof-course`, profCourseIds, {withCredentials: true});
         return {
             success: true
         }
@@ -199,7 +248,14 @@ export const getClassesCoursesS = async () => {
         const response = await axios.get(`${backend_url}/ClasseCourse/classe-course`);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
@@ -208,7 +264,14 @@ export const getClassesCoursesByProgramS = async (title) => {
         const response = await axios.get(`${backend_url}/ClasseCourse/classe-course/${title}`);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
@@ -217,7 +280,14 @@ export const getProgramSessionCoursesS = async (sessionProgram) => {
         const response = await axios.post(`${backend_url}/ClasseCourse/classes-courses-by-program-session`, sessionProgram);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.message
+            };
+        }
+    
+        return { success: false, message: "Impossible de contacter le serveur" };
     }
 }
 
@@ -229,10 +299,13 @@ export const getProfCourseS = async (profCode) => {
       courses: response.data 
     };
   } catch (error) {
-    return { 
-      success: false, 
-      message: error.response.data[""]?.[0] || error.response?.data?.message || "Aucun élement trouvé" 
-    };
+    if (error.response)
+        return { 
+            success: false, 
+            message: error.response.data[""]?.[0] || error.response?.data?.message || "Aucun élement trouvé" 
+        };
+
+    return { success: false, message: "Impossible de contacter le serveur" };
   }
 }
 

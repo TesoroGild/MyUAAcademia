@@ -20,5 +20,6 @@ namespace MyUAAcademiaB.Interfaces
 
 
         /*DELETE*/
+        bool DeleteStudent(string permanentCode);
     }
 }

@@ -1,11 +1,51 @@
-// import { test, expect } from '@playwright/test'; // Si tu utilises Playwright
+import { test, expect } from '@playwright/test'
 
-// test('skip test temporaire', async () => {
-//   expect(true).toBe(true);
-// });
+test.describe('Auth — Login étudiant', () => {
 
-describe('Contournement temporaire', () => {
-  it('Should pass', () => {
-    expect(true).toBe(true);
-  });
-});
+  test('login réussi redirige vers studentspace', async ({ page }) => {
+    await page.goto('/login/user')
+
+    await page.fill('#code', 'CHEW7758200122')
+    await page.fill('#pwd', 'Wei1234-')
+    await page.click('button[type="submit"]')
+
+    await expect(page).toHaveURL(/\/studentspace/, { timeout: 10000 })
+  })
+
+  test('le sidebar est présent après login', async ({ page }) => {
+    await page.goto('/login/user')
+    await page.fill('#code', 'CHEW7758200122')
+    await page.fill('#pwd', 'Wei1234-')
+    await page.click('button[type="submit"]')
+
+    await page.waitForURL(/\/studentspace/)
+    await expect(page.getByText('Factures')).toBeVisible()
+  })
+
+  test('déconnexion redirige vers login étudiants', async ({ page }) => {
+    // Login
+    await page.goto('/login/user')
+    await page.fill('#code', 'CHEW7758200122')
+    await page.fill('#pwd', 'Wei1234-')
+    await page.click('button[type="submit"]')
+
+    // Attendre le dashboard
+    await page.waitForURL(/\/studentspace/)
+
+    // Déconnexion
+    await page.click('text=Déconnexion')
+
+    await expect(page).toHaveURL('/login/user', { timeout: 10000 })
+  })
+
+  test('credentials incorrects affichent une erreur', async ({ page }) => {
+    await page.goto('/login/user')
+    await page.fill('#code', 'WRONGCODE')
+    await page.fill('#pwd', 'wrongpassword')
+    await page.click('button[type="submit"]')
+
+    // On reste sur la page login
+    await expect(page).toHaveURL(/\/login\/user/)
+  })
+
+})

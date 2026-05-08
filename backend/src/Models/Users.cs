@@ -16,10 +16,10 @@
         public ICollection<Bills>? Bills { get; set; }
 
         public ICollection<UserCourse>? UserCourses { get; set; }
-        
+
         public ICollection<UserProgramEnrollment>? UserProgramEnrollments { get; set; }
 
         public ICollection<Bulletins>? Bulletins { get; set; }
-        
+
     }
 }

@@ -22,8 +22,8 @@ namespace MyUAAcademiaB.Controllers
 
         private readonly IMapper _mapper;
 
-        public BulletinController( IBulletinInterface bulletinInterface, ICourseInterface courseInterface,
-            IUserInterface userInterface, IUserCourseInterface userCourseInterface, 
+        public BulletinController(IBulletinInterface bulletinInterface, ICourseInterface courseInterface,
+            IUserInterface userInterface, IUserCourseInterface userCourseInterface,
             IClasseCourseInterface classeCourseInterface, IBulletinService bulletinService,
             ISchoolReportService schoolReportService, IMapper mapper)
         {
@@ -157,7 +157,7 @@ namespace MyUAAcademiaB.Controllers
                 {
                     invalidStudent++;
                     student404.Add(bulletinToUpdate.PermanentCode);
-                } 
+                }
                 else
                 {
                     if (bulletinToUpdate.Grade != null && bulletinToUpdate.Grade.ToString().Trim() != "")

@@ -1,7 +1,7 @@
 import Sidebar from "../../sidebar/sidebar";
 import adminPicture from "../../../assets/img/Admin.jpg";
 import { Switch } from "antd";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiCheck, HiExclamation, HiSearch, HiExternalLink, HiX } from "react-icons/hi";
 import { activeStudentAccountS, getStudentsS, validateUserS } from "../../../services/user.service";
@@ -139,7 +139,7 @@ const StudentsList = ({ user }) => {
                 Dossiers en attente de validation ({pendingValidation.length})
               </h3>
               <p className="text-xs text-amber-700 mt-1">
-                L'inscription de ces étudiants n'est pas finalisée. Veuillez vérifier leurs documents pour valider leur statut.
+                L&apos;inscription de ces étudiants n&apos;est pas finalisée. Veuillez vérifier leurs documents pour valider leur statut.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {pendingValidation.slice(0, 3).map(s => (

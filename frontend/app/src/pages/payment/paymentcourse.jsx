@@ -3,28 +3,38 @@ import Sidebar from "../sidebar/sidebar.jsx";
 import userPicture from '../../assets/img/User_Icon.png';
 
 //React
-import { Button, Table, Tooltip } from "flowbite-react"
+import { Table, Tooltip, Toast, ToastToggle } from "flowbite-react"
 import { useLocation, useNavigate } from 'react-router-dom';
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 //Date format
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import DatePickerModule from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { fr } from "date-fns/locale";
 
 //Services
 import { payBill } from "../../services/bill.service.js";
 
 //Icons
-import { HiInformationCircle } from "react-icons/hi";
+import { HiExclamation, HiInformationCircle, HiX } from "react-icons/hi";
+
+const DatePicker = DatePickerModule.default || DatePickerModule;
 
 const PaymentCourse = ({user}) => {
     //States
     const location = useLocation();
-    const [bill, setBill] = useState(location.state.billToDisplay);
+    const bill = location.state.billToDisplay;
     const [total, setTotal] = useState(0);
     const [warnToast, setWarnToast] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [errorToast, setErrorToast] = useState({ show: false, message: "" });
      
+    const showError = (msg) => {
+        setErrorToast({ show: true, message: msg });
+        setTimeout(() => setErrorToast({ show: false, message: "" }), 5000);
+    };
+
     //Functions
     useEffect(() => {
         totalisation();
@@ -100,8 +110,32 @@ const PaymentCourse = ({user}) => {
                 </div>
             
                 <div className="w-full mx-4 mt-2">
+                    {/* Toasts */}
+                    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+                        {warnToast && (
+                            <Toast>
+                                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100 text-orange-500">
+                                    <HiExclamation className="h-5 w-5" />
+                                </div>
+                                <div className="ml-3 text-sm font-normal">
+                                    Impossible de contacter le serveur. Veuillez réessayer.
+                                </div>
+                                <ToastToggle />
+                            </Toast>
+                        )}
+                        {errorToast.show && (
+                            <Toast>
+                            <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500">
+                                <HiX className="h-5 w-5" />
+                            </div>
+                            <div className="ml-3 text-sm font-normal">{errorToast.message}</div>
+                            <ToastToggle />
+                            </Toast>
+                        )}
+                    </div>
+
                     <div className="border-2 border-sky-500">
-                        <div>Date d'émission : {formatDate(bill.dateOfIssue)}</div>
+                        <div>Date d&apos;émission : {formatDate(bill.dateOfIssue)}</div>
                         <div className="overflow-x-auto">
                             <Table>
                                 <Table.Head>
@@ -134,7 +168,7 @@ const PaymentCourse = ({user}) => {
                                     </Table.Row>
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                        Frais d'administration sportive
+                                        Frais d&apos;administration sportive
                                         </Table.Cell>
                                         <Table.Cell>{bill.sportsAdministrationFees}$</Table.Cell>
                                         <Table.Cell>
@@ -156,7 +190,7 @@ const PaymentCourse = ({user}) => {
                                     </Table.Row>
                                     <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                        Frais d'assurances
+                                        Frais d&apos;assurances
                                         </Table.Cell>
                                         <Table.Cell>{bill.insuranceFees}$</Table.Cell>
                                         <Table.Cell>
@@ -202,36 +236,49 @@ const PaymentCourse = ({user}) => {
                                 <form onSubmit={pay} className="w-full rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-6 lg:max-w-xl lg:p-8">
                                     <div className="mb-6 grid grid-cols-2 gap-4">
                                         <div className="col-span-2 sm:col-span-1">
-                                        <label for="full_name" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Nom complet* </label>
+                                        <label htmlFor="full_name" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Nom complet* </label>
                                         <input type="text" id="full_name" className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500" placeholder="Bonnie Green" required />
                                         </div>
 
                                         <div className="col-span-2 sm:col-span-1">
-                                        <label for="card-number-input" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Numéro de carte* </label>
+                                        <label htmlFor="card-number-input" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"> Numéro de carte* </label>
                                         <input type="text" id="card-number-input" className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pe-10 text-sm text-gray-900 focus:border-primary-500 focus:ring-primary-500  dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500" placeholder="xxxx-xxxx-xxxx-xxxx" pattern="^4[0-9]{12}(?:[0-9]{3})?$" required />
                                         </div>
 
                                         <div>
-                                        <label for="card-expiration-input" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Expiration* </label>
-                                        <div className="relative">
-                                            <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">
-                                            <svg className="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="https://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                                <path
-                                                fill-rule="evenodd"
-                                                d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
-                                                clipRule="evenodd"
+                                            <label htmlFor="card-expiration-input" className="mb-2 block text-sm font-medium text-gray-900 dark:text-white">Expiration* </label>
+                                            <div className="relative">
+                                                <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3.5">
+                                                    <svg className="h-4 w-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="https://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path
+                                                        fillRule="evenodd"
+                                                        d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"
+                                                        clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                </div>
+                                                <DatePicker  
+                                                    id="card-expiration-input"
+                                                    dateFormat="MM/yy"
+                                                    // selected={field.value ? new Date(field.value) : null}
+                                                    // onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                                                    showMonthYearPicker
+                                                    scrollableYearDropdown
+                                                    yearDropdownItemNumber={80}
+                                                    popperPlacement="bottom-start"
+                                                    popperProps={{ strategy: "fixed" }}
+                                                    className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 ps-9 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500" 
+                                                    placeholder="12/23" 
+                                                    required 
                                                 />
-                                            </svg>
                                             </div>
-                                            <input datepicker datepicker-format="mm/yy" id="card-expiration-input" type="text" className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 ps-9 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500" placeholder="12/23" required />
-                                        </div>
                                         </div>
                                         <div>
-                                        <label for="cvv-input" className="mb-2 flex items-center gap-1 text-sm font-medium text-gray-900 dark:text-white">
+                                        <label htmlFor="cvv-input" className="mb-2 flex items-center gap-1 text-sm font-medium text-gray-900 dark:text-white">
                                             CVV*
                                             <button data-tooltip-target="cvv-desc" data-tooltip-trigger="hover" className="text-gray-400 hover:text-gray-900 dark:text-gray-500 dark:hover:text-white">
                                             <svg className="h-4 w-4" aria-hidden="true" xmlns="https://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                                <path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z" clipRule="evenodd" />
+                                                <path fillRule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm9.408-5.5a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2h-.01ZM10 10a1 1 0 1 0 0 2h1v3h-1a1 1 0 1 0 0 2h4a1 1 0 1 0 0-2h-1v-4a1 1 0 0 0-1-1h-2Z" clipRule="evenodd" />
                                             </svg>
                                             </button>
                                             <div id="cvv-desc" role="tooltip" className="tooltip invisible absolute z-10 inline-block rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-gray-700">
@@ -243,7 +290,17 @@ const PaymentCourse = ({user}) => {
                                         </div>
                                     </div>
 
-                                    <button type="submit" className="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4  focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">Payer</button>
+                                    <button type="submit" className="flex w-full items-center justify-center rounded-lg bg-primary-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-800 focus:outline-none focus:ring-4  focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800">
+                                        {loading ? (<>
+                                            <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                            </svg>
+                                            Transaction en cours...
+                                        </>) : (
+                                            "Payer"
+                                        )}
+                                    </button>
                                 </form>
 
                                 <div className="mt-6 flex items-center justify-center gap-8">

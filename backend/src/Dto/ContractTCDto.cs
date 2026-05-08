@@ -10,7 +10,7 @@
         public DateOnly? EndingDate { get; set; }
         public string Faculty { get; set; }
         public string JobTitle { get; set; }
-        public string MaximumWage { get; set; }
+        public int MaximumWage { get; set; }
         public int MinimumWage { get; set; }
         public int NumberOfHours { get; set; }
         public DateOnly StartingDate { get; set; }

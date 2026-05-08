@@ -1,6 +1,6 @@
 import Sidebar from "../../sidebar/sidebar";
 import adminPicture from "../../../assets/img/Admin.jpg";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { FileInput, Label } from "flowbite-react";
@@ -99,7 +99,7 @@ const ProgramSection = ({ programs, register, errors, onProgramSelect }) => {
     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
         <p className="text-sm font-semibold text-slate-900">Informations académiques</p>
-        <p className="text-xs text-slate-400 mt-0.5">Rôle et programme d'inscription</p>
+        <p className="text-xs text-slate-400 mt-0.5">Rôle et programme d&apos;inscription</p>
       </div>
       <div className="p-6 flex flex-col gap-5">
 
@@ -216,7 +216,6 @@ const Create = ({ user }) => {
   const [formattedNumber, setFormattedNumber] = useState("");
   const [formattedNas, setFormattedNas]   = useState("");
   const [alert, setAlert]                 = useState(null);
-  const [newUser, setNewUser]             = useState(null);
   const [isLoading, setIsLoading]         = useState(false);
 
   const { register, control, handleSubmit, reset, setValue, formState: { errors } } = useForm({
@@ -275,7 +274,6 @@ const Create = ({ user }) => {
       const result = await createStudentS(fd);
 
       if (result.success) {
-        setNewUser(result.studentRegistered);
         setAlert({
           type: "success",
           message: `Dossier créé — ${data.firstname} ${data.lastname}`,
@@ -371,7 +369,7 @@ const Create = ({ user }) => {
                 <option value="canadian">Canadien</option>
                 <option value="permanentresident">Résident permanent</option>
                 <option value="workpermit">Permis de travail</option>
-                <option value="studypermit">Permis d'études</option>
+                <option value="studypermit">Permis d&apos;études</option>
               </select>
             </Field>
 

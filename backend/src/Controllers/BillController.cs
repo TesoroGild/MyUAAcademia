@@ -19,7 +19,7 @@ namespace MyUAAcademiaB.Controllers
         private readonly IBillService _billService;
         private readonly IMapper _mapper;
 
-        public BillController(IBillInterface billInterface, IUserInterface userInterface, 
+        public BillController(IBillInterface billInterface, IUserInterface userInterface,
             IClasseCourseInterface classeCourseInterface, IUserCourseInterface userClasseInterface,
             IBillService billService, IMapper mapper)
         {
@@ -171,7 +171,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(Bills))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public IActionResult UpdateBill([FromBody] BillDto billToUpdate) 
+        public IActionResult UpdateBill([FromBody] BillDto billToUpdate)
         {
             if (billToUpdate == null || billToUpdate.PermanentCode == null) return BadRequest(ModelState);
 

@@ -7,7 +7,7 @@ import { logoutS } from "../../services/auth.service";
 import {
   HiChartPie, HiUser, HiCurrencyDollar, HiClipboardList,
   HiLogout, HiChevronDown, HiChevronRight, HiAcademicCap,
-  HiTable, HiChatAlt2, HiOutlineClipboardList, HiPencilAlt,
+  HiTable, HiOutlineClipboardList, HiPencilAlt,
 } from "react-icons/hi";
 import { RiGraduationCapFill } from "react-icons/ri";
 import { GiPathDistance } from "react-icons/gi";
@@ -48,7 +48,6 @@ const getNavItems = (user) => {
     { label: "Saisie des notes", icon: HiPencilAlt,  to: "/professor/grades" },
   ];
 
-  // admin
   return [
     { label: "Tableau de bord", icon: HiChartPie, to: "/adminspace" },
     { label: "Profil",          icon: HiUser,     to: `/employee/${empCode}` },

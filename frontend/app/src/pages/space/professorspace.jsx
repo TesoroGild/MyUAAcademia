@@ -2,7 +2,8 @@ import "./space.css";
 import Sidebar from "../sidebar/sidebar";
 import { HiPencilAlt, HiEye } from "react-icons/hi";
 import { RiGraduationCapFill } from "react-icons/ri";
-import profPicture from "../../assets/img/Professor.jpg"; // adapte selon ton asset
+import profPicture from "../../assets/img/Professor.jpg";
+import { Link } from 'react-router-dom'
  
 // Données fictives — à brancher sur ton API
 const MOCK_COURSES = [
@@ -126,14 +127,14 @@ const ProfessorSpace = ({ user }) => {
  
                     {/* Actions */}
                     <div className="flex gap-2 pt-1">
-                      <a
-                        href={`/professor/grades`}
+                      <Link
+                        to={`/professor/grades`}
                         state={{ classeCourse: { courseSigle: course.sigle } }}
                         className="flex items-center gap-1.5 text-xs font-medium bg-blue-800 hover:bg-blue-900 text-white px-3 py-2 rounded-lg transition-colors"
                       >
                         <HiPencilAlt className="w-3.5 h-3.5" />
                         Saisir les notes
-                      </a>
+                      </Link>
                       <a
                         href={`/professor/courses`}
                         className="flex items-center gap-1.5 text-xs font-medium border border-slate-200 hover:border-blue-700 hover:text-blue-800 text-slate-600 px-3 py-2 rounded-lg transition-colors"

@@ -143,7 +143,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        var frontendUrl = "";  
+        var frontendUrl = "";
         if (builder.Environment.IsDevelopment())
         {
             frontendUrl = builder.Configuration["LOCAL_FRONTEND_URL"];
@@ -168,7 +168,7 @@ builder.Services.AddDbContext<DataContext>(options =>
         npgsqlConn = builder.Configuration.GetConnectionString("DefaultConnection");
     }
     else
-    { 
+    {
         var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
         var uri = new Uri(databaseUrl);
         var userInfo = uri.UserInfo.Split(':');
@@ -236,3 +236,6 @@ using (var scope = app.Services.CreateScope())
 // 18. Redirection vers Swagger
 app.MapGet("/", () => Results.Redirect("/swagger"));
 app.Run();
+
+// 19. Partial class pour les tests d'intégration (WebApplicationFactory)
+public partial class Program { }

@@ -2,7 +2,7 @@
 {
     public class Contracts
     {
-        public string Availability {  get; set; } //Semaine
+        public string Availability { get; set; } //Semaine
         public string BaseSalary { get; set; } //Annuel
         public string Code { get; set; }
         public string Department { get; set; }
@@ -16,7 +16,7 @@
         public DateOnly StartingDate { get; set; }
         public string TypeOfEmployment { get; set; } //temps plein
         public string TypeOfOffer { get; set; } //cdi
-        public string WorkShift {  get; set; } //jour
+        public string WorkShift { get; set; } //jour
         public ICollection<EmployeesContracts> EmployeesContracts { get; set; }
     }
 }

@@ -18,7 +18,7 @@ namespace MyUAAcademiaB.Controllers
         private readonly IUserProgramInterface _userProgramInterface;
 
         public ClasseCourseController(IClasseCourseInterface classeCourseInterface, ICourseInterface courseInterface,
-            IClasseCourseService classeCourseService,IUserProgramInterface userProgramInterface,
+            IClasseCourseService classeCourseService, IUserProgramInterface userProgramInterface,
             IMapper mapper)
         {
             _classeCourseInterface = classeCourseInterface;
@@ -121,7 +121,7 @@ namespace MyUAAcademiaB.Controllers
             {
                 courses.Add(_courseInterface.GetSigleName1(sigle));
             }
-            
+
             var classeCoursesWithNames = _classeCourseService.ClasseCoursesWithNames(test, courses);
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -150,7 +150,7 @@ namespace MyUAAcademiaB.Controllers
         {
             if (classesCourses == null) return BadRequest(ModelState);
 
-            var classeCourseMap = _mapper.Map<ClassesCourses>(classesCourses); 
+            var classeCourseMap = _mapper.Map<ClassesCourses>(classesCourses);
             var newSchedule = _classeCourseInterface.UpdateACourse(classeCourseMap);
 
             if (newSchedule == null)
@@ -170,7 +170,7 @@ namespace MyUAAcademiaB.Controllers
         {
             if (profCourseIds == null) return BadRequest(ModelState);
 
-            var courseExist = _classeCourseInterface.IsClasseExist(profCourseIds.ClassCourseId+"");
+            var courseExist = _classeCourseInterface.IsClasseExist(profCourseIds.ClassCourseId + "");
 
             if (!courseExist)
             {

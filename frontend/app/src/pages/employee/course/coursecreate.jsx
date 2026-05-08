@@ -1,6 +1,6 @@
 import Sidebar from "../../sidebar/sidebar";
 import adminPicture from "../../../assets/img/Admin.jpg";
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { HiCheck, HiExclamation, HiX, HiPlus } from "react-icons/hi";
 import { createClasseCourseS, getClassesCoursesS, getClassroomsS, getProgramCoursesS } from "../../../services/course.service";
@@ -75,17 +75,29 @@ const CourseCreate = ({ user }) => {
   const watchCourse  = watch("courseSigle");
   const watchJour    = watch("jours");
   const watchHoraire = watch("horaire");
-
-  useEffect(() => { getPrograms(); getClassrooms(); getClassesCourses(); }, []);
+  
+  useEffect(() => { 
+    const getPrograms       = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
+    const getClassrooms     = async () => { try { setClassrooms(await getClassroomsS()); } catch (e) { console.error(e); } };
+    
+    getPrograms(); 
+    getClassrooms(); 
+    getClassesCourses(); 
+  }, [getClassesCourses]);
+  
+  const getClassesCourses = useCallback(async () => { 
+    try { 
+      setClassCourses(await getClassesCoursesS(programTitle)); 
+    } catch (e) { 
+      console.error(e); 
+    } 
+  }, [programTitle]);
 
   const showAlert = (type, message) => {
     setAlert({ type, message });
     setTimeout(() => setAlert(null), 5000);
   };
 
-  const getPrograms    = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
-  const getClassrooms  = async () => { try { setClassrooms(await getClassroomsS()); } catch (e) { console.error(e); } };
-  const getClassesCourses = async () => { try { setClassCourses(await getClassesCoursesS(programTitle)); } catch (e) { console.error(e); } };
 
   const handleProgramChange = async (title) => {
     setProgramTitle(title);
@@ -94,8 +106,7 @@ const CourseCreate = ({ user }) => {
     try { setCourses(await getProgramCoursesS(title)); } catch (e) { console.error(e); }
   };
 
-  const onSubmit = async (data) => {
-    //const [start, end] = data.horaire.split(" - ");
+  const handleCreateCourse = async (data) => {
     const payload = {
       classeName:    data.classeName,
       sessionCourse: session,
@@ -116,6 +127,7 @@ const CourseCreate = ({ user }) => {
       c.startTime     === payload.startTime     &&
       c.endTime       === payload.endTime
     );
+    
     if (exists) { showAlert("error", "Cette salle est déjà occupée à cette plage horaire."); return; }
 
     setIsLoading(true);
@@ -202,7 +214,7 @@ const CourseCreate = ({ user }) => {
             {alert && <Alert type={alert.type} message={alert.message} />}
 
             {/* Formulaire */}
-            <form onSubmit={handleSubmit(onSubmit)} className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col gap-5">
+            <form onSubmit={handleSubmit(handleCreateCourse)} className="bg-white border border-slate-200 rounded-xl p-6 flex flex-col gap-5">
 
               <p className="text-sm font-semibold text-slate-900 border-b border-slate-100 pb-3">
                 Nouvelle séance de cours
@@ -349,7 +361,7 @@ const CourseCreate = ({ user }) => {
               <p className="text-xs text-slate-400 mb-4">Cette session de travail</p>
               {recentSeances.length === 0 ? (
                 <p className="text-sm text-slate-400 text-center py-6">
-                  Aucune séance créée pour l'instant.
+                  Aucune séance créée pour l&apos;instant.
                 </p>
               ) : (
                 <div className="flex flex-col gap-3">

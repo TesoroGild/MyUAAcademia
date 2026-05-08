@@ -47,7 +47,7 @@ const Forbidden = () => {
       </div>
 
       <p className="mt-8 text-xs text-slate-400 text-center max-w-xs">
-        Si vous pensez qu'il s'agit d'une erreur, contactez un administrateur.
+        Si vous pensez qu&apos;il s&apos;agit d&apos;une erreur, contactez un administrateur.
       </p>
     </div>
   );

@@ -118,14 +118,14 @@ const Home = () => {
         <div className="max-w-6xl mx-auto px-6 py-20 md:py-28 grid md:grid-cols-2 gap-12 items-center">
           <div>
             <span className="inline-block text-xs font-semibold tracking-widest text-blue-700 uppercase mb-4 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
-              Établissement d'enseignement supérieur
+              Établissement d&apos;enseignement supérieur
             </span>
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-6">
               Bienvenue à<br />
               <span className="text-blue-800">MyUA Academia</span>
             </h1>
             <p className="text-slate-600 text-lg leading-relaxed mb-8">
-              Une institution dédiée à l'excellence académique. Découvrez nos
+              Une institution dédiée à l&apos;excellence académique. Découvrez nos
               filières, nos programmes et rejoignez une communauté engagée dans
               la réussite de chaque étudiant.
             </p>
@@ -219,8 +219,8 @@ const Home = () => {
             </div>
             <h3 className="font-semibold text-slate-900 mb-2">Institution reconnue</h3>
             <p className="text-slate-500 text-sm leading-relaxed">
-              Accréditée par les autorités nationales de l'enseignement supérieur,
-              notre établissement garantit des diplômes reconnus à l'international.
+              Accréditée par les autorités nationales de l&apos;enseignement supérieur,
+              notre établissement garantit des diplômes reconnus à l&apos;international.
             </p>
           </div>
           <div>

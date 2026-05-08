@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Navigate, Route, Routes, useNavigate } from "react-router-dom";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import "./App.css";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
@@ -62,36 +62,39 @@ const App = () => {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  useEffect(() => { getUserBySession(); }, []);
-
-  const getUserBySession = async () => {
-    try {
-      const justLoggedIn = localStorage.getItem("justLoggedIn");
-      const userRole     = localStorage.getItem("userRole");
-      const stored = localStorage.getItem("user");
-      if (!justLoggedIn) return;
-
-      if (stored) {
-        setUser(JSON.parse(stored));
-        return;
-      } else {
-        const response = await getUserBySessionS();
+  useEffect(() => { 
+    const getUserBySession = async () => {
+      try {
+        const justLoggedIn = localStorage.getItem("justLoggedIn");
+        const userRole     = localStorage.getItem("userRole");
+        const stored = localStorage.getItem("user");
+        if (!justLoggedIn) return;
   
-        if (response.success) {
-          setUser(response.userConnected);
-          localStorage.setItem("user", JSON.stringify(response.userConnected));
+        if (stored) {
+          setUser(JSON.parse(stored));
+          return;
         } else {
-          localStorage.clear();
-          const role = userRole?.toLowerCase();
-          if (role === "student") navigate("/login/user");
-          else navigate("/login/employee");
+          const response = await getUserBySessionS();
+    
+          if (response.success) {
+            setUser(response.userConnected);
+            localStorage.setItem("user", JSON.stringify(response.userConnected));
+          } else {
+            localStorage.clear();
+            const role = userRole?.toLowerCase();
+            if (role === "student") navigate("/login/user");
+            else navigate("/login/employee");
+          }
         }
+  
+      } catch (error) {
+        console.error(error);
       }
+    };
 
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    getUserBySession(); 
+  }, [navigate]);
+
 
   return (
     <div>

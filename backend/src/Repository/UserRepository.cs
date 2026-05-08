@@ -11,7 +11,7 @@ namespace MyUAAcademiaB.Repository
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public UserRepository(DataContext context, IMapper mapper) 
+        public UserRepository(DataContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -113,7 +113,7 @@ namespace MyUAAcademiaB.Repository
             if (activationRequest.IsActivate) activeAccount = 1;
             else activeAccount = 0;
 
-            if (student != null) 
+            if (student != null)
             {
                 student.IsActivated = activeAccount;
                 _context.Users.Update(student);
@@ -158,12 +158,12 @@ namespace MyUAAcademiaB.Repository
         {
             var student = GetUser(eltToUpdate.PermanentCode);
 
-            if(student != null)
+            if (student != null)
             {
                 student.PhoneNumber = eltToUpdate.PhoneNumber;
                 student.Nas = eltToUpdate.Nas;
-                
-                if (eltToUpdate.Pwd != null &&  eltToUpdate.Pwd.Trim()!= "")
+
+                if (eltToUpdate.Pwd != null && eltToUpdate.Pwd.Trim() != "")
                     student.Pwd = eltToUpdate.Pwd.Trim();
 
                 _context.Users.Update(student);
@@ -173,5 +173,16 @@ namespace MyUAAcademiaB.Repository
         }
 
         /*DELETE*/
+        public bool DeleteStudentTest(string permanentCode)
+        {
+            var student = GetUser(permanentCode);
+            if (student != null)
+            {
+                _context.Users.Remove(student);
+                _context.SaveChanges();
+                return true;
+            }
+            return false;
+        }
     }
 }

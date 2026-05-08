@@ -1,10 +1,9 @@
 import Sidebar from "../sidebar/sidebar";
 import userPicture from "../../assets/img/User_Icon.png";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { HiChevronDown, HiCheck, HiClock, HiAcademicCap } from "react-icons/hi";
 import { getProgramCoursesS, getStudentCoursesS } from "../../services/course.service";
 import { getStudentProgramsS } from "../../services/program.service";
-import { getCourseGradeS } from "../../services/bulletin.service"
 
 // ── Statut d'un cours ────────────────────────────────────────────────────────
 // "done"    = réussi (mention != E et != null)
@@ -92,38 +91,43 @@ const Progress = ({ user }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    const fetchInitial = async () => {
+      try {
+        const [progRes, coursRes] = await Promise.all([
+          getStudentProgramsS(user.permanentCode),
+          getStudentCoursesS(user.permanentCode),
+        ]);
+  
+        if (progRes.success) {
+          const enrolled = progRes.programs.filter((p) => p.isEnrolled);
+          setPrograms(enrolled);
+          if (enrolled.length > 0) setSelectedProgram(enrolled[0]);
+        }
+  
+        if (coursRes.success) setStudentCourses(coursRes.courses);
+      } catch (e) { console.error(e); }
+    };
+
     fetchInitial();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
+    const loadProgramCourses = async (title) => {
+      setIsLoading(true);
+      try {
+        const courses = await getProgramCoursesS({ programsTitles: [title]});
+        setProgramCourses(courses);
+      } catch (e) { 
+        console.error(e); 
+      } finally { 
+        setIsLoading(false); 
+      }
+    };
+
     if (selectedProgram) loadProgramCourses(selectedProgram.title);
   }, [selectedProgram]);
 
-  const fetchInitial = async () => {
-    try {
-      const [progRes, coursRes] = await Promise.all([
-        getStudentProgramsS(user.permanentCode),
-        getStudentCoursesS(user.permanentCode),
-      ]);
 
-      if (progRes.success) {
-        const enrolled = progRes.programs.filter((p) => p.isEnrolled);
-        setPrograms(enrolled);
-        if (enrolled.length > 0) setSelectedProgram(enrolled[0]);
-      }
-
-      if (coursRes.success) setStudentCourses(coursRes.courses);
-    } catch (e) { console.error(e); }
-  };
-
-  const loadProgramCourses = async (title) => {
-    setIsLoading(true);
-    try {
-      const courses = await getProgramCoursesS({ programsTitles: [title]});
-      setProgramCourses(courses);
-    } catch (e) { console.error(e); }
-    finally { setIsLoading(false); }
-  };
 
   // Regroupement par obligatoire/optionnel si disponible, sinon affichage plat
   const grouped = programCourses.reduce((acc, c) => {

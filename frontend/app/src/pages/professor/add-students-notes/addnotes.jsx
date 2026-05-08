@@ -1,6 +1,6 @@
 import Sidebar from "../../sidebar/sidebar";
 import profPicture from "../../../assets/img/Professor.jpg";
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { HiChevronRight, HiArrowLeft, HiCheck, HiExclamation, HiX, HiUpload } from "react-icons/hi";
 import { RiGraduationCapFill } from "react-icons/ri";
@@ -46,43 +46,51 @@ const Breadcrumb = ({ items, onNavigate }) => (
 // ── Page principale ───────────────────────────────────────────────────────────
 const AddStudentsNotes = ({ user }) => {
   const location     = useLocation();
-  const directCourse = location.state?.classeCourse; // accès direct depuis ProfessorSpace
+  const courseToGrade = location.state?.classeCourse;
 
-  const [view, setView]                       = useState(directCourse ? "notes" : "grade");
+  const [view, setView]                       = useState(courseToGrade ? "notes" : "grade");
   const [allCourses, setAllCourses]           = useState([]);
   const [selectedGrade, setSelectedGrade]     = useState(null);
   const [selectedProgram, setSelectedProgram] = useState(null);
-  const [selectedCourse, setSelectedCourse]   = useState(directCourse ?? null);
+  const [selectedCourse, setSelectedCourse]   = useState(courseToGrade ?? null);
   const [students, setStudents]               = useState([]);
   const [alert, setAlert]                     = useState(null);
   const [isLoading, setIsLoading]             = useState(false);
   const [isSaving, setIsSaving]               = useState(false);
 
-  useEffect(() => { loadCourses(); }, []);
-  useEffect(() => { if (directCourse) loadStudents(directCourse.id); }, []);
+  useEffect(() => { 
+    const loadCourses = async () => {
+      setIsLoading(true);
+      try {
+        const res  = await getProfCourseS(user?.code);
+        const all  = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
+        const mine = all.filter((c) => c.taughtBy === user?.code);
+        setAllCourses(mine);
+      } catch(e) { console.error(e); }
+      finally { setIsLoading(false); }
+    };
+    
+    loadCourses(); 
+    
+    if (courseToGrade) loadStudents(courseToGrade.id);
+  }, [courseToGrade, loadStudents, user]);
 
-  const showAlert = (type, message) => { setAlert({type,message}); setTimeout(()=>setAlert(null),5000); };
 
-  const loadCourses = async () => {
-    setIsLoading(true);
-    try {
-      const res  = await getProfCourseS(user?.code);
-      const all  = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
-      const mine = all.filter((c) => c.taughtBy === user?.code);
-      setAllCourses(mine);
-    } catch(e) { console.error(e); }
-    finally { setIsLoading(false); }
-  };
-
-  const loadStudents = async (ccId) => {
+  const loadStudents = useCallback(async (ccId) => {
     setIsLoading(true);
     try {
       const res = await getStudentsInProgramS(ccId);
       if (res.success) setStudents(res.students);
       else showAlert("error", res.message);
-    } catch(e) { console.error(e); }
-    finally { setIsLoading(false); }
-  };
+    } catch(e) { 
+      console.error(e); 
+    } finally { 
+      setIsLoading(false); 
+    }
+  }, []) 
+
+  const showAlert = (type, message) => { setAlert({type,message}); setTimeout(()=>setAlert(null),5000); };
+
 
   // Données dérivées
   const grades   = [...new Set(allCourses.map((c) => c.grade ?? c.programGrade).filter(Boolean))];
@@ -163,7 +171,7 @@ const AddStudentsNotes = ({ user }) => {
         {/* Top bar */}
         <div className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
           <div className="flex items-center gap-4">
-            {view !== "grade" && !directCourse && (
+            {view !== "grade" && !courseToGrade && (
               <button onClick={() => navigateBreadcrumb(breadcrumbs.length - 2)}
                 className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-700 hover:text-blue-800 text-slate-500 transition-colors">
                 <HiArrowLeft className="w-4 h-4"/>
@@ -171,7 +179,7 @@ const AddStudentsNotes = ({ user }) => {
             )}
             <div>
               <p className="text-sm font-semibold text-slate-900">Saisie des notes</p>
-              {!directCourse && <Breadcrumb items={breadcrumbs} onNavigate={navigateBreadcrumb}/>}
+              {!courseToGrade && <Breadcrumb items={breadcrumbs} onNavigate={navigateBreadcrumb}/>}
             </div>
           </div>
         </div>
@@ -184,7 +192,7 @@ const AddStudentsNotes = ({ user }) => {
           {/* ── Vue 1 : Niveaux ── */}
           {!isLoading && view==="grade" && (
             <div className="flex flex-col gap-4">
-              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Sélectionnez un niveau d'études</p>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Sélectionnez un niveau d&apos;études</p>
               {grades.length===0 ? <p className="text-sm text-slate-400">Aucun cours assigné.</p> : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {grades.map((grade) => (

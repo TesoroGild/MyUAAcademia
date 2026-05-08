@@ -16,7 +16,7 @@ namespace MyUAAcademiaB.Repository
 
         public bool BillExists(string sessionStudent, string yearStudy, string permanentCode)
         {
-            return _context.Bills.Any(bi => bi.SessionStudy == sessionStudent 
+            return _context.Bills.Any(bi => bi.SessionStudy == sessionStudent
             && bi.YearStudy == yearStudy && bi.PermanentCode == permanentCode);
         }
 
@@ -43,7 +43,7 @@ namespace MyUAAcademiaB.Repository
 
         public ICollection<Bills> GetExpiredBills()
         {
-            return _context.Bills.Where(bi => bi.DeadLine <  DateTime.Now)
+            return _context.Bills.Where(bi => bi.DeadLine < DateTime.Now)
                 .OrderByDescending(bi => bi.DeadLine)
                 .ToList();
         }
@@ -133,13 +133,15 @@ namespace MyUAAcademiaB.Repository
                 {
                     _context.Bills.Remove(bill);
                     return 0;
-                } else
+                }
+                else
                 {
                     _context.Bills.Update(bill);
                     _context.SaveChanges();
                     return 1;
                 }
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred while updating the bill: {ex.Message}");
                 return -1;
@@ -149,7 +151,7 @@ namespace MyUAAcademiaB.Repository
         public async Task<int> PayTheBill(BillToUpdateDto billToUpdate)
         {
             var bill = await _context.Bills
-                .FirstOrDefaultAsync(b => b.PermanentCode == billToUpdate.PermanentCode 
+                .FirstOrDefaultAsync(b => b.PermanentCode == billToUpdate.PermanentCode
                 && b.SessionStudy == billToUpdate.SessionStudy && b.SessionStudy == billToUpdate.SessionStudy);
 
             if (bill == null)
