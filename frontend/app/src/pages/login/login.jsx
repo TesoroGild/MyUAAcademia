@@ -219,7 +219,7 @@ function Login({ type, setUser }) {
           onClick={() => navigate("/")}
           className="mt-6 w-full text-center text-xs text-slate-400 hover:text-slate-600 transition-colors"
         >
-          ← Retour à l'accueil
+          ← Retour à l&apos;accueil
         </button>
       </div>
     </div>

@@ -5,21 +5,20 @@ const backend_url = import.meta.env.VITE_API_URL;
 //Create
 export const createEmployee = async (employeeTocreate) => {
   console.log("TODO : EMPLOYEE SERVICE : CREATE");
-  // try {
-  //   const response = await axios.post(`${backend_url}/Employee/employee`, employeeTocreate);
-  //   return { success: true, employeeAdded: response.data };
-  // } catch (error) {
-  //   console.error('Erreur :', error);
-  //   if (error.response) {
-  //     return {
-  //       success: false,
-  //       message: error.response.data[""]?.[0]
-  //     };
-  //   }
+  try {
+    const response = await axios.post(`${backend_url}/Employee/employee`, employeeTocreate);
+    return { success: true, employeeAdded: response.data };
+  } catch (error) {
+    console.error('Erreur :', error);
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data[""]?.[0]
+      };
+    }
 
-  //   return { success: false, message: "Impossible de contacter le serveur" };
-  // }
-  return { success: false, message: "Impossible de contacter le serveur" };
+    return { success: false, message: "Impossible de contacter le serveur" };
+  }
 };
 
 export const createContractS  = async (contractToCreate) => {
@@ -64,7 +63,14 @@ export const getEmployeesS = async () => {
     const response = await axios.get(`${backend_url}/Employee/employees`, {withCredentials: true});
     return response.data;
   } catch (error) {
-    throw error;
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data.message
+      };
+    }
+    
+    return { success: false, message: "Impossible de contacter le serveur" };
   }
 };
 
@@ -93,8 +99,15 @@ export const activeEmployeeAccountS = async (activateAccount) => {
         const response = await axios.put(`${backend_url}/Employee/activate`, activateAccount);
         return response.data;
     } catch (error) {
-        throw error;
+      if (error.response) {
+      return {
+        success: false,
+        message: error.response.data.message
+      };
     }
+    
+    return { success: false, message: "Impossible de contacter le serveur" };
+  }
 }
 
 export const validateEmployeeS = async (validateFile) => {
@@ -102,7 +115,14 @@ export const validateEmployeeS = async (validateFile) => {
       const response = await axios.put(`${backend_url}/Employee/validate`, validateFile);
       return response.data;
   } catch (error) {
-      throw error;
+    if (error.response) {
+      return {
+        success: false,
+        message: error.response.data.message
+      };
+    }
+    
+    return { success: false, message: "Impossible de contacter le serveur" };
   }
 }
 

@@ -25,15 +25,18 @@ export const ProfessorAcademicPlanning = ({ user }) => {
   const [weekStart, setWeekStart] = useState(getMondayOf(new Date()));
   const today = new Date();
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { 
+    const load = async () => {
+      try {
+        const res  = await getProfCourseS(user?.code);
+        const all  = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
+        setCourses(all.filter((c) => c.taughtBy === user?.code));
+      } catch (e) { console.error(e); }
+    };
 
-  const load = async () => {
-    try {
-      const res  = await getProfCourseS(user?.code);
-      const all  = Array.isArray(res) ? res : res?.courses ?? res?.data ?? [];
-      setCourses(all.filter((c) => c.taughtBy === user?.code));
-    } catch (e) { console.error(e); }
-  };
+    load(); 
+  }, [user]);
+
 
   const colorMap = {};
   [...new Set(courses.map((c) => c.courseSigle))].forEach((s,i) => { colorMap[s] = COLORS[i % COLORS.length]; });
@@ -63,7 +66,7 @@ export const ProfessorAcademicPlanning = ({ user }) => {
             <button onClick={()=>setWeekStart(addDays(weekStart,-7))} className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-700 transition-colors"><HiChevronLeft className="w-4 h-4 text-slate-600"/></button>
             <span className="text-sm font-medium text-slate-700 min-w-[160px] text-center">{fmtDate(weekStart)} – {fmtDate(addDays(weekStart,4))}</span>
             <button onClick={()=>setWeekStart(addDays(weekStart,7))} className="p-1.5 rounded-lg border border-slate-200 hover:border-blue-700 transition-colors"><HiChevronRight className="w-4 h-4 text-slate-600"/></button>
-            <button onClick={()=>setWeekStart(getMondayOf(new Date()))} className="text-xs font-medium text-blue-700 border border-blue-200 hover:border-blue-400 px-3 py-1.5 rounded-lg transition-colors">Aujourd'hui</button>
+            <button onClick={()=>setWeekStart(getMondayOf(new Date()))} className="text-xs font-medium text-blue-700 border border-blue-200 hover:border-blue-400 px-3 py-1.5 rounded-lg transition-colors">Aujourd&apos;hui</button>
           </div>
         </div>
 

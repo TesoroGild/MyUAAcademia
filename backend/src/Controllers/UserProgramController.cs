@@ -37,7 +37,7 @@ namespace MyUAAcademiaB.Controllers
         public IActionResult FullyRegisterStudent([FromBody] UsersProgramEnrollmentDto userProgramToRegister)
         {
             if (userProgramToRegister == null) return BadRequest(ModelState);
-            
+
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var grade = _programInterface.GetGrade(userProgramToRegister.Title);
@@ -98,7 +98,7 @@ namespace MyUAAcademiaB.Controllers
         /*READ*/
         [HttpGet("students-registered")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserProgramEnrollmentDto>))]
-        public IActionResult GetStudentsRegistered() 
+        public IActionResult GetStudentsRegistered()
         {
             var userPrograms = _userProgramInterface.GetStudentsRegistered();
             var upMap = _mapper.Map<List<UserProgramEnrollmentDto>>(userPrograms);

@@ -30,7 +30,7 @@ const AdmissionBill = () => {
           </div>
           <h1 className="text-xl font-bold text-slate-900 mb-2">Dossier soumis avec succès</h1>
           <p className="text-slate-500 text-sm leading-relaxed max-w-md mx-auto">
-            Merci <strong>{userInProcess?.firstName} {userInProcess?.lastName}</strong> d'avoir choisi MyUA Academia comme centre de formation. Votre dossier est à présent entre les mains de notre équipe d'admission.
+            Merci <strong>{userInProcess?.firstName} {userInProcess?.lastName}</strong> d&apos;avoir choisi MyUA Academia comme centre de formation. Votre dossier est à présent entre les mains de notre équipe d&apos;admission.
           </p>
         </div>
 
@@ -89,7 +89,7 @@ const AdmissionBill = () => {
               <span>Programme(s)</span><span className="text-right max-w-[60%]">{userInProcess?.program}</span>
             </div>
             <div className="flex justify-between font-semibold text-slate-900 py-1.5">
-              <span>Frais d'admission payés</span><span>120 $</span>
+              <span>Frais d&apos;admission payés</span><span>120 $</span>
             </div>
           </div>
         </div>
@@ -99,7 +99,7 @@ const AdmissionBill = () => {
           <button onClick={() => navigate("/home")}
             className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
             <HiHome className="w-4 h-4"/>
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </button>
         </div>
       </div>

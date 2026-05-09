@@ -70,7 +70,7 @@ const AdminSpace = ({ user }) => {
           {/* ── Stats ── */}
           <section>
             <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-4">
-              Vue d'ensemble
+              Vue d&apos;ensemble
             </h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard label="Étudiants inscrits"  value="3 214"  sub="cette session" accent />

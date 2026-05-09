@@ -13,11 +13,11 @@ namespace MyUAAcademiaB.Dto
         public string Jours { get; set; }
 
         public string StartTime { get; set; }
-        
+
         public string EndTime { get; set; }
 
         public string SessionCourse { get; set; }
-        
+
         public string YearCourse { get; set; }
 
         public string EmployeeCode { get; set; }

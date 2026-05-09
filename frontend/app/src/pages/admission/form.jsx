@@ -1,34 +1,18 @@
 import logo2 from "../../assets/img/UA_Logo2.jpg";
 import { HiOutlineArrowLeft, HiOutlineArrowRight, HiEye, HiEyeOff, HiCheck, HiExclamation } from "react-icons/hi";
 import { FileInput, Label } from "flowbite-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { getProgramsS } from "../../services/program.service";
-// import Select from "react-select";
-// import DatePicker from "react-datepicker";
 import SelectModule from "react-select";
 import DatePickerModule from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { fr } from "date-fns/locale";
+import { RULES, getStrength } from "../../utils/password.util";
 
 const Select = SelectModule.default || SelectModule;
 const DatePicker = DatePickerModule.default || DatePickerModule;
-
-// ── Règles mot de passe ───────────────────────────────────────────────────────
-const RULES = [
-  { id: "length",  label: "Au moins 8 caractères",         test: (p) => p.length >= 8 },
-  { id: "upper",   label: "Au moins une lettre majuscule", test: (p) => /[A-Z]/.test(p) },
-  { id: "number",  label: "Au moins un chiffre",           test: (p) => /[0-9]/.test(p) },
-  { id: "special", label: "Au moins un caractère spécial", test: (p) => /[^A-Za-z0-9]/.test(p) },
-];
-const getStrength = (pwd) => {
-  const n = RULES.filter((r) => r.test(pwd)).length;
-  if (n <= 1) return { label: "Faible", color: "bg-red-500",   text: "text-red-600",   width: "w-1/4" };
-  if (n === 2) return { label: "Moyen",  color: "bg-amber-500", text: "text-amber-600", width: "w-2/4" };
-  if (n === 3) return { label: "Bien",   color: "bg-blue-500",  text: "text-blue-600",  width: "w-3/4" };
-  return              { label: "Fort",   color: "bg-green-500", text: "text-green-600", width: "w-full" };
-};
 
 const inputCls = "border border-slate-300 rounded-lg px-3 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-transparent transition w-full";
 
@@ -112,7 +96,7 @@ const AdmissionForm = () => {
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center gap-3">
           <img src={logo2} alt="UA Logo" className="h-8 w-auto object-contain" />
           <span className="font-semibold text-slate-800 text-sm uppercase tracking-wide hidden sm:block">
-            MyUA Academia — Formulaire d'admission
+            MyUA Academia — Formulaire d&apos;admission
           </span>
         </div>
       </header>
@@ -129,66 +113,66 @@ const AdmissionForm = () => {
 
         {/* ── Identité ── */}
         <Section title="Identité">
-          <Field label="Nom" required error={errors.lastname?.message}>
-            <input type="text" placeholder="Dupont" className={inputCls}
+          <Field label="Nom" name="lastname" required error={errors.lastname?.message}>
+            <input id="lastname" type="text" placeholder="Dupont" className={inputCls}
               {...register("lastname", { required: "Le nom est requis." })}/>
           </Field>
-          <Field label="Prénom" required error={errors.firstname?.message}>
-            <input type="text" placeholder="Marie" className={inputCls}
+          <Field label="Prénom" name="firstname" required error={errors.firstname?.message}>
+            <input id="firstname" type="text" placeholder="Marie" className={inputCls}
               {...register("firstname", { required: "Le prénom est requis." })}/>
           </Field>
-          <Field label="Sexe" required error={errors.sexe?.message}>
-            <select className={inputCls} {...register("sexe", { required: "Le sexe est requis." })}>
+          <Field label="Sexe" name="sexe" required error={errors.sexe?.message}>
+            <select id="sexe" className={inputCls} {...register("sexe", { required: "Le sexe est requis." })}>
               <option value="" disabled>Sélectionner</option>
               <option value="M">Masculin</option>
               <option value="F">Féminin</option>
               <option value="O">Autre</option>
             </select>
           </Field>
-          <Field label="Date de naissance" required error={errors.birthDay?.message}>
+          <Field label="Date de naissance" name="birthDay" required error={errors.birthDay?.message}>
             <Controller name="birthDay" control={control}
-                rules={{ required: "La date de naissance est requise." }}
-                render={({ field }) => (
-                  <DatePicker
-                      locale={fr}
-                      dateFormat="dd/MM/yyyy"
-                      selected={field.value ? new Date(field.value) : null}
-                      onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
-                      placeholderText="jj/mm/aaaa"
-                      showYearDropdown
-                      scrollableYearDropdown
-                      yearDropdownItemNumber={80}
-                      maxDate={new Date()}
-                      className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-700"
-                      popperPlacement="bottom-start"
-                      popperProps={{ strategy: "fixed" }}
-                  />
-                )}
+              rules={{ required: "La date de naissance est requise." }}
+              render={({ field }) => (
+                <DatePicker
+                    locale={fr}
+                    dateFormat="dd/MM/yyyy"
+                    selected={field.value ? new Date(field.value) : null}
+                    onChange={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                    placeholderText="jj/mm/aaaa"
+                    showYearDropdown
+                    scrollableYearDropdown
+                    yearDropdownItemNumber={80}
+                    maxDate={new Date()}
+                    className="border border-slate-300 rounded-lg px-3 py-2.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-700"
+                    popperPlacement="bottom-start"
+                    popperProps={{ strategy: "fixed" }} id="birthDay"
+                />
+              )}
             />
           </Field>
-          <Field label="Nationalité" required error={errors.nationality?.message}>
-            <input type="text" placeholder="Canadienne" className={inputCls}
+          <Field label="Nationalité" name="nationality" required error={errors.nationality?.message}>
+            <input type="text" id="nationality" placeholder="Canadienne" className={inputCls}
               {...register("nationality", { required: "La nationalité est requise." })}/>
           </Field>
-          <Field label="NAS" hint="Optionnel — 9 chiffres">
-            <input type="text" maxLength={9} placeholder="123456789" className={inputCls}
+          <Field label="NAS" name="nas" hint="Optionnel — 9 chiffres">
+            <input type="text" id="nas" maxLength={9} placeholder="123456789" className={inputCls}
               {...register("nas")}/>
           </Field>
         </Section>
 
         {/* ── Coordonnées ── */}
         <Section title="Coordonnées">
-          <Field label="Email" required error={errors.personalEmail?.message}>
-            <input type="email" placeholder="marie.dupont@email.com" className={inputCls}
+          <Field label="Email" name="personalEmail" required error={errors.personalEmail?.message}>
+            <input type="email" id="personalEmail" placeholder="marie.dupont@email.com" className={inputCls}
               {...register("personalEmail", { required: "L'email est requis." })}/>
           </Field>
-          <Field label="Téléphone" required error={errors.phoneNumber?.message}>
-            <input type="text" placeholder="(514) 000-0000" className={inputCls}
+          <Field label="Téléphone" name="phoneNumber" required error={errors.phoneNumber?.message}>
+            <input type="text" id="phoneNumber" placeholder="(514) 000-0000" className={inputCls}
               {...register("phoneNumber", { required: "Le téléphone est requis." })}/>
           </Field>
           <div className="sm:col-span-2">
-            <Field label="Adresse" required error={errors.streetAddress?.message}>
-              <input type="text" placeholder="1234 rue des Érables, Montréal, QC" className={inputCls}
+            <Field label="Adresse" name="streetAddress" required error={errors.streetAddress?.message}>
+              <input type="text" id="streetAddress" placeholder="1234 rue des Érables, Montréal, QC" className={inputCls}
                 {...register("streetAddress", { required: "L'adresse est requise." })}/>
             </Field>
           </div>
@@ -230,7 +214,8 @@ const AdmissionForm = () => {
                 Mot de passe <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <input type={showPwd ? "text" : "password"} value={pwd}
+                <input type={showPwd ? "text" : "password"}
+                  id="pwd" value={pwd}
                   onChange={(e) => setPwd(e.target.value)}
                   placeholder="Choisissez un mot de passe sécurisé"
                   className={`${inputCls} pr-10`} required/>
@@ -270,6 +255,7 @@ const AdmissionForm = () => {
               </label>
               <div className="relative">
                 <input type={showConfirm ? "text" : "password"} value={confirmPwd}
+                  id="confirmPwd"
                   onChange={(e) => setConfirmPwd(e.target.value)}
                   placeholder="Répétez votre mot de passe"
                   className={`${inputCls} pr-10 ${

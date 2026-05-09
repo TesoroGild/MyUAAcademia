@@ -48,15 +48,15 @@ const PaymentAdmission = () => {
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center gap-3">
           <img src={logo2} alt="UA Logo" className="h-8 w-auto object-contain"/>
           <span className="font-semibold text-slate-800 text-sm uppercase tracking-wide hidden sm:block">
-            MyUA Academia — Paiement des frais d'admission
+            MyUA Academia — Paiement des frais d&apos;admission
           </span>
         </div>
       </header>
 
       <div className="max-w-4xl mx-auto px-6 py-8">
         <div className="mb-6">
-          <h1 className="text-lg font-bold text-slate-900">Frais d'étude de dossier</h1>
-          <p className="text-sm text-slate-500 mt-1">Ces frais couvrent l'analyse de votre dossier d'admission. Ils ne sont pas remboursables.</p>
+          <h1 className="text-lg font-bold text-slate-900">Frais d&apos;étude de dossier</h1>
+          <p className="text-sm text-slate-500 mt-1">Ces frais couvrent l&apos;analyse de votre dossier d&apos;admission. Ils ne sont pas remboursables.</p>
         </div>
 
         {/* Récap étudiant */}
@@ -90,7 +90,7 @@ const PaymentAdmission = () => {
 
               <form onSubmit={pay} className="p-6 flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Nom (tel qu'indiqué sur la carte)</label>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Nom (tel qu&apos;indiqué sur la carte)</label>
                   <input name="fullName" type="text" value={form.fullName} onChange={handleChange}
                     placeholder="Marie Dupont" required className={inputCls}/>
                 </div>
@@ -129,7 +129,7 @@ const PaymentAdmission = () => {
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-4">Récapitulatif</p>
               <div className="flex flex-col gap-2 text-sm">
                 <div className="flex justify-between text-slate-600">
-                  <span>Frais d'étude de dossier</span>
+                  <span>Frais d&apos;étude de dossier</span>
                   <span>{AMOUNT} $</span>
                 </div>
                 <div className="flex justify-between text-slate-600">
@@ -154,7 +154,7 @@ const PaymentAdmission = () => {
             </div>
 
             <p className="text-xs text-slate-400 text-center">
-              En procédant au paiement, vous acceptez les conditions d'admission de MyUA Academia.
+              En procédant au paiement, vous acceptez les conditions d&apos;admission de MyUA Academia.
             </p>
           </div>
         </div>

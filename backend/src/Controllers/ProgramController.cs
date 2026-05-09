@@ -30,6 +30,8 @@ namespace MyUAAcademiaB.Controllers
         {
             if (programTocreate == null) return BadRequest(ModelState);
 
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             var titleExist = _programInterface.ProgramExist(programTocreate.Title);
 
             if (titleExist)
@@ -38,8 +40,6 @@ namespace MyUAAcademiaB.Controllers
                 //422?
                 return StatusCode(422, ModelState);
             }
-
-            if (!ModelState.IsValid) return BadRequest(ModelState);
 
             var programMap = _mapper.Map<Programs>(programTocreate);
             var programCreated = _programInterface.CreateProgram(programMap);
@@ -98,7 +98,7 @@ namespace MyUAAcademiaB.Controllers
         }
 
         /*UPDATE*/
-        
+
 
 
         /*DELETE*/

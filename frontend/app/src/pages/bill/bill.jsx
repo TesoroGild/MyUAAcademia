@@ -1,6 +1,6 @@
 import Sidebar from "../sidebar/sidebar";
 import userPicture from "../../assets/img/User_Icon.png";
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiOutlineCash, HiInformationCircle, HiChevronDown, HiChevronUp, HiExclamationCircle, HiCheckCircle } from "react-icons/hi";
 import { Tooltip } from "flowbite-react";
@@ -137,24 +137,7 @@ const Bill = ({ user }) => {
   const [historyExpanded, setHistoryExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (user.permanentCode?.trim()) getStudentBills();
-  }, []);
-
-  useEffect(() => {
-    loadSession(currentYear, activeSession);
-  }, [studentBills, activeSession]);
-
-  const getStudentBills = async () => {
-    setIsLoading(true);
-    try {
-      const bills = await getStudentBillsS(user.permanentCode);
-      setStudentBills(bills);
-    } catch (e) { console.error(e); }
-    finally { setIsLoading(false); }
-  };
-
-  const getCourses = async (year, session) => {
+  const getCourses = useCallback(async (year, session) => {
     try {
       const res = await getSessionCoursePriceS({ permanentCode: user.permanentCode, yearCourse: year, sessionCourse: session });
       if (res.success) {
@@ -162,7 +145,37 @@ const Bill = ({ user }) => {
       }
       setStudentCourses([]);
     } catch (e) { console.error(e); setStudentCourses([]); }
+  }, [user])
+
+  useEffect(() => {
+    const getStudentBills = async () => {
+      setIsLoading(true);
+      try {
+        const bills = await getStudentBillsS(user.permanentCode);
+        setStudentBills(bills);
+      } catch (e) { console.error(e); }
+      finally { setIsLoading(false); }
+    };
+
+    if (user.permanentCode?.trim()) getStudentBills();
+  }, [user]);
+
+  useEffect(() => {
+    const loadSession = async (year, session) => {
+    const found = studentBills.find((b) => b.yearStudy == year && b.sessionStudy === session);
+    if (found) {
+      await getCourses(year, session);
+      setBillToDisplay(found);
+      setTotal(calcTotal(found));
+    } else {
+      setBillToDisplay(null);
+      setStudentCourses([]);
+      setTotal(0);
+    }
   };
+
+    loadSession(currentYear, activeSession);
+  }, [activeSession, currentYear, getCourses, studentBills]);
 
   const calcTotal = (bill) => {
     if (!bill) return 0;
@@ -174,19 +187,6 @@ const Bill = ({ user }) => {
     t += bill.amount                    || 0;
     t -= bill.refundsAndAdjustments     || 0;
     return t;
-  };
-
-  const loadSession = async (year, session) => {
-    const found = studentBills.find((b) => b.yearStudy == year && b.sessionStudy === session);
-    if (found) {
-      await getCourses(year, session);
-      setBillToDisplay(found);
-      setTotal(calcTotal(found));
-    } else {
-      setBillToDisplay(null);
-      setStudentCourses([]);
-      setTotal(0);
-    }
   };
 
   const handleSessionClick = (session) => {

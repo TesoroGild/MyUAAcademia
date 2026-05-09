@@ -8,12 +8,12 @@ namespace MyUAAcademiaB.Data
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
         }
-        
+
         public DbSet<Bills> Bills { get; set; }
         public DbSet<Bulletins> Bulletins { get; set; }
         public DbSet<Classes> Classes { get; set; }
         public DbSet<ClassesCourses> ClassesCourses { get; set; }
-        public DbSet<Contracts> Contracts {  get; set; }
+        public DbSet<Contracts> Contracts { get; set; }
         public DbSet<Courses> Courses { get; set; }
         public DbSet<Employees> Employees { get; set; }
         public DbSet<EmployeesContracts> EmployeesContracts { get; set; }
@@ -117,10 +117,10 @@ namespace MyUAAcademiaB.Data
                 .HasOne(u => u.CreatedBy)
                 .WithMany(u => u.CreatedEmployees)
                 .HasForeignKey(u => u.CreatedByCode);
-             modelBuilder.Entity<Employees>()
-                    .Property(e => e.Code);
-             modelBuilder.Entity<Employees>()
-                    .Property(e => e.CreatedByCode);
+            modelBuilder.Entity<Employees>()
+                   .Property(e => e.Code);
+            modelBuilder.Entity<Employees>()
+                   .Property(e => e.CreatedByCode);
 
             /*EMPLOYEES-CONTRACTS*/
             modelBuilder.Entity<EmployeesContracts>()
@@ -137,7 +137,7 @@ namespace MyUAAcademiaB.Data
             modelBuilder.Entity<EmployeesContracts>()
                     .Property(ec => ec.EmpCode);
             modelBuilder.Entity<EmployeesContracts>()
-                .HasIndex(ec => new  { ec.EmpCode })
+                .HasIndex(ec => new { ec.EmpCode })
                 .IsUnique()
                 .HasFilter("\"is_contract_over\" = false");
 
@@ -165,7 +165,7 @@ namespace MyUAAcademiaB.Data
 
             /*USER-PROGRAM-ENROLLMENT*/
             modelBuilder.Entity<UserProgramEnrollment>()
-                .HasKey(up => new {up.PermanentCode, up.Title});
+                .HasKey(up => new { up.PermanentCode, up.Title });
             modelBuilder.Entity<UserProgramEnrollment>()
                 .HasOne(up => up.Student)
                 .WithMany(u => u.UserProgramEnrollments)

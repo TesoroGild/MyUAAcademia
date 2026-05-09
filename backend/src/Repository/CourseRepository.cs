@@ -85,7 +85,7 @@ namespace MyUAAcademiaB.Repository
             int autumnInt = sessionsAvailables.Autumn ? 1 : 0;
 
             return _context.Courses
-                .Where(co => 
+                .Where(co =>
                     (co.Winter == winterInt && co.Summer == summerInt && co.Autumn == autumnInt)
                         && (co.Winter == 1 || co.Summer == 1 || co.Autumn == 1)
                     )
@@ -95,7 +95,7 @@ namespace MyUAAcademiaB.Repository
         public ICollection<Course1> GetSigleName(ICollection<string> coursesIds)
         {
             return _context.Courses.Where(c => coursesIds.Contains(c.Sigle))
-                .Select(c =>  new Course1
+                .Select(c => new Course1
                 {
                     Sigle = c.Sigle,
                     FullName = c.FullName,

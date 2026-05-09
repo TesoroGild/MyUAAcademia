@@ -31,7 +31,6 @@ namespace MyUAAcademiaB.Controllers
 
             string codeEmp = contractToCreate.TypeOfEmployment == "Temps plein" ? "1" : "2";
 
-            // 2. Offer (Permanent = 1, Temporaire = 2, Saisonnier = 3, etc.)
             string codeOffer = contractToCreate.TypeOfOffer switch
             {
                 "Permanent" => "1",
@@ -42,7 +41,6 @@ namespace MyUAAcademiaB.Controllers
                 _ => "0"
             };
 
-            // 3. Dept (Informatique = 1, Mathématiques = 2, etc.)
             string codeDept = contractToCreate.Department switch
             {
                 "Danse" => "01",
@@ -61,7 +59,6 @@ namespace MyUAAcademiaB.Controllers
                 _ => "00"
             };
 
-            // 4. Faculty (Sciences = 1, Communication = 2, etc.)
             string codeFac = contractToCreate.Faculty switch
             {
                 "Arts" => "1",
@@ -95,7 +92,7 @@ namespace MyUAAcademiaB.Controllers
         public IActionResult GetContracts()
         {
             var contracts = _contractInterface.GetContracts();
-            
+
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
 

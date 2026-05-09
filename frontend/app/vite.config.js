@@ -21,7 +21,18 @@ export default defineConfig(({ mode }) => {
     },
     test: {
       globals: true,
-      environment: "jsdom"
+      environment: "jsdom",
+      setupFiles: './src/setupTests.js',
+      include: ['src/**/*.{test,spec}.{js,jsx}'],
+      exclude: ['e2e/**', 'node_modules/**'],
+      transformMode: {
+        web: [/\.[jt]sx$/],
+      },
+      server: {
+        deps: {
+          inline: [/runtime/], // Aide à résoudre les problèmes de JSX runtime
+        },
+      },
     },
     server: {
       https: isLocalHttps ? {

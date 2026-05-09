@@ -10,7 +10,7 @@ import { getEmployeeS } from "../../../services/employee.service";
 import { updateUser } from "../../../services/profile.service";
 
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Avatar } from "flowbite-react";
 
 // ── Petit composant champ info ───────────────────────────────────────────────
@@ -92,8 +92,6 @@ const EditModal = ({ open, onClose, form, onChange, onSubmit, showAlert, role })
 
 // ── Page principale ──────────────────────────────────────────────────────────
 const EmployeeDetails = ({ user }) => {
-  const navigate = useNavigate();
-
   const [profile, setProfile] = useState({
     firstName: "", lastName: "", code: "", userCode: "", department: "",
     faculty: "", job: "", sexe: "", professionalEmail: "", personalEmail: "",

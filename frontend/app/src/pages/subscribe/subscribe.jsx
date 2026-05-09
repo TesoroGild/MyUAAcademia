@@ -1,6 +1,6 @@
 import Sidebar from "../sidebar/sidebar";
 import userPicture from "../../assets/img/User_Icon.png";
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HiCheck, HiExclamation, HiX, HiPlus, HiTrash, HiChevronDown, HiAcademicCap } from "react-icons/hi";
 import { getAvailableCoursesS, getStudentSessionCoursesS, enrollStudentsInCoursesS } from "../../services/course.service";
 import { getStudentProgramsS } from "../../services/program.service";
@@ -91,9 +91,18 @@ const Subscribe = ({ user }) => {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   useEffect(() => {
+    const filterByProgram = (program) => {
+    if (!program) { setFilteredCourses(coursesAvailable); return; }
+    setFilteredCourses(
+      coursesAvailable.filter((c) =>
+        c.programTitle?.toLowerCase() === program.title?.toLowerCase()
+      )
+    );
+  };
+  
     filterByProgram(selectedProgram);
   }, [selectedProgram, coursesAvailable]);
 
@@ -104,7 +113,7 @@ const Subscribe = ({ user }) => {
   };
   const removeAlert = (id) => setAlerts((a) => a.filter((x) => x.id !== id));
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
       const sc = activeSessions[0]?.session;
@@ -117,7 +126,7 @@ const Subscribe = ({ user }) => {
         if (res.success) setUserCourses(res.courses);
       }
 
-      // Programmes inscrits (pour la dropdown)
+      // Programmes inscrits (pour le dropdown)
       const progRes = await getStudentProgramsS(user.permanentCode);
       if (progRes.success) {
         const enrolled = progRes.programs.filter((p) => p.isEnrolled);
@@ -139,7 +148,7 @@ const Subscribe = ({ user }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeSessions, user])
 
   const activeUserCourses = userCourses.filter(
     (uc) => !cartToDrop.find((ctd) => ctd.ccourseId === uc.id)
@@ -150,15 +159,6 @@ const Subscribe = ({ user }) => {
     if (cart.length > 0 && cartToDrop.length > 0) return "Confirmer les modifications";
     if (cartToDrop.length > 0) return "Confirmer l'abandon";
     return "Confirmer l'inscription";
-  };
-
-  const filterByProgram = (program) => {
-    if (!program) { setFilteredCourses(coursesAvailable); return; }
-    setFilteredCourses(
-      coursesAvailable.filter((c) =>
-        c.programTitle?.toLowerCase() === program.title?.toLowerCase()
-      )
-    );
   };
 
   const addToCart = (course) => {
@@ -230,7 +230,7 @@ const Subscribe = ({ user }) => {
       !cart.find((cc) => cc.sigle === c.sigle)
   );
 
-  const totalCartCredits = cart.reduce((acc, c) => acc + (c.credits || 0), 0);
+  //const totalCartCredits = cart.reduce((acc, c) => acc + (c.credits || 0), 0);
   const canEnroll        = userCourses.length < MAX_COURSES;
 
   return (
@@ -333,7 +333,7 @@ const Subscribe = ({ user }) => {
                 onClick={() => removeFromDropCart(c.ccourseId)}
                 className="text-xs font-semibold text-red-800 underline hover:no-underline"
               >
-                Annuler l'abandon
+                Annuler l&apos;abandon
               </button>
             </td>
           </tr>

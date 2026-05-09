@@ -1,7 +1,7 @@
 import Sidebar from "../../sidebar/sidebar";
 import adminPicture from "../../../assets/img/Admin.jpg";
 import { Switch } from "antd";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiSearch, HiX, HiExternalLink, HiCheck, HiEye, HiChevronDown, HiChevronUp } from "react-icons/hi";
 import { activeEmployeeAccountS, getEmployeesS, validateEmployeeS } from "../../../services/employee.service";

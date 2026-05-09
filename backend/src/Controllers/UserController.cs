@@ -86,7 +86,7 @@ namespace MyUAAcademiaB.Controllers
             var email = _userService.GenerateEmail(studentTocreate.FirstName, studentTocreate.LastName);
             var studentMap = _mapper.Map<Users>(studentTocreate);
             studentMap.IsActivated = 0;
-            if (string.IsNullOrWhiteSpace(studentTocreate.EmployeeCode)) studentMap.Pwd = 
+            if (string.IsNullOrWhiteSpace(studentTocreate.EmployeeCode)) studentMap.Pwd =
                     _authService.HashPassword(permanentCode, _userService.SetFirstPasssword(studentTocreate.LastName, studentTocreate.FirstName));
             else studentMap.Pwd = _authService.HashPassword(permanentCode, studentTocreate.Password);
             studentMap.ProfessionalEmail = email;
@@ -130,6 +130,8 @@ namespace MyUAAcademiaB.Controllers
             {
                 await _fileService.SaveFileAsync(studentTocreate.SchoolTranscript, "StudentsAdmission", studentTocreate.PermanentCode, "Relevés scolaires");
             }
+
+            userCreated.Pwd = null;
 
             return Ok(userCreated);
         }
@@ -232,7 +234,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetUsersByName([FromBody] string userName)
         {
-            if (userName == null || userName == "")  return BadRequest("Invalid username.");
+            if (userName == null || userName == "") return BadRequest("Invalid username.");
 
             var students = _mapper.Map<List<UserTCDto>>(_userInterface.GetUsersByName(userName));
 
@@ -245,7 +247,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200)]
         public IActionResult GetStudentInClasseCourse(int classeCourseId)
         {
-            var courseExist = _classeCourseInterface.IsClasseExist(classeCourseId+"");
+            var courseExist = _classeCourseInterface.IsClasseExist(classeCourseId + "");
 
             if (!courseExist)
             {
@@ -256,7 +258,7 @@ namespace MyUAAcademiaB.Controllers
             List<int> classeCourseIds = new List<int>();
             classeCourseIds.Add(classeCourseId);
             //verif si l'etudiant a deja une note dans bulletin
-            var permanentCodes = _userCourseInterface.GetPermanentCodes(classeCourseId+"");
+            var permanentCodes = _userCourseInterface.GetPermanentCodes(classeCourseId + "");
             var test = _classeCourseInterface.GetCoursesSigle(classeCourseIds);
             var schoolReports = _bulletinInterface.GetStudentsCourseBulletin(test, permanentCodes);
             var students = _userInterface.GetStudentsByCodes(permanentCodes);
@@ -284,7 +286,7 @@ namespace MyUAAcademiaB.Controllers
         {
             if (activationRequest == null) return BadRequest(ModelState);
 
-            if(!_userInterface.StudentExists(activationRequest.Code))
+            if (!_userInterface.StudentExists(activationRequest.Code))
             {
                 ModelState.AddModelError("", "L'étudiant n'existe pas.");
                 return StatusCode(400, ModelState);
@@ -350,6 +352,43 @@ namespace MyUAAcademiaB.Controllers
 
             return Ok(studentUpdated);
         }
+
+        /*DELETE*/
+        [HttpDelete("delete/{permanentCode}")]
+        [ProducesResponseType(200, Type = typeof(Users))]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteStudentTest(string permanentCode)
+        {
+            if (string.IsNullOrEmpty(permanentCode)) return BadRequest(ModelState);
+
+            if (!_userInterface.StudentExists(permanentCode))
+            {
+                ModelState.AddModelError("", "L'étudiant n'existe pas.");
+                return StatusCode(400, ModelState);
+            }
+
+            var studentProgram = _userProgramInterface.DeleteStudent(permanentCode);
+
+            if (studentProgram)
+            {
+                var studentUpdated = _userInterface.DeleteStudentTest(permanentCode);
+
+                if (!studentUpdated)
+                {
+                    ModelState.AddModelError("", "Erreur lors de la suppression de l'étudiant.");
+                    return StatusCode(500, ModelState);
+                }
+
+                return Ok(studentUpdated);
+            }
+            else
+            {
+                ModelState.AddModelError("", "Erreur lors de la suppression de l'étudiant.");
+                return StatusCode(500, ModelState);
+            }
+
+        }
     }
-    
+
 }

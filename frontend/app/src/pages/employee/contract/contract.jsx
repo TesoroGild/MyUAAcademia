@@ -1,6 +1,6 @@
 import Sidebar from "../../sidebar/sidebar";
 import adminPicture from "../../../assets/img/Admin.jpg";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { HiPlus, HiX, HiPencil, HiCheck, HiExclamation, HiBriefcase, HiClock, HiCurrencyDollar } from "react-icons/hi";
 import { createContractS, getContractsS } from "../../../services/employee.service";

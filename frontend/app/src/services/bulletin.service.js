@@ -3,9 +3,9 @@ import axios from 'axios';
 const backend_url = import.meta.env.VITE_API_URL;
 
 //CREATE
-export const create = async (billToCreate) => {
+// export const create = async (billToCreate) => {
     
-}
+// }
 
 export const addNotesS = async (studentsNotesGrades) => {
     try {
@@ -32,7 +32,14 @@ export const getStudentBulletinS = async (permanentCode) => {
         const response = await axios.get(`${backend_url}/Bulletin/bulletin/${permanentCode}`);
         return response.data;
     } catch (error) {
-        throw error;
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data[""]?.[0] || error.response.data.title
+            };
+        }
+
+        return { success: false, message: "Impossible de contacter le serveur." };
     }
 }
 
@@ -53,6 +60,6 @@ export const getCourseGradeS = async (studentCourse) => {
 
 
 //UPDATE
-export const update = async (billToModify) => {
+// export const update = async (billToModify) => {
     
-}
+// }

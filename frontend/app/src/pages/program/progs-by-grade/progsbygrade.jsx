@@ -1,6 +1,6 @@
 import { HiChevronDown, HiChevronUp, HiAcademicCap, HiArrowLeft } from "react-icons/hi";
 import logo from "../../../assets/img/UA_Logo2.jpg";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getProgramsByGradeS } from "../../../services/program.service";
 
@@ -23,17 +23,20 @@ const ProgramsByGrade = () => {
   const config = GRADE_CONFIG[grade] ?? GRADE_CONFIG["Certificat"];
 
   useEffect(() => {
+    const getProgramsByGrade = async () => {
+      setIsLoading(true);
+      try {
+        const result = await getProgramsByGradeS(grade);
+        if (result.success) setGradePrograms(result.programs);
+      } catch (e) { 
+        console.error(e); 
+      } finally { 
+        setIsLoading(false); 
+      }
+    };
+    
     if (grade) getProgramsByGrade();
   }, [grade]);
-
-  const getProgramsByGrade = async () => {
-    setIsLoading(true);
-    try {
-      const result = await getProgramsByGradeS(grade);
-      if (result.success) setGradePrograms(result.programs);
-    } catch (e) { console.error(e); }
-    finally { setIsLoading(false); }
-  };
 
   const toggle = (id) => setOpenId(openId === id ? null : id);
 
@@ -65,7 +68,7 @@ const ProgramsByGrade = () => {
             className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-blue-800 transition-colors"
           >
             <HiArrowLeft className="w-4 h-4" />
-            Retour à l'accueil
+            Retour à l&apos;accueil
           </button>
         </div>
       </header>
@@ -94,7 +97,7 @@ const ProgramsByGrade = () => {
 
         {!isLoading && gradePrograms.length === 0 && (
           <div className="text-sm text-slate-400 text-center py-12">
-            Aucun programme trouvé pour ce niveau d'études.
+            Aucun programme trouvé pour ce niveau d&apos;études.
           </div>
         )}
 
@@ -173,7 +176,7 @@ const ProgramsByGrade = () => {
                           className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
                         >
                           <HiAcademicCap className="w-4 h-4" />
-                          Faire une demande d'admission
+                          Faire une demande d&apos;admission
                         </button>
                       </div>
                     </div>

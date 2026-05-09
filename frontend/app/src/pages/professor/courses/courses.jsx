@@ -44,16 +44,22 @@ const ProfessorCourses = ({ user }) => {
   const [searchStudent, setSearchStudent] = useState("");
   const [isLoading, setIsLoading]         = useState(false);
 
-  useEffect(() => { loadCourses(); }, []);
+  useEffect(() => { 
+    const loadCourses = async () => {
+      setIsLoading(true);
+      try {
+        const res = await getProfCourseS(user.code);
+        setAllCourses(res.courses);
+      } catch (e) { 
+        console.error(e); 
+      } finally { 
+        setIsLoading(false); 
+      }
+    };
 
-  const loadCourses = async () => {
-    setIsLoading(true);
-    try {
-      const res = await getProfCourseS(user.code);
-      setAllCourses(res.courses);
-    } catch (e) { console.error(e); }
-    finally { setIsLoading(false); }
-  };
+    loadCourses(); 
+  }, [user]);
+
 
   const loadStudents = async (programTitle) => {
     setIsLoading(true);
@@ -155,7 +161,7 @@ const ProfessorCourses = ({ user }) => {
           {!isLoading && view === "grade" && (
             <div className="flex flex-col gap-4">
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-                Sélectionnez un niveau d'études
+                Sélectionnez un niveau d&apos;études
               </p>
               {grades.length === 0 ? (
                 <p className="text-sm text-slate-400">Aucun cours assigné pour le moment.</p>

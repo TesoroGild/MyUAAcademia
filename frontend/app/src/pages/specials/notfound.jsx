@@ -69,7 +69,7 @@ const Notfound = () => {
       {/* Conseil session expirée */}
       {isLoggedIn && (
         <p className="mt-8 text-xs text-slate-400 text-center max-w-xs">
-          Si vous pensez que c'est une erreur et que votre session a expiré,{" "}
+          Si vous pensez que c&apos;est une erreur et que votre session a expiré,{" "}
           <button
             onClick={() => {
               localStorage.clear();

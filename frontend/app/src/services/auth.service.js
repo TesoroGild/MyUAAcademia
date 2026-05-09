@@ -1,4 +1,3 @@
-import { message } from 'antd';
 import axios from 'axios';
 
 const backend_url = import.meta.env.VITE_API_URL;

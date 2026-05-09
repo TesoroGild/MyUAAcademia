@@ -18,12 +18,12 @@ namespace MyUAAcademiaB.Models
         public double? InsuranceFees { get; set; }
         public double? RefundsAndAdjustments { get; set; }
 
-        public string SessionStudy {  get; set; }
+        public string SessionStudy { get; set; }
 
         public string YearStudy { get; set; }
 
         public string PermanentCode { get; set; }
-        public Users Student {  get; set; }
+        public Users Student { get; set; }
 
         public string? ProgramTitle { get; set; }
         public virtual Programs? Program { get; set; }

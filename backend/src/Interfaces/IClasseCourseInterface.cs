@@ -15,7 +15,7 @@ namespace MyUAAcademiaB.Interfaces
         ICollection<ClassesCourses> GetClasseCourse();
         ICollection<ClassesCourses> GetClasseCoursesByProgram(string title);
         ICollection<string> GetCoursesSigle(List<int> courseIds);
-        ICollection<ClasseCourses1>GetClasseCourseById(ICollection<int> courseIds);
+        ICollection<ClasseCourses1> GetClasseCourseById(ICollection<int> courseIds);
         ICollection<ClassesCourses> GetClasseCourseByProgramSession(ICollection<string> coursesSigle, string session);
         ICollection<ClassesCourses> GetClasseCourseBySessions(SessionsAvailables sessionsAvailables);
         Task<ICollection<ClasseCoursesProgramDto>> GetProfessorCourses(string profCode);

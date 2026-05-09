@@ -51,6 +51,7 @@ const AdmissionVerify = () => {
           lastName:  result.studentRegistered.lastName,
           email:     result.studentRegistered.personalEmail,
           program:   result.studentRegistered.userProgramEnrollments?.map((p) => p.title).join(", "),
+          permanentCode: result.studentRegistered.permanentCode
         };
         navigate("/admission/payment", { state: { userInProcess } });
       } else {

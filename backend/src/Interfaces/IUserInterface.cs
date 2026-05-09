@@ -31,6 +31,7 @@ namespace MyUAAcademiaB.Interfaces
 
 
         /*DELETE*/
+        bool DeleteStudentTest(string permanentCode);
 
     }
 }

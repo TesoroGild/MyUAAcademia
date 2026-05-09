@@ -25,9 +25,9 @@ namespace MyUAAcademiaB.Repository
         /*CREATE*/
         public ClassesCourses ScheduleACourse(ClassesCourses classesCourses)
         {
-                _context.Add(classesCourses);
-                _context.SaveChanges();
-                return classesCourses;
+            _context.Add(classesCourses);
+            _context.SaveChanges();
+            return classesCourses;
         }
 
 
@@ -128,7 +128,7 @@ namespace MyUAAcademiaB.Repository
                 .ToList();
             return _context.ClassesCourses
                 .Where(cc => userCoursesIds.Contains(cc.Id) && cc.SessionCourse == userSessionInfos.SessionCourse && cc.YearCourse == userSessionInfos.YearCourse)
-                .ToList(); 
+                .ToList();
         }
 
         public ICollection<string> GetCoursesSigle(List<int> courseIds)

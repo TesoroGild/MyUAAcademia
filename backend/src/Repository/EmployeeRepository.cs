@@ -20,7 +20,7 @@ namespace MyUAAcademiaB.Repository
             return _context.Employees.Any(e => e.Code == code);
         }
 
-        public bool EmployeeExistsV1(string code, string email) 
+        public bool EmployeeExistsV1(string code, string email)
         {
             return _context.Employees.Any(e => e.Code == code && e.PersonalEmail == email);
         }
@@ -42,7 +42,7 @@ namespace MyUAAcademiaB.Repository
 
 
         /*READ*/
-        public Employees GetEmployee(string code) 
+        public Employees GetEmployee(string code)
         {
             return _context.Employees.Where(e => e.Code.ToUpper() == code.ToUpper())
                 .FirstOrDefault();
@@ -103,7 +103,7 @@ namespace MyUAAcademiaB.Repository
 
             if (employee != null)
             {
-                employee.UserStatus = validateAccount+"";
+                employee.UserStatus = validateAccount + "";
                 _context.Employees.Update(employee);
                 _context.SaveChanges();
                 return true;
