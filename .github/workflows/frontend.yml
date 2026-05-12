@@ -1,0 +1,32 @@
+name: Build and deploy Node.js app to Vercel - MyUAAcademia
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+    frontend-ci:
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        defaults:
+            run:
+                working-directory: ./frontend/app
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v4
+              with:
+                node-version: 20
+                cache: 'npm'
+                
+            - run: npm ci
+            - run: npm run lint
+            - run: npm run test:run
+            - run: npm run build 
