@@ -8,6 +8,7 @@ import { defineConfig } from '@playwright/test';
 // import dotenv from 'dotenv';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
+const useHttps = !!process.env.VITE_SSL_CERT_FILE;
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -15,10 +16,13 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
   timeout: 30000,
-  use: {
+  use: useHttps ? {
     baseURL: 'https://localhost:5173',
     headless: true,
     ignoreHTTPSErrors: true, // nécessaire car cert SSL local
+  } : {
+    baseURL: 'http://localhost:5173',
+    headless: true,
   },
 
   /* Configure projects for major browsers */
@@ -61,7 +65,7 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: [
+  webServer: useHttps ? [
     {
       command: 'npm run dev',
       url: 'https://localhost:5173',
@@ -74,6 +78,12 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       ignoreHTTPSErrors: true,
     }
+  ] : [
+    {
+      command: 'npm run dev',
+      url: 'http://localhost:5173',
+      reuseExistingServer: !process.env.CI,
+    },
   ]
 });
 

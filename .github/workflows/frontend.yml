@@ -3,30 +3,53 @@ name: Build and deploy Node.js app to Vercel - MyUAAcademia
 on:
   push:
     branches: [main, develop]
+    paths:
+        - 'frontend/app/**'
   pull_request:
-    branches: [main, develop]
+    branches: []
   workflow_dispatch:
 
 jobs:
-    lint:
-        runs-on: ubuntu-latest
-        timeout-minutes: 10
     frontend-ci:
         runs-on: ubuntu-latest
         timeout-minutes: 10
         defaults:
             run:
-                working-directory: ./frontend/app
+                working-directory: ./frontend/app/
 
         steps:
-            - uses: actions/checkout@v4
+            # 1. Récupérer le code du dépôt
+            - name: Checkout code
+              uses: actions/checkout@v5
 
-            - uses: actions/setup-node@v4
+            # 2. Installer Node.js
+            - name: Setup Node.js
+              uses: actions/setup-node@v5
               with:
-                node-version: 20
+                node-version: 22
                 cache: 'npm'
-                
-            - run: npm ci
-            - run: npm run lint
-            - run: npm run test:run
+              
+            # 3. Installer les dépendances
+            - name: Install dependencies
+              run: npm ci
+
+            # 4. Lancer le Lint
+            - name: Run Lint
+              run: npm run lint
+
+            # 5. Lancer les tests Vitest
+            - name: Run Vitest
+              run: npm run test:run
+
+            # 6. Installer playwright pour les tests e2e
+            - name: Install Playwright browsers
+              run: npx playwright install --with-deps chromium
+
+            # 7. Lancer les tests e2e
+            - name: Run E2E tests
+              run: npm run test:e2e
+              env:
+                CI: true
+
+            # 8. Build
             - run: npm run build 
