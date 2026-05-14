@@ -24,6 +24,8 @@ export default defineConfig({
   } : {
     baseURL: 'http://localhost:5173',
     headless: true,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
 
   /* Configure projects for major browsers */
@@ -73,12 +75,12 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       ignoreHTTPSErrors: true,
     },
-    {
-      command: 'dotnet run --project ../../backend/src/MyUAAcademiaB.csproj --launch-profile "https"',
-      url: 'https://localhost:7245',
-      reuseExistingServer: !process.env.CI,
-      ignoreHTTPSErrors: true,
-    }
+    // {
+    //   command: 'dotnet run --project ../../backend/src/MyUAAcademiaB.csproj --launch-profile "https"',
+    //   url: 'https://localhost:7245',
+    //   reuseExistingServer: !process.env.CI,
+    //   ignoreHTTPSErrors: true,
+    // }
   ] : [
     {
       command: 'npm run dev',
