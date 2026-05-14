@@ -80,15 +80,21 @@ test.describe('Flow Admission complet', () => {
   test.beforeEach(async ({ page }) => {
 
     // Mock programmes disponibles
-    await page.route('**/api/Program/programs**', route => {
+    await page.route('**/api/Program/programs/Certificat**', route => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify([
           {
             title: 'Création littéraire',
+            programName: 'Création littéraire',
             grade: 'Certificat',
-            programName: 'Création littéraire'
+            descriptions: '',
+            department: '',
+            faculty: '',
+            employeeCode: '',
+            isEnrolled: false,
+            hasFinished: false
           }
         ])
       })

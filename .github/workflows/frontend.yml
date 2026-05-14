@@ -12,7 +12,7 @@ on:
 jobs:
     frontend-ci:
         runs-on: ubuntu-latest
-        timeout-minutes: 30
+        timeout-minutes: 10
         defaults:
             run:
                 working-directory: ./frontend/app/
