@@ -54,7 +54,7 @@ test.describe('Auth — Login étudiant', () => {
 
   test.beforeEach(async ({ page }) => {
     // Intercepte le login avant chaque test
-    await page.route('**/api/User/login**', route => {
+    await page.route('**/api/Auth/login2**', route => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
