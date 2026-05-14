@@ -1,21 +1,21 @@
 #!/bin/bash
 set -e
 
-echo "=== Lint Frontend ==="
+echo "\n=== Lint Frontend ==="
 cd frontend/app && npm run lint
 
-echo "=== Tests Frontend ==="
+echo "\n=== Tests Frontend ==="
 npm run test:run -- --reporter=verbose && CI=true npm run test:e2e
 
-echo "=== Build Frontend ==="
+echo "\n=== Build Frontend ==="
 npm run build
 cd ../../
 
-echo "=== Build Backend ==="
+echo "\n=== Build Backend ==="
 cd backend && dotnet build
 
-echo "=== Formatage Backend ==="
+echo "\n=== Formatage Backend ==="
 dotnet format --verify-no-changes
 
-echo "=== Tests Backend ==="
+echo "\n=== Tests Backend ==="
 dotnet test --logger "console;verbosity=detailed"
