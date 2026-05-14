@@ -80,7 +80,7 @@ test.describe('Flow Admission complet', () => {
   test.beforeEach(async ({ page }) => {
 
     // Mock programmes disponibles
-    await page.route('**/api/Program/programs/Certificat**', route => {
+    await page.route('**/Program/programs/Certificat**', route => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -101,7 +101,7 @@ test.describe('Flow Admission complet', () => {
     })
 
     // Mock création étudiant — on capture le permanentCode ici
-    await page.route('**/api/User/students**', route => {
+    await page.route('**/User/students**', route => {
       createdPermanentCode = 'TEST' + Date.now()
       route.fulfill({
         status: 200,
@@ -116,7 +116,7 @@ test.describe('Flow Admission complet', () => {
     })
 
     // Mock paiement
-    await page.route('**/api/Payment**', route => {
+    await page.route('**/Payment**', route => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',

@@ -54,7 +54,7 @@ test.describe('Auth — Login étudiant', () => {
 
   test.beforeEach(async ({ page }) => {
     // Intercepte le login avant chaque test
-    await page.route('**/api/Auth/login2**', route => {
+    await page.route('**/Auth/login2**', route => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -96,7 +96,7 @@ test.describe('Auth — Login étudiant', () => {
 
   test('credentials incorrects affichent une erreur', async ({ page }) => {
     // Override le mock pour simuler un échec
-    await page.route('**/api/User/login**', route => {
+    await page.route('**/User/login**', route => {
       route.fulfill({
         status: 401,
         contentType: 'application/json',
