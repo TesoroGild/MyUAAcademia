@@ -78,14 +78,26 @@ let createdPermanentCode = null
 test.describe('Flow Admission complet', () => {
 
   test.beforeEach(async ({ page }) => {
+    // Dans beforeEach — mock tous les appels backend
+    await page.route('https://localhost:7245/**', route => {
+      const url = route.request().url()
 
-    // Mock programmes disponibles
-    await page.route('**/Program/programs/Certificat**', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify([
-          {
+      // Programmes de la home
+      if (url.includes('/Program/programs') && !url.includes('/Certificat')) {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([])  // liste vide suffit pour la home
+        })
+        return
+      }
+
+      // Programmes par grade
+      if (url.includes('/Program/programs/Certificat')) {
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify([{
             title: 'Création littéraire',
             programName: 'Création littéraire',
             grade: 'Certificat',
@@ -95,35 +107,40 @@ test.describe('Flow Admission complet', () => {
             employeeCode: '',
             isEnrolled: false,
             hasFinished: false
-          }
-        ])
-      })
-    })
-
-    // Mock création étudiant — on capture le permanentCode ici
-    await page.route('**/User/students**', route => {
-      createdPermanentCode = 'TEST' + Date.now()
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          permanentCode: createdPermanentCode,
-          firstName: 'E2E',
-          lastName: 'Testeur',
-          personalEmail: 'e2e.testeur@test.com',
+          }])
         })
-      })
-    })
+        return
+      }
 
-    // Mock paiement
-    await page.route('**/Payment**', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({ success: true })
-      })
-    })
+      // Création étudiant
+      if (url.includes('/User/students')) {
+        createdPermanentCode = 'TEST' + Date.now()
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            permanentCode: createdPermanentCode,
+            firstName: 'E2E',
+            lastName: 'Testeur',
+            personalEmail: 'e2e.testeur@test.com',
+          })
+        })
+        return
+      }
 
+      // Paiement
+      // if (url.includes('/Payment')) {
+      //   route.fulfill({
+      //     status: 200,
+      //     contentType: 'application/json',
+      //     body: JSON.stringify({ success: true })
+      //   })
+      //   return
+      // }
+
+      // Tout autre appel backend — laisser passer
+      route.continue()
+    })
   })
 
   // Plus besoin de afterEach cleanup — rien n'est créé en BD
