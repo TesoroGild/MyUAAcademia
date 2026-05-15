@@ -94,7 +94,8 @@ test.describe('Auth — Login étudiant', () => {
   })
 
   test('déconnexion redirige vers login étudiants', async ({ page }) => {
-    await page.route('**/Auth/login2**', route => {
+    // Mock login
+    await page.route('**/Auth/login2', route => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -104,18 +105,22 @@ test.describe('Auth — Login étudiant', () => {
           permanentCode: 'CHEW7758200122' 
         })
       })
-    });
+    })
+
+    // Mock logout
+    await page.route('**/Auth/logout', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ success: true })
+      })
+    })
+
     await page.fill('#code', 'CHEW7758200122')
     await page.fill('#pwd', 'Wei1234-')
     await page.click('button[type="submit"]')
     await page.waitForURL(/\/studentspace/)
-    const logoutBtn = page.getByRole('button', { name: /déconnexion/i });
-    
-    // On s'assure qu'il est bien là
-    await expect(logoutBtn).toBeVisible();
-    
-    // On clique normalement
-    await logoutBtn.click();
+    await page.getByText('Déconnexion').click()
     await expect(page).toHaveURL('/login/user', { timeout: 10000 })
   })
 
