@@ -1,0 +1,39 @@
+name: Build .NET app
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+        - 'backend/app/**'
+  pull_request:
+    branches: []
+  workflow_dispatch:
+
+jobs:
+    backend-ci:
+      runs-on: ubuntu-latest
+      timeout-minutes: 10
+      defaults:
+        run:
+          working-directory: ./backend/
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v5.0.1
+
+        - name: Setup dotnet
+          uses: actions/setup-dotnet@v5.2.0
+          with:
+            dotnet-version: '9.0.x'
+
+        - name: Restore dependencies
+          run: dotnet restore
+
+        - name: Check formatting
+          run: dotnet format --verify-no-changes  # ← ton étape de lint C#
+
+        - name: Build
+          run: dotnet build --no-restore --configuration Release
+
+        - name: Run tests
+          run: dotnet test --no-build --configuration Release --logger "console;verbosity=detailed"
