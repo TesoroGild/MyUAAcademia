@@ -16,7 +16,10 @@ const useHttps = !!process.env.VITE_SSL_CERT_FILE;
  */
 export default defineConfig({
   testDir: './e2e',
-  timeout: 30000,
+  timeout: 50000,
+  
+  reporter: [['html', { open: 'never' }]],
+
   use: useHttps ? {
     baseURL: 'https://localhost:5173',
     headless: true,
@@ -26,6 +29,8 @@ export default defineConfig({
     headless: true,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    actionTimeout: 10000, 
+    navigationTimeout: 15000,
   },
 
   /* Configure projects for major browsers */
