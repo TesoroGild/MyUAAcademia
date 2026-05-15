@@ -79,7 +79,7 @@ test.describe('Flow Admission complet', () => {
 
   test.beforeEach(async ({ page }) => {
     // Dans beforeEach — mock tous les appels backend
-    await page.route(/https:\/\/localhost:7245\/.*/, route => {
+    await page.route('**', route => {
       const url = route.request().url()
 
       // Programmes de la home

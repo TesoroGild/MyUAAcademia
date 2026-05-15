@@ -33,7 +33,6 @@ export default defineConfig({
     navigationTimeout: 15000,
     stdout: 'ignore',
     stderr: 'pipe',
-    ignoreHTTPSErrors: true,
   },
 
   /* Configure projects for major browsers */
@@ -94,8 +93,6 @@ export default defineConfig({
       command: 'npm run dev',
       url: 'http://localhost:5173',
       reuseExistingServer: !process.env.CI,
-      timeout: 120000,
-    ignoreHTTPSErrors: true,
     },
   ]
 });
