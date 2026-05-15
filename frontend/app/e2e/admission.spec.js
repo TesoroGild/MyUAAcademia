@@ -139,6 +139,7 @@ test.describe('Flow Admission complet', () => {
     await expect(page).toHaveURL(/\/admission/)
 
     // ── 3. Remplir le formulaire ──────────────────────────────────────────
+    await page.waitForLoadState('networkidle'); 
     await page.fill('input[name="lastname"]', 'Testeur')
     await page.fill('input[name="firstname"]', 'E2E')
     await page.selectOption('select[name="sexe"]', 'F')
