@@ -18,7 +18,7 @@ export default defineConfig({
   testDir: './e2e',
   timeout: 50000,
   
-  reporter: [['html', { open: 'never' }]],
+  reporter: [['html', { outputFolder: 'playwright-report' }]],
 
   use: useHttps ? {
     baseURL: 'https://localhost:5173',
