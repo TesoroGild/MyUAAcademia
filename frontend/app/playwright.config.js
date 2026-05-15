@@ -31,6 +31,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     actionTimeout: 10000, 
     navigationTimeout: 15000,
+    stdout: 'ignore',
+    stderr: 'pipe',
   },
 
   /* Configure projects for major browsers */
