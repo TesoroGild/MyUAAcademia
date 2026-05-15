@@ -11,7 +11,6 @@ let createdPermanentCode = null
 //   // Cleanup après chaque test — supprime l'étudiant créé en BD
 //   test.afterEach(async ({ request }) => {
 //     if (createdPermanentCode) {
-//       console.log(API_URL)
 //       await request.delete(`${API_URL}/User/delete/${createdPermanentCode}`)
 //       createdPermanentCode = null
 //     }
@@ -145,8 +144,6 @@ test.describe('Flow Admission complet', () => {
 
   // Plus besoin de afterEach cleanup — rien n'est créé en BD
   test('Accueil → programme → formulaire → vérification → paiement → confirmation', async ({ page }) => {
-page.on('console', msg => console.log('BROWSER LOG:', msg.text()))
-  page.on('pageerror', err => console.log('PAGE ERROR:', err.message))
     // ── 1. Accueil → Certificat ───────────────────────────────────────────
     await page.goto('/')
     await page.click('text=Certificat')
