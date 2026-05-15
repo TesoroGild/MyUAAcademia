@@ -79,7 +79,7 @@ test.describe('Flow Admission complet', () => {
 
   test.beforeEach(async ({ page }) => {
     // Dans beforeEach — mock tous les appels backend
-    await page.route('https://localhost:7245/**', route => {
+    await page.route(/https:\/\/localhost:7245\/.*/, route => {
       const url = route.request().url()
 
       // Programmes de la home
@@ -145,7 +145,8 @@ test.describe('Flow Admission complet', () => {
 
   // Plus besoin de afterEach cleanup — rien n'est créé en BD
   test('Accueil → programme → formulaire → vérification → paiement → confirmation', async ({ page }) => {
-
+page.on('console', msg => console.log('BROWSER LOG:', msg.text()))
+  page.on('pageerror', err => console.log('PAGE ERROR:', err.message))
     // ── 1. Accueil → Certificat ───────────────────────────────────────────
     await page.goto('/')
     await page.click('text=Certificat')
