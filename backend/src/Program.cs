@@ -227,10 +227,13 @@ if (app.Environment.IsDevelopment())
 }
 
 // 17. Envoie des migrations vers postgreSQL
-using (var scope = app.Services.CreateScope())
+if (!app.Environment.IsEnvironment("Testing"))
 {
-    var db = scope.ServiceProvider.GetRequiredService<DataContext>();
-    db.Database.Migrate();
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<DataContext>();
+        db.Database.Migrate();
+    }
 }
 
 // 18. Redirection vers Swagger
