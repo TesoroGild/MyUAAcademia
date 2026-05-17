@@ -16,6 +16,12 @@ jobs:
       env: 
         ASPNETCORE_ENVIRONMENT: Testing
         FRONTEND_URL: "http://localhost:5173"
+        Key: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-------------------aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        Issuer: "issuer"
+        Audience: "audience"
+        ResetKey: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb**********************************bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        ResetIssuer: "resetissuer"
+        
       defaults:
         run:
           working-directory: ./backend/
