@@ -2,11 +2,11 @@ name: Build .NET app
 
 on:
   push:
-    branches: [main, develop]
-    paths:
-        - 'backend/app/**'
-  pull_request:
     branches: []
+    paths:
+        - 'backend/**'
+  pull_request:
+    branches: [main, develop]
   workflow_dispatch:
 
 jobs:
@@ -16,6 +16,21 @@ jobs:
       defaults:
         run:
           working-directory: ./backend/
+
+      services:
+        postgres:
+          image: postgres:18
+          env:
+            POSTGRES_DB: myuaacademia_test
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+          ports:
+            - 5432:5432
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 3
 
       steps:
         - name: Checkout code
@@ -30,10 +45,12 @@ jobs:
           run: dotnet restore
 
         - name: Check formatting
-          run: dotnet format --verify-no-changes  # ← ton étape de lint C#
+          run: dotnet format --verify-no-changes
 
         - name: Build
           run: dotnet build --no-restore --configuration Release
 
         - name: Run tests
           run: dotnet test --no-build --configuration Release --logger "console;verbosity=detailed"
+          env:
+            ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=myuaacademia_test;Username=postgres;Password=postgres"
