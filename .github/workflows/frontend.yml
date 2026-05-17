@@ -2,11 +2,11 @@ name: Build Node.js app
 
 on:
   push:
-    branches: [main, develop]
+    branches: []
     paths:
         - 'frontend/app/**'
   pull_request:
-    branches: []
+    branches: [main, develop]
   workflow_dispatch:
 
 jobs:
