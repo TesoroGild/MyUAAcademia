@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,7 @@ namespace tests.Integration.Controllers
         {
             _client = factory.WithWebHostBuilder(builder =>
             {
+                builder.UseEnvironment("Testing");
                 builder.ConfigureAppConfiguration((context, config) =>
                 {
                     // Injecter les valeurs manquantes pour le contexte de test
