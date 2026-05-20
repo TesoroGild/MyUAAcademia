@@ -14,6 +14,10 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 0. RÉCUPÉRATION ET VALIDATION DES CONFIGURATIONS
+var authKey = builder.Configuration.GetRequiredSection("Key").Value!;
+var configKey = builder.Environment.IsDevelopment() ? "LOCAL_FRONTEND_URL" : "FRONTEND_URL";
+
 // 1. Config Kestrel (port, HTTP vs HTTPS)
 builder.WebHost.ConfigureKestrel(options =>
 {
@@ -21,8 +25,10 @@ builder.WebHost.ConfigureKestrel(options =>
 
     if (builder.Environment.IsDevelopment())
     {
-        var httpPass = builder.Configuration["HTTPS_PASS"];
-        var httpFile = builder.Configuration["HTTPS_FILE"];
+        var httpPass = builder.Configuration["HTTPS_PASS"]
+            ?? throw new InvalidOperationException("HTTPS_PASS is missing in dev env.");
+        var httpFile = builder.Configuration["HTTPS_FILE"]
+            ?? throw new InvalidOperationException("HTTPS_FILE is missing in dev env.");
 
         options.ListenLocalhost(port, listenOptions =>
         {
@@ -80,9 +86,7 @@ builder.Services.AddAuthentication("Bearer")
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Issuer"],
             ValidAudience = builder.Configuration["Issuer"],
-            //builder.Configuration["Audience"]),
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Key"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authKey))
         };
 
         options.Events = new JwtBearerEvents
@@ -119,23 +123,6 @@ builder.Services.AddSwaggerGen(c =>
         Title = "MYUAA API",
         Version = "v1"
     });
-
-    //c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    //{
-    //    Description = "Collez ici votre token JWT (ex: Bearer 12345abcdef)",
-    //    Name = "Authorization",
-    //    In = ParameterLocation.Header,
-    //    Type = SecuritySchemeType.ApiKey,
-    //    Scheme = "Bearer"
-    //});
-
-    //c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-    //{
-    //    new OpenApiSecurityScheme {
-    //        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-    //    },
-    //    new string[] { }
-    //}});
 });
 
 // 8. CORS (un seul bloc, une seule politique)
@@ -143,15 +130,8 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        var frontendUrl = "";
-        if (builder.Environment.IsDevelopment())
-        {
-            frontendUrl = builder.Configuration["LOCAL_FRONTEND_URL"];
-        }
-        else
-        {
-            frontendUrl = builder.Configuration["FRONTEND_URL"];
-        }
+        var frontendUrl = builder.Configuration[configKey] 
+            ?? throw new InvalidOperationException($"{configKey} is missing.");
         policy.WithOrigins(frontendUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
@@ -169,7 +149,8 @@ builder.Services.AddDbContext<DataContext>(options =>
     }
     else
     {
-        var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+        var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
+            ?? throw new InvalidOperationException("DATABASE_URL is missing for prod.");
         var uri = new Uri(databaseUrl);
         var userInfo = uri.UserInfo.Split(':');
         npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
