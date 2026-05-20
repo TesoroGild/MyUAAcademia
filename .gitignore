@@ -2,3 +2,10 @@
 **/*.p12
 **/*.pem
 db/
+frontend/.vscode
+backend/.vs
+backend/.sonarqube
+
+.vscode
+.vs
+.sonarqube
