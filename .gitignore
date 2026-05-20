@@ -2,6 +2,6 @@
 **/*.p12
 **/*.pem
 db/
-frontend/.github
 frontend/.vscode
-backend/.github
+backend/.vs
+backend/.sonarqube
