@@ -26,7 +26,7 @@ Plateforme de gestion académique multi-rôles (étudiant, professeur, admin)
 
 
 ## 🚀 Demo
-https://myuaacademia.up.railway.app/home
+[https://myuaacademia.up.railway.app/home](https://my-ua-academia-git-develop-the-godfathers-projects-f60b7219.vercel.app/home)
 
 
 ## ✨ Fonctionnalités
