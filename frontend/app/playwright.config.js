@@ -5,20 +5,34 @@ import { defineConfig } from '@playwright/test';
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 // import path from 'path';
 // dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config()
+const useHttps = !!process.env.VITE_SSL_CERT_FILE;
 
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
   testDir: './e2e',
-  timeout: 30000,
-  use: {
+  timeout: 50000,
+  
+  reporter: [['html', { outputFolder: 'playwright-report' }]],
+
+  use: useHttps ? {
     baseURL: 'https://localhost:5173',
     headless: true,
     ignoreHTTPSErrors: true, // nécessaire car cert SSL local
+  } : {
+    baseURL: 'http://localhost:5173',
+    headless: true,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    actionTimeout: 10000, 
+    navigationTimeout: 15000,
+    stdout: 'ignore',
+    stderr: 'pipe',
   },
 
   /* Configure projects for major browsers */
@@ -61,19 +75,25 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: [
+  webServer: useHttps ? [
     {
       command: 'npm run dev',
       url: 'https://localhost:5173',
       reuseExistingServer: !process.env.CI,
       ignoreHTTPSErrors: true,
     },
+    // {
+    //   command: 'dotnet run --project ../../backend/src/MyUAAcademiaB.csproj --launch-profile "https"',
+    //   url: 'https://localhost:7245',
+    //   reuseExistingServer: !process.env.CI,
+    //   ignoreHTTPSErrors: true,
+    // }
+  ] : [
     {
-      command: 'dotnet run --project ../../backend/src/MyUAAcademiaB.csproj --launch-profile "https"',
-      url: 'https://localhost:7245',
+      command: 'npm run dev',
+      url: 'http://localhost:5173',
       reuseExistingServer: !process.env.CI,
-      ignoreHTTPSErrors: true,
-    }
+    },
   ]
 });
 

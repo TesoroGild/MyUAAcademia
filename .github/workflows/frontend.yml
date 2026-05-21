@@ -1,0 +1,67 @@
+name: Build Node.js app
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+      - 'fix/**'
+    paths:
+      - 'frontend/app/**'
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+jobs:
+    frontend-ci:
+      runs-on: ubuntu-latest
+      timeout-minutes: 10
+      defaults:
+        run:
+          working-directory: ./frontend/app/
+
+      steps:
+        # 1. Récupérer le code du dépôt
+        - name: Checkout code
+          uses: actions/checkout@v5.0.1
+
+        # 2. Installer Node.js
+        - name: Setup Node.js
+          uses: actions/setup-node@v5.0.0
+          with:
+            node-version: 22
+            cache: 'npm'
+            cache-dependency-path: './frontend/app/package-lock.json'
+          
+        # 3. Installer les dépendances
+        - name: Install dependencies
+          run: npm ci
+
+        # 4. Lancer le Lint
+        - name: Run Lint
+          run: npm run lint
+
+        # 5. Lancer les tests Vitest
+        - name: Run Vitest
+          run: npm run test:run
+
+        # 6. Installer playwright pour les tests e2e
+        - name: Install Playwright browsers
+          run: npx playwright install --with-deps chromium
+
+        # 7. Lancer les tests e2e
+        - name: Run E2E tests
+          run: npm run test:e2e
+          env:
+            CI: true
+
+        # 8. Build
+        - run: npm run build 
+
+        - uses: actions/upload-artifact@v4
+          if: always()
+          with:
+            name: playwright-report
+            path: '**/playwright-report/'
+            retention-days: 5

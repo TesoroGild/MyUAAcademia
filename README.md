@@ -224,7 +224,7 @@ docker-compose down -v     # arrête et supprime les volumes (réinitialise la B
 **Problème 2** : PascalCase vs snake_case + dédoublement des tables.
 **Solution 2** : Utilisation de UseSnakeCaseNamingConvention en C# et mapping des tables.
 
-### 7. Déploiement
+### 7. CI/CD
 **Problème 1** :
 **Solution 1** :
 
