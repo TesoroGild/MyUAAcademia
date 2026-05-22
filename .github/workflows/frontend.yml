@@ -94,7 +94,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-output
-          path: dist/
+          path: ./frontend/app/dist/
 
       # 13. Deploy
       - name: Deploy to Vercel
