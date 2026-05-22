@@ -19,12 +19,12 @@ jobs:
     timeout-minutes: 10
     env: 
       ASPNETCORE_ENVIRONMENT: Testing
-      FRONTEND_URL: "http://localhost:5173"
-      Key: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-------------------aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-      Issuer: "issuer"
-      Audience: "audience"
-      ResetKey: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb**********************************bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
-      ResetIssuer: "resetissuer"
+      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+      Key: ${{ secrets.KEY }}
+      Issuer: ${{ secrets.ISSUER }}
+      Audience: ${{ secrets.AUDIENCE }}
+      ResetKey: ${{ secrets.RESETKEY }}
+      ResetIssuer: ${{ secrets.RESETISSUER }}
       
     defaults:
       run:
