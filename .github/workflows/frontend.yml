@@ -26,7 +26,7 @@ jobs:
         working-directory: ./frontend/app/
 
     steps:
-      # 1. Récupérer le code du dépôt
+      # 1. Retrieve the deposit code
       - name: Checkout code
         uses: actions/checkout@v5.0.1
 
@@ -62,22 +62,15 @@ jobs:
 
       # 8. Build
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm run build
 
-      - name: Pull Vercel environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: ./frontend/app
-
-      - name: Build by Vercel
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: ./frontend/app
-
+      # 9. Save build result
       - uses: actions/upload-artifact@v4
         with:
-          name: Vercel artifact
-          path: ./frontend/app/.vercel/output
+          name: Save build result
+          path: dist/
 
-      # 9. Playwright report
+      # 10. Playwright report
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -91,20 +84,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5.0.1
+      # 11. Retrieve the deposit code
+      - name : Checkout code
+        uses: actions/checkout@v5.0.1
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
+      # 12. Download previous dist
       - uses: actions/download-artifact@v4
         with:
-          name: build-output
-          path: ./frontend/app/.vercel/output
+          name: Download dist builded in ci
+          path: dist/
 
-      - name: Pull Vercel environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: ./frontend/app
-
-      - name: Deploy
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: ./frontend/app
+      # 13. Deploy
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v42
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod --prebuilt' 
+          working-directory: ./
