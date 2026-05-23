@@ -59,7 +59,6 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("students")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Users>))]
         [ProducesResponseType(400)]
-        //FromBody
         public async Task<IActionResult> CreateStudent([FromForm] UserTCDto studentTocreate)
         {
             if (studentTocreate == null) return BadRequest(ModelState);
@@ -212,7 +211,7 @@ namespace MyUAAcademiaB.Controllers
             var provider = new FileExtensionContentTypeProvider();
             if (!provider.TryGetContentType(path, out var contentType))
             {
-                contentType = "application/octet-stream"; // fallback
+                contentType = "application/octet-stream";
             }
 
             return PhysicalFile(path, contentType, fileName);

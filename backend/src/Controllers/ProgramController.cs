@@ -37,7 +37,6 @@ namespace MyUAAcademiaB.Controllers
             if (titleExist)
             {
                 ModelState.AddModelError("", "Le programme existe déjà.");
-                //422?
                 return StatusCode(422, ModelState);
             }
 
@@ -58,7 +57,6 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200)]
         public IActionResult GetStudentPrograms(string permanentcode)
         {
-            //retourner isEnrolled et HasFinished
             var programs1 = _userProgramInterface.GetStudentPrograms(permanentcode);
             var programs2 = _programInterface.GetPrograms(programs1.Select(p => p.Title).ToList());
             var programsMap = _mapper.Map<List<ProgramDto>>(programs2);

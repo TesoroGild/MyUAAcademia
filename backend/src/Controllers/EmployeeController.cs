@@ -120,17 +120,6 @@ namespace MyUAAcademiaB.Controllers
             return Ok(employees);
         }
 
-        //[HttpGet("employeesV2")]
-        //[ProducesResponseType(200, Type = typeof(IEnumerable<EmployeeV2Dto>))]
-        //public IActionResult GetEmployeesV2()
-        //{
-        //    var employeesV2 = _mapper.Map<List<EmployeeV2Dto>>(_employeeInterface.GetEmployeesV2());
-
-        //    if (!ModelState.IsValid) return BadRequest(ModelState);
-
-        //    return Ok(employeesV2);
-        //}
-
         [HttpGet("employee/{code}")]
         [ProducesResponseType(200, Type = typeof(EmployeeTDDto))]
         [ProducesResponseType(400)]
