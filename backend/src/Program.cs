@@ -149,11 +149,17 @@ builder.Services.AddDbContext<DataContext>(options =>
     }
     else
     {
+        // Railway config
+        //var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
+        //    ?? throw new InvalidOperationException("DATABASE_URL is missing for prod.");
+        //var uri = new Uri(databaseUrl);
+        //var userInfo = uri.UserInfo.Split(':');
+        //npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
+
+        // Render config
         var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
             ?? throw new InvalidOperationException("DATABASE_URL is missing for prod.");
-        var uri = new Uri(databaseUrl);
-        var userInfo = uri.UserInfo.Split(':');
-        npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
+        npgsqlConn = databaseUrl;
     }
 
     options.UseNpgsql(npgsqlConn, x =>
