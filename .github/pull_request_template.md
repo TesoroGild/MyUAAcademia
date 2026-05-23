@@ -1,5 +1,5 @@
 ## 📋 Description
-<!-- Explique ce que fait cette PR en 2-3 phrases -->
+<!-- Explain what the pr do -->
 
 ## 🎯 Type of change
 - [ ] 🐛 Bug fix
