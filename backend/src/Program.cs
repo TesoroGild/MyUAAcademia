@@ -159,7 +159,16 @@ builder.Services.AddDbContext<DataContext>(options =>
         // Render config
         var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
             ?? throw new InvalidOperationException("DATABASE_URL is missing for prod.");
-        npgsqlConn = databaseUrl;
+
+        var uri = new Uri(databaseUrl);
+        var userInfo = uri.UserInfo.Split(':');
+        var port = uri.Port == -1 ? 5432 : uri.Port;
+
+        // Récupère sslmode depuis les query params
+        var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var sslMode = queryParams["sslmode"] ?? "require";
+
+        npgsqlConn = $"Host={uri.Host};Port={port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={Uri.UnescapeDataString(userInfo[1])};SSL Mode={sslMode};Trust Server Certificate=true";
     }
 
     options.UseNpgsql(npgsqlConn, x =>
