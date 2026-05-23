@@ -132,6 +132,7 @@ builder.Services.AddCors(options =>
     {
         var frontendUrl = builder.Configuration[configKey]
             ?? throw new InvalidOperationException($"{configKey} is missing.");
+        Console.WriteLine($"[CORS] FrontendUrl = {frontendUrl}");
         policy.WithOrigins(frontendUrl)
               .AllowAnyHeader()
               .AllowAnyMethod()
