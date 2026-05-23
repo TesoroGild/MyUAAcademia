@@ -120,7 +120,6 @@ namespace MyUAAcademiaB.Controllers
             }
 
             var parsedDate = DateTime.Parse(date, new CultureInfo("en-US"));
-            //DateTime.TryParse(date, out DateTime parsedDate);
             var billsExpiredBefore = _mapper.Map<List<BillDto>>(_billInterface.GetExpiredBillsBefore(parsedDate));
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -138,7 +137,6 @@ namespace MyUAAcademiaB.Controllers
             }
 
             var parsedDate = DateTime.Parse(date, new CultureInfo("en-US"));
-            //DateTime.TryParse(date, out DateTime parsedDate);
             var billsExpiredAfter = _mapper.Map<List<BillDto>>(_billInterface.GetExpiredBillsAfter(parsedDate));
 
             if (!ModelState.IsValid) return BadRequest(ModelState);
