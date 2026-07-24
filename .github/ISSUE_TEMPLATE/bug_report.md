@@ -2,7 +2,7 @@
 name: 🐛 Bug Report
 about: Report every type of bug
 title: '[BUG] '
-labels: 'type :🐛bug', 'priority :🔥must-have'
+labels: ['type :🐛bug', 'priority :🔥must-have']
 assignees: ''
 ---
 
