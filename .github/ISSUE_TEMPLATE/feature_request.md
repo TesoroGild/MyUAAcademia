@@ -2,7 +2,7 @@
 name: ✨ Feature
 about: Add a new feature / Edit
 title: '[Feature] '
-labels: enhancement, 
+labels: [enhancement]
 assignees: ''
 ---
 
