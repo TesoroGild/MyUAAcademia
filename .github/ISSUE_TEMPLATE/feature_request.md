@@ -1,7 +1,9 @@
 ---
 name: ✨ Feature
-about: 
-labels: 
+about: Add a new feature / Edit
+title: '[Feature] '
+labels: [enhancement]
+assignees: ''
 ---
 
 ## ✨ Description
@@ -16,3 +18,5 @@ Between 1 and 8
 
 ## 📝 Technical Notes
 - ...
+
+## 🔗 Epic linked
