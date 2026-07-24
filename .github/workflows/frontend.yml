@@ -1,4 +1,4 @@
-name: Build and Deploy MyUA frontend on Vercel
+name: Build and Deploy MyUA frontend on Vercel and AWS
 
 on:
   push:
