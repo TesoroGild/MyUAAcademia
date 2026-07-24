@@ -1,9 +1,5 @@
 name: Build and Deploy MyUA frontend on Vercel
 
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_USER_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
 on:
   push:
     branches:
@@ -86,11 +82,11 @@ jobs:
 
     steps:
       # 11. Retrieve the deposit code
-      - name : Checkout code
+      - name: Checkout code
         uses: actions/checkout@v5.0.1
 
       # 12. Download previous dist
-      - name: Download dist builded in ci
+      - name: Vercel - Download dist builded in ci
         uses: actions/download-artifact@v4
         with:
           name: build-output
@@ -105,3 +101,22 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod --prebuilt' 
           working-directory: ./
+
+  aws-deploy:
+    needs: frontend-ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: AWS - Download dist builded in ci
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./frontend/app/dist/
+
+      - name: Deploy to S3
+        run: aws s3 sync ./dist s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
