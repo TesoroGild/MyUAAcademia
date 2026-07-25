@@ -1,7 +1,7 @@
 const Contact = () => {
     return (<>
         <div>
-            Contact Page
+            Our contact page is empty for the moment.
         </div>
     </>)
 }
