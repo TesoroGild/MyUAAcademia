@@ -1,4 +1,4 @@
-name: Build .NET app
+name: Build and Deploy .NET app on Render and AWS
 
 on:
   push:
