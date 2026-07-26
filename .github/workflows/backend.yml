@@ -84,22 +84,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5.0.1
-
-      - name: Setup dotnet
-        uses: actions/setup-dotnet@v5.2.0
-        with:
-          dotnet-version: '9.0.x'
-
-      - name: Publish
-        run: dotnet publish ./src/MyUAAcademiaB.csproj -c Release -o ./publish
-        working-directory: ./backend
-
-      - name: Zip artifact
-        run: zip -r deploy.zip ./publish
-        working-directory: ./backend
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -107,17 +91,46 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.AWS_ECR_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend/src
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Create Dockerrun.aws.json
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          echo '{
+            "AWSEBDockerrunVersion": "1",
+            "Image": {
+              "Name": "'$ECR_REGISTRY'/${{ secrets.AWS_ECR_NAME }}:${{ github.sha }}",
+              "Update": "true"
+            },
+            "Ports": [{ "ContainerPort": 8080 }]
+          }' > Dockerrun.aws.json
+
+      - name: Zip Dockerrun
+        run: zip deploy.zip Dockerrun.aws.json
+
       - name: Upload zip to S3
         run: |
           aws s3 cp ./backend/deploy.zip s3://${{ secrets.AWS_MYUA_BUCKET }}/deploy-${{ github.sha }}.zip
 
-      # - name: Deploy to Elastic Beanstalk
-      #   run: |
-      #     aws elasticbeanstalk create-application-version \
-      #       --application-name ${{ secrets.AWS_EB_APP_NAME }} \
-      #       --version-label ${{ github.sha }} \
-      #       --source-bundle S3Bucket=${{ secrets.AWS_MYUA_BUCKET }},S3Key=deploy-${{ github.sha }}.zip
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name ${{ secrets.AWS_EB_APP_NAME }} \
+            --version-label ${{ github.sha }} \
+            --source-bundle S3Bucket=${{ secrets.AWS_MYUA_BUCKET }},S3Key=deploy-${{ github.sha }}.zip
 
-      #     aws elasticbeanstalk update-environment \
-      #       --environment-name ${{ secrets.AWS_EB_ENV_NAME }} \
-      #       --version-label ${{ github.sha }}
+          aws elasticbeanstalk update-environment \
+            --environment-name ${{ secrets.AWS_EB_ENV_NAME }} \
+            --version-label ${{ github.sha }}
