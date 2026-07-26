@@ -82,8 +82,17 @@ jobs:
     needs: backend-ci
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-
+        
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.1
+
+      - name: Debug paths
+        run: |
+          echo "=== Racine ===" && ls
+          echo "=== backend/ ===" && ls ./backend/
+          echo "=== backend/src/ ===" && ls ./backend/src/
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
