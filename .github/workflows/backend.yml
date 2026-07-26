@@ -87,12 +87,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5.0.1
 
-      - name: Debug paths
-        run: |
-          echo "=== Racine ===" && ls
-          echo "=== backend/ ===" && ls ./backend/
-          echo "=== backend/src/ ===" && ls ./backend/src/
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -131,7 +125,7 @@ jobs:
 
       - name: Upload zip to S3
         run: |
-          aws s3 cp ./backend/deploy.zip s3://${{ secrets.AWS_MYUA_BUCKET }}/deploy-${{ github.sha }}.zip
+          aws s3 cp deploy.zip s3://${{ secrets.AWS_MYUA_BUCKET }}/deploy-${{ github.sha }}.zip
 
       - name: Deploy to Elastic Beanstalk
         run: |
