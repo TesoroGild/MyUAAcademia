@@ -20,10 +20,10 @@ namespace MyUAAcademiaB.Repository
             return _context.Bulletins.Any(b => b.PermanentCode == permanentCode);
         }
 
-        //public bool BullettinExists(string permanentCode)
-        //{
-        //    return _context.Bulletins.Any(b => b.PermanentCode == permanentCode);
-        //}
+        public bool BullettinExists(string permanentCode)
+        {
+            return _context.Bulletins.Any(b => b.PermanentCode == permanentCode);
+        }
 
         public bool CourseExists(string permanentCode, string courseId)
         {
