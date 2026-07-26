@@ -68,12 +68,56 @@ jobs:
         env:
           ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=myuaacademia_test;Username=postgres;Password=postgres"
 
-  render-deploy:
+  # render-deploy:
+  #   needs: backend-ci
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Trigger Render deploy
+  #       run: |
+  #         curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+  aws-deploy:
     needs: backend-ci
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Trigger Render deploy
+      - name: Checkout code
+        uses: actions/checkout@v5.0.1
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Publish
+        run: dotnet publish ./src/MyUAAcademiaB.csproj -c Release -o ./publish
+        working-directory: ./backend
+
+      - name: Zip artifact
+        run: zip -r deploy.zip ./publish
+        working-directory: ./backend
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Upload zip to S3
         run: |
-          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+          aws s3 cp ./backend/deploy.zip s3://${{ secrets.AWS_MYUA_BUCKET }}/deploy-${{ github.sha }}.zip
+
+      # - name: Deploy to Elastic Beanstalk
+      #   run: |
+      #     aws elasticbeanstalk create-application-version \
+      #       --application-name ${{ secrets.AWS_EB_APP_NAME }} \
+      #       --version-label ${{ github.sha }} \
+      #       --source-bundle S3Bucket=${{ secrets.AWS_MYUA_BUCKET }},S3Key=deploy-${{ github.sha }}.zip
+
+      #     aws elasticbeanstalk update-environment \
+      #       --environment-name ${{ secrets.AWS_EB_ENV_NAME }} \
+      #       --version-label ${{ github.sha }}
