@@ -38,6 +38,12 @@ if (!builder.Environment.IsDevelopment() &&
     {
         Environment.SetEnvironmentVariable(secret.Key, secret.Value);
     }
+
+    builder.Configuration.AddEnvironmentVariables();
+    Console.WriteLine("=== KEY : " + Environment.GetEnvironmentVariable("Key") + " ===");
+    Console.WriteLine("=== KEY : " + builder.Configuration.GetRequiredSection("Key").Value! + " ===");
+    Console.WriteLine("=== FRONTEND_URL : " + Environment.GetEnvironmentVariable("FRONTEND_URL") + " ==="); ; 
+    Console.WriteLine("=== DATABASE_URL : " + Environment.GetEnvironmentVariable("DATABASE_URLKey") + " ==="); 
 }
 
 // 0. RÉCUPÉRATION ET VALIDATION DES CONFIGURATIONS
