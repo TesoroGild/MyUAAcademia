@@ -1,7 +1,7 @@
 const Contact = () => {
     return (<>
         <div>
-            Lorem ipsum.
+            Lorem ipsum dolor sit amet,
         </div>
     </>)
 }
