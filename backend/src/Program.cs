@@ -21,7 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Récupération des secrets depuis AWS Secrets Manager en production
 if (!builder.Environment.IsDevelopment())
 {
-    var secretName = "myuaacademia/prod";
+    var secretName = "myua-secrets";
     var region = "us-east-1";
 
     var client = new AmazonSecretsManagerClient(RegionEndpoint.GetBySystemName(region));
