@@ -129,11 +129,13 @@ jobs:
 
       - name: Deploy to Elastic Beanstalk
         run: |
+          VERSION_LABEL="${{ github.sha }}-$(date +%s)"
+
           aws elasticbeanstalk create-application-version \
             --application-name ${{ secrets.AWS_EB_APP_NAME }} \
-            --version-label ${{ github.sha }} \
+            --version-label $VERSION_LABEL \
             --source-bundle S3Bucket=${{ secrets.AWS_MYUA_BUCKET }},S3Key=deploy-${{ github.sha }}.zip
 
           aws elasticbeanstalk update-environment \
             --environment-name ${{ secrets.AWS_EB_ENV_NAME }} \
-            --version-label ${{ github.sha }}
+            --version-label $VERSION_LABEL
