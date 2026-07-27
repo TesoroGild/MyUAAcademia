@@ -19,7 +19,8 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Récupération des secrets depuis AWS Secrets Manager en production
-if (!builder.Environment.IsDevelopment())
+if (!builder.Environment.IsDevelopment() &&
+    Environment.GetEnvironmentVariable("AWS_SECRETS_ENABLED") == "true")
 {
     var secretName = "myua-secrets";
     var region = "us-east-1";
