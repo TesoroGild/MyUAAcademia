@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Amazon;
+using Amazon.SecretsManager;
+using Amazon.SecretsManager.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -10,9 +13,29 @@ using MyUAAcademiaB.Repository;
 using MyUAAcademiaB.Services;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Récupération des secrets depuis AWS Secrets Manager en production
+if (!builder.Environment.IsDevelopment())
+{
+    var secretName = "myuaacademia/prod";
+    var region = "us-east-1";
+
+    var client = new AmazonSecretsManagerClient(RegionEndpoint.GetBySystemName(region));
+
+    var request = new GetSecretValueRequest { SecretId = secretName };
+    var response = await client.GetSecretValueAsync(request);
+
+    var secrets = JsonSerializer.Deserialize<Dictionary<string, string>>(response.SecretString)!;
+
+    foreach (var secret in secrets)
+    {
+        Environment.SetEnvironmentVariable(secret.Key, secret.Value);
+    }
+}
 
 // 0. RÉCUPÉRATION ET VALIDATION DES CONFIGURATIONS
 var authKey = builder.Configuration.GetRequiredSection("Key").Value!;
