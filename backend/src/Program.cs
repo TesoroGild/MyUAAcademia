@@ -20,8 +20,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Récupération des secrets depuis AWS Secrets Manager en production
 if (!builder.Environment.IsDevelopment() &&
-    Environment.GetEnvironmentVariable("AWS_SECRETS_ENABLED") == "true")
+    builder.Configuration["AWS_SECRETS_ENABLED"] == "true")
 {
+    Console.WriteLine("=== MON LOG DE DÉBOGAGE : ICIIIIIIIIIIIIIIII ===");
+
     var secretName = "myua-secrets";
     var region = "us-east-1";
 
