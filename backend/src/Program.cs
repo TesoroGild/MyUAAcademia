@@ -22,8 +22,6 @@ var builder = WebApplication.CreateBuilder(args);
 if (!builder.Environment.IsDevelopment() &&
     builder.Configuration["AWS_SECRETS_ENABLED"] == "true")
 {
-    Console.WriteLine("=== MON LOG DE DÉBOGAGE : ICIIIIIIIIIIIIIIII ===");
-
     var secretName = "myua-secrets";
     var region = "us-east-1";
 
@@ -40,10 +38,6 @@ if (!builder.Environment.IsDevelopment() &&
     }
 
     builder.Configuration.AddEnvironmentVariables();
-    Console.WriteLine("=== KEY : " + Environment.GetEnvironmentVariable("Key") + " ===");
-    Console.WriteLine("=== KEY : " + builder.Configuration.GetRequiredSection("Key").Value! + " ===");
-    Console.WriteLine("=== FRONTEND_URL : " + Environment.GetEnvironmentVariable("FRONTEND_URL") + " ===");
-    Console.WriteLine("=== DATABASE_URL : " + Environment.GetEnvironmentVariable("DATABASE_URLKey") + " ===");
 }
 
 // 0. RÉCUPÉRATION ET VALIDATION DES CONFIGURATIONS
