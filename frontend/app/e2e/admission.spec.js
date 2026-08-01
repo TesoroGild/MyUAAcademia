@@ -7,7 +7,7 @@ let createdPermanentCode = null
 
 // test.describe('Flow Admission complet', () => {
 
-//   const API_URL =  process.env.VITE_API_URL;
+//   const API_URL = window.APP_CONFIG?.API_URL || process.env.VITE_API_URL;
 //   // Cleanup après chaque test — supprime l'étudiant créé en BD
 //   test.afterEach(async ({ request }) => {
 //     if (createdPermanentCode) {
