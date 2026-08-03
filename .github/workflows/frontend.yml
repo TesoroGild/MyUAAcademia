@@ -108,7 +108,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_USER_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod' 
-          working-directory: ./fronted/app/dist/
+          working-directory: ./frontend/app/dist/
 
   aws-deploy:
     needs: frontend-ci
