@@ -75,40 +75,40 @@ jobs:
           path: '**/playwright-report/'
           retention-days: 5
 
-  # vercel-deploy:
-  #   needs: frontend-ci
-  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     VERCEL_ORG_ID: ${{ secrets.VERCEL_USER_ID }}
-  #     VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  vercel-deploy:
+    needs: frontend-ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_USER_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-  #   steps:
-  #     # 11. Retrieve the deposit code
-  #     - name: Checkout code
-  #       uses: actions/checkout@v5.0.1
+    steps:
+      # 11. Retrieve the deposit code
+      - name: Checkout code
+        uses: actions/checkout@v5.0.1
 
-  #     # 12. Download previous dist
-  #     - name: Vercel - Download dist builded in ci
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: build-output
-  #         path: ./frontend/app/dist/
+      # 12. Download previous dist
+      - name: Vercel - Download dist builded in ci
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: ./frontend/app/dist/
 
-      # # 13 INJECTION DYNAMIQUE DU SED
-      # - name: Inject Vercel API URL
-      #   run: |
-      #     sed -i "s|__VITE_API_URL_PLACEHOLDER__|${{ secrets.VERCEL_API_URL }}|g" ./frontend/app/dist/config.js
+      # 13 INJECTION DYNAMIQUE DU SED
+      - name: Inject Vercel API URL
+        run: |
+          sed -i "s|__VITE_API_URL_PLACEHOLDER__|${{ secrets.VERCEL_API_URL }}|g" ./frontend/app/dist/config.js
 
-  #     # 14. Deploy
-  #     - name: Deploy to Vercel
-  #       uses: amondnet/vercel-action@v42
-  #       with:
-  #         vercel-token: ${{ secrets.VERCEL_TOKEN }}
-  #         vercel-org-id: ${{ secrets.VERCEL_USER_ID }}
-  #         vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-  #         vercel-args: '--prod --prebuilt' 
-  #         working-directory: ./
+      # 14. Deploy
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v42
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_USER_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod --prebuilt' 
+          working-directory: ./
 
   aws-deploy:
     needs: frontend-ci
