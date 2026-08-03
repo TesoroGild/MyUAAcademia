@@ -185,7 +185,7 @@ docker-compose down -v     # arrête et supprime les volumes (réinitialise la B
 - [ ] Gestion de certaines erreurs renvoyées par le backend.
 
 ### Backend
-- [ ] Réorganisation des fichiers : Models & Dto; Files.
+- [ ] Refactoring, Réorganisation des fichiers : Models & Dto; Files.
 
 
 ## 🐛 Troubleshooting
