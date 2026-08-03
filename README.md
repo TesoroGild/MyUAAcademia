@@ -1,6 +1,6 @@
 # MyUAAcademia
 <p align="center">
-  <a href="https://myuaacademia.up.railway.app/home" target="_blank" rel="myua">
+  <a href="https://my-ua-academia.vercel.app/home" target="_blank" rel="myua">
     <picture>
       <img alt="homepage" src="./frontend/app/src/assets/img/apercu.png" width="800" center>
     </picture>
@@ -26,7 +26,7 @@ Plateforme de gestion académique multi-rôles (étudiant, professeur, admin)
 
 
 ## 🚀 Demo
-https://myuaacademia.up.railway.app/home
+https://my-ua-academia.vercel.app/home
 
 
 ## ✨ Fonctionnalités
