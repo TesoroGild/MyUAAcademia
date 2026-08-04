@@ -56,18 +56,7 @@ jobs:
         env:
           CI: true
 
-      # 8. Build
-      - name: Build
-        run: npm run build
-
-      # 9. Save build result
-      - name: Save build result
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-output
-          path: ./frontend/app/dist/
-
-      # 10. Playwright report
+      # 8. Playwright report
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -84,23 +73,9 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
     steps:
-      # 11. Retrieve the deposit code
       - name: Checkout code
         uses: actions/checkout@v5.0.1
 
-      # 12. Download previous dist
-      - name: Vercel - Download dist builded in ci
-        uses: actions/download-artifact@v4
-        with:
-          name: build-output
-          path: ./frontend/app/dist/
-
-      # 13 INJECTION DYNAMIQUE DU SED
-      - name: Inject Vercel API URL
-        run: |
-          sed -i "s|__VITE_API_URL_PLACEHOLDER__|${{ secrets.VERCEL_API_URL }}|g" ./frontend/app/dist/config.js
-
-      # 14. Deploy
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v42
         with:
@@ -116,11 +91,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: AWS - Download dist builded in ci
-        uses: actions/download-artifact@v4
+      - name: Checkout code
+        uses: actions/checkout@v5.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5.0.0
         with:
-          name: build-output
-          path: ./frontend/app/dist/
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: './frontend/app/package-lock.json'
+        
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend/app/dist/
+
+      - name: Build for AWS
+        run: npm run build
+        working-directory: ./frontend/app/dist/
+        env:
+          VITE_API_URL: ${{ secrets.AWS_API_URL }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -128,10 +117,8 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-          
-      - name: Inject Vercel API URL
-        run: |
-          sed -i "s|__VITE_API_URL_PLACEHOLDER__|${{ secrets.AWS_API_URL }}|g" ./frontend/app/dist/config.js
 
       - name: Upload files to S3
-        run: aws s3 sync ./frontend/app/dist/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+        run: |
+          aws s3 sync ./frontend/app/dist/ s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.MYUA_FRONT_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
