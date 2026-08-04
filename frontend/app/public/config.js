@@ -1,3 +1,0 @@
-window.APP_CONFIG = {
-  API_URL: "__VITE_API_URL_PLACEHOLDER__"
-};
