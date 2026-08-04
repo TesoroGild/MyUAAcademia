@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const backend_url = window.APP_CONFIG?.API_URL || import.meta.env.VITE_API_URL;
+const backend_url = import.meta.env.VITE_API_URL;
 
 //Create
 export const createEmployee = async (employeeTocreate) => {
