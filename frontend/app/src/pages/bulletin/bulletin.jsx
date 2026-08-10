@@ -145,6 +145,24 @@ const Bulletin = ({ user }) => {
   const [legendOpen, setLegendOpen] = useState(false);
 
   const userCode = studentDisplay || user?.permanentCode;
+  const loadBulletin = useCallback(async (programTitle) => {
+    try {
+      const res = await getStudentBulletinS(userCode);
+      const bulletins = res.bulletins ?? [];
+      const filtered = programTitle
+        ? bulletins.filter((b) => !b.programTitle || b.programTitle === programTitle)
+        : bulletins;
+
+      const credits = filtered.reduce((acc, b) => {
+        if (b.mention && b.mention !== "E") return acc + (b.credits || 0);
+        return acc;
+      }, 0);
+
+      setAllBulletins((prev) => ({ ...prev, [programTitle ?? "_"]: filtered }));
+      setTotalCredit(credits);
+      setAverage(res.average ?? 0);
+    } catch (e) { console.error(e); }
+  }, [userCode])
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -169,26 +187,6 @@ const Bulletin = ({ user }) => {
 
     if (userCode) fetchAll();
   }, [loadBulletin, userCode]);
-
-
-  const loadBulletin = useCallback(async (programTitle) => {
-    try {
-      const res = await getStudentBulletinS(userCode);
-      const bulletins = res.bulletins ?? [];
-      const filtered = programTitle
-        ? bulletins.filter((b) => !b.programTitle || b.programTitle === programTitle)
-        : bulletins;
-
-      const credits = filtered.reduce((acc, b) => {
-        if (b.mention && b.mention !== "E") return acc + (b.credits || 0);
-        return acc;
-      }, 0);
-
-      setAllBulletins((prev) => ({ ...prev, [programTitle ?? "_"]: filtered }));
-      setTotalCredit(credits);
-      setAverage(res.average ?? 0);
-    } catch (e) { console.error(e); }
-  }, [userCode])
 
   const handleProgramSelect = async (title) => {
     setSelectedProgram(title);

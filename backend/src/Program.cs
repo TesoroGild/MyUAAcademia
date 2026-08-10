@@ -16,6 +16,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -217,14 +218,23 @@ builder.Logging.AddDebug();
 var app = builder.Build(); // séparation config / pipeline
 // ══════════════════════════════════════════
 
-// 12. Swagger UI
+// Force .NET to use the forwarded headers (X-Forwarded-For, X-Forwarded-Proto) when behind a reverse proxy
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+// 12. Error handling
+app.UseExceptionHandler();
+
+// 13. Swagger UI
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "MYUAA API v1");
 });
 
-// 13. Uploads (statique, avant les controllers)
+// 14. Uploads (statique, avant les controllers)
 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
 if (!Directory.Exists(uploadsPath))
 {
@@ -237,9 +247,6 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Uploads"
 });
 
-// 14. Error handling
-app.UseExceptionHandler();
-
 // 15. Middleware to log request duration (in ms) for each request
 app.Use(async (context, next) =>
 {
@@ -248,7 +255,7 @@ app.Use(async (context, next) =>
     await next(context);
 
     chronometre.Stop();
-    System.Diagnostics.Debug.WriteLine($"[C#] {context.Request.Method} {context.Request.Path} took {chronometre.ElapsedMilliseconds}ms");
+    Console.WriteLine($"[C#] {context.Request.Method} {context.Request.Path} took {chronometre.ElapsedMilliseconds}ms");
 });
 
 // 16. CORS (avant auth — pour gérer le preflight OPTIONS)
