@@ -100,6 +100,21 @@ const StudentDetails = ({ user }) => {
     setTimeout(() => setToasts((t) => ({ ...t, [type]: false })), 5000);
   };
 
+  const getStudentPrograms = useCallback(async () => {
+    try {
+      const result = await getStudentProgramsS(permanentcode);
+      if (result.success) {
+        const enrolled = [], notEnrolled = [];
+        result.programs.forEach((p) => {
+          if (p.isEnrolled) enrolled.push(p);
+          else if (!p.hasFinished) notEnrolled.push({ ...p, isEnrolled: null });
+        });
+        setProgramsEnrolled(enrolled);
+        setProgramsNotEnrolled(notEnrolled);
+      }
+    } catch (e) { console.error(e); }
+  }, [permanentcode])
+
   useEffect(() => {
     const getStudent = async () => {
       try { 
@@ -124,23 +139,6 @@ const StudentDetails = ({ user }) => {
     getFiles();
     getStudentPrograms();
   }, [getStudentPrograms, permanentcode, userToDisplay]);
-
-
-
-  const getStudentPrograms = useCallback(async () => {
-    try {
-      const result = await getStudentProgramsS(permanentcode);
-      if (result.success) {
-        const enrolled = [], notEnrolled = [];
-        result.programs.forEach((p) => {
-          if (p.isEnrolled) enrolled.push(p);
-          else if (!p.hasFinished) notEnrolled.push({ ...p, isEnrolled: null });
-        });
-        setProgramsEnrolled(enrolled);
-        setProgramsNotEnrolled(notEnrolled);
-      }
-    } catch (e) { console.error(e); }
-  }, [permanentcode])
 
   const downloadStudentFile = async (fileName) => {
     try {

@@ -89,30 +89,6 @@ const Subscribe = ({ user }) => {
   const [isLoading, setIsLoading]                   = useState(false);
   const [cartToDrop, setCartToDrop]                 = useState([]);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  useEffect(() => {
-    const filterByProgram = (program) => {
-    if (!program) { setFilteredCourses(coursesAvailable); return; }
-    setFilteredCourses(
-      coursesAvailable.filter((c) =>
-        c.programTitle?.toLowerCase() === program.title?.toLowerCase()
-      )
-    );
-  };
-  
-    filterByProgram(selectedProgram);
-  }, [selectedProgram, coursesAvailable]);
-
-  const addAlert = (type, message) => {
-    const id = Date.now();
-    setAlerts((a) => [...a, { id, type, message }]);
-    setTimeout(() => setAlerts((a) => a.filter((x) => x.id !== id)), 5000);
-  };
-  const removeAlert = (id) => setAlerts((a) => a.filter((x) => x.id !== id));
-
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -149,6 +125,30 @@ const Subscribe = ({ user }) => {
       setIsLoading(false);
     }
   }, [activeSessions, user])
+  
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    const filterByProgram = (program) => {
+    if (!program) { setFilteredCourses(coursesAvailable); return; }
+    setFilteredCourses(
+      coursesAvailable.filter((c) =>
+        c.programTitle?.toLowerCase() === program.title?.toLowerCase()
+      )
+    );
+  };
+  
+    filterByProgram(selectedProgram);
+  }, [selectedProgram, coursesAvailable]);
+
+  const addAlert = (type, message) => {
+    const id = Date.now();
+    setAlerts((a) => [...a, { id, type, message }]);
+    setTimeout(() => setAlerts((a) => a.filter((x) => x.id !== id)), 5000);
+  };
+  const removeAlert = (id) => setAlerts((a) => a.filter((x) => x.id !== id));
 
   const activeUserCourses = userCourses.filter(
     (uc) => !cartToDrop.find((ctd) => ctd.ccourseId === uc.id)
