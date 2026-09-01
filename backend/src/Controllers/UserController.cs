@@ -31,7 +31,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("exist")]
         [ProducesResponseType(200, Type = typeof(VerifiedUserDto))]
         [ProducesResponseType(400)]
-        //[Authorize(Roles = "student")]
+        [Authorize(Roles = "student")]
         public IActionResult GetUser([FromBody] ExistCredentialsDto credentials)
         {
             if (!_userInterface.UserExistsV1(credentials.Code, credentials.Email))
@@ -56,6 +56,7 @@ namespace MyUAAcademiaB.Controllers
 
 
         /*CREATE*/
+        /*TODO : logique, refuser tous les roles en dehors de admin et aucun car un random sur l'admission peut creer un profil, un admin aussi mais pas un prof ou un etudiant avec leurs comptes*/
         [HttpPost("students")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Users>))]
         [ProducesResponseType(400)]
@@ -138,6 +139,7 @@ namespace MyUAAcademiaB.Controllers
         /*READ*/
         [HttpGet("professors")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserTDDto>))]
+        [Authorize(Roles = "admin, director")]
         public IActionResult GetProfessors()
         {
             var professors = _mapper.Map<List<UserTDDto>>(_userInterface.GetProfessors());
@@ -149,6 +151,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("students")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserTDDto>))]
+        [Authorize(Roles = "admin, director")]
         public IActionResult GetStudents()
         {
             var students = _mapper.Map<List<UserTDDto>>(_userInterface.GetStudents());
@@ -160,6 +163,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("studentsV2")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserV2Dto>))]
+        [Authorize(Roles = "admin, director")]
         public IActionResult GetStudentsV2()
         {
             var studentsV2 = _mapper.Map<List<UserV2Dto>>(_userInterface.GetStudentsV2());
@@ -172,6 +176,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpGet("students/{permanentCode}")]
         [ProducesResponseType(200, Type = typeof(UserTDDto))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetStudent(string permanentCode)
         {
             if (!_userInterface.StudentExists(permanentCode)) return NotFound();
@@ -219,6 +224,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("users")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserTCDto>))]
+        [Authorize(Roles = "admin, director")]
         public IActionResult GetUsers()
         {
             var users = _mapper.Map<List<UserTCDto>>(_userInterface.GetUsers());
@@ -231,6 +237,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("usersByUsername")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserTCDto>))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult GetUsersByName([FromBody] string userName)
         {
             if (userName == null || userName == "") return BadRequest("Invalid username.");
@@ -244,6 +251,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("program/{classeCourseId}")]
         [ProducesResponseType(200)]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetStudentInClasseCourse(int classeCourseId)
         {
             var courseExist = _classeCourseInterface.IsClasseExist(classeCourseId + "");
@@ -281,6 +289,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult ActivateStudentAccount([FromBody] ActivationRequest activationRequest)
         {
             if (activationRequest == null) return BadRequest(ModelState);
@@ -306,6 +315,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult ValidateUserAccount([FromBody] ValidationRequest validationRequest)
         {
             if (validationRequest == null) return BadRequest(ModelState);
@@ -331,6 +341,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(Users))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult UpdateStudent([FromBody] SStudentEltToUpdate eltToUpdate)
         {
             if (eltToUpdate == null) return BadRequest(ModelState);

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using MyUAAcademiaB.Dto;
@@ -98,6 +99,7 @@ namespace MyUAAcademiaB.Controllers
         /*READ*/
         [HttpGet("students-registered")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserProgramEnrollmentDto>))]
+        [Authorize(Roles = "admin, director")]
         public IActionResult GetStudentsRegistered()
         {
             var userPrograms = _userProgramInterface.GetStudentsRegistered();
@@ -110,6 +112,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("students-in-the-program/{progTitle}")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserV3Dto>))]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetStudentsInTheProgram(string progTitle)
         {
             var studentsInProgram = _userProgramInterface.GetStudentsInTheProgram(progTitle);
@@ -126,6 +129,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("students-not-in-a-program")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<UserTDDto>))]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetStudentsInProgram()
         {
             var studentsInProgram = _userProgramInterface.GetStudentsRegistered();
@@ -143,6 +147,7 @@ namespace MyUAAcademiaB.Controllers
         /*UPDATE*/
         [HttpPut("programs-admitted")]
         [ProducesResponseType(200, Type = typeof(bool))]
+        [Authorize(Roles = "admin, director")]
         public IActionResult ActiveAndDelete([FromBody] StudentProgramDecisionDto studentProgramDecisionDto)
         {
             if (studentProgramDecisionDto.FinalDecisions.Count <= 0) return BadRequest("Aucune modification requise");

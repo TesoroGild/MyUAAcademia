@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
@@ -26,6 +27,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("program")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Programs>))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult CreateProgram([FromBody] ProgramDto programTocreate)
         {
             if (programTocreate == null) return BadRequest(ModelState);
@@ -55,6 +57,7 @@ namespace MyUAAcademiaB.Controllers
         /*READ*/
         [HttpGet("{permanentcode}")]
         [ProducesResponseType(200)]
+        [Authorize(Roles = "admin, director, professor, student")]
         public IActionResult GetStudentPrograms(string permanentcode)
         {
             var programs1 = _userProgramInterface.GetStudentPrograms(permanentcode);

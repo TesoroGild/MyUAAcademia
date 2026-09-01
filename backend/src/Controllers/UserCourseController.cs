@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyUAAcademiaB.Data;
@@ -41,6 +42,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("students-courses")]
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director, student")]
         public async Task<IActionResult> RegisterStudentsToCourse([FromBody] UsersCoursesList userCourseToCreate)
         {
             if (userCourseToCreate == null) return BadRequest(ModelState);
@@ -230,6 +232,7 @@ namespace MyUAAcademiaB.Controllers
         /*READ*/
         [HttpGet("student-courses/{permanentCode}")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ClassesCourses>))]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetStudentClasseCourse(string permanentCode)
         {
             if (string.IsNullOrEmpty(permanentCode)) return BadRequest(ModelState);

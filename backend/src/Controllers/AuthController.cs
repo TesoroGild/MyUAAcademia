@@ -214,7 +214,7 @@ namespace MyUAAcademiaB.Controllers
             // TODO
             if (resetPasswordCredentials.UserCode.Equals("DEMO", StringComparison.OrdinalIgnoreCase))
             {
-                return Ok(new { message = "Mot de passe mis à jour avec succès." });
+                return Ok(new { message = "Ce compte est un compte de démonstration. Vous n'êtes pas autorisé à modifier le mot de passe." });
             }
 
             string token = Request.Cookies["RESET_TOKEN"] ?? Request.Cookies["SESSION_ID"];

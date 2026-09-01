@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using MyUAAcademiaB.Dto;
@@ -41,6 +42,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("bulletins")]
         [ProducesResponseType(200, Type = typeof(Bulletins))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult CreateBulletin([FromBody] BulletinDto bulletinTocreate)
         {
             if (bulletinTocreate == null) return BadRequest(ModelState);
@@ -74,6 +76,7 @@ namespace MyUAAcademiaB.Controllers
         /*READ*/
         [HttpGet("bulletins")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Bulletins>))]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetBulletins()
         {
             var bulletins = _bulletinInterface.GetBulletins();
@@ -103,6 +106,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpGet("bulletin/{permanentCode}")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BulletinResponse>))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetStudentBulletin(string permanentCode)
         {
             if (string.IsNullOrEmpty(permanentCode)) return BadRequest(ModelState);
@@ -142,6 +146,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(207)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director, professor")]
         public async Task<IActionResult> UpdateBulletin([FromBody] List<BulletinDto> bulletinsToUpdate)
         {
             if (bulletinsToUpdate == null) return BadRequest(ModelState);

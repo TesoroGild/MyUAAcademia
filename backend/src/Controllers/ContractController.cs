@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using MyUAAcademiaB.Dto;
@@ -25,6 +26,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("")]
         [ProducesResponseType(200, Type = typeof(Contracts))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult CreateContract([FromBody] ContractTCDto contractToCreate)
         {
             if (contractToCreate == null) return BadRequest(ModelState);
@@ -89,6 +91,7 @@ namespace MyUAAcademiaB.Controllers
         //READ
         [HttpGet("")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Contracts>))]
+        [Authorize(Roles = "admin, director")]
         public IActionResult GetContracts()
         {
             var contracts = _contractInterface.GetContracts();
@@ -97,6 +100,15 @@ namespace MyUAAcademiaB.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
             return Ok(contracts);
+        }
+
+        //READ
+        [HttpGet("{code}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Contracts>))]
+        [Authorize(Roles = "admin, director")]
+        public IActionResult GetContract(string code)
+        {
+            return Ok();
         }
 
 
