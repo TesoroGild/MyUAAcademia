@@ -58,6 +58,19 @@ const AddStudentsNotes = ({ user }) => {
   const [isLoading, setIsLoading]             = useState(false);
   const [isSaving, setIsSaving]               = useState(false);
 
+  const loadStudents = useCallback(async (ccId) => {
+    setIsLoading(true);
+    try {
+      const res = await getStudentsInProgramS(ccId);
+      if (res.success) setStudents(res.students);
+      else showAlert("error", res.message);
+    } catch(e) { 
+      console.error(e); 
+    } finally { 
+      setIsLoading(false); 
+    }
+  }, [])
+  
   useEffect(() => { 
     const loadCourses = async () => {
       setIsLoading(true);
@@ -73,21 +86,7 @@ const AddStudentsNotes = ({ user }) => {
     loadCourses(); 
     
     if (courseToGrade) loadStudents(courseToGrade.id);
-  }, [courseToGrade, loadStudents, user]);
-
-
-  const loadStudents = useCallback(async (ccId) => {
-    setIsLoading(true);
-    try {
-      const res = await getStudentsInProgramS(ccId);
-      if (res.success) setStudents(res.students);
-      else showAlert("error", res.message);
-    } catch(e) { 
-      console.error(e); 
-    } finally { 
-      setIsLoading(false); 
-    }
-  }, []) 
+  }, [courseToGrade, loadStudents, user]); 
 
   const showAlert = (type, message) => { setAlert({type,message}); setTimeout(()=>setAlert(null),5000); };
 
