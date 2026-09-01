@@ -5,7 +5,7 @@ const backend_url = import.meta.env.VITE_API_URL;
 //Create
 export const createProgramS = async (programToCreate) => {
     try {
-        const response = await axios.post(`${backend_url}/Program/program`, programToCreate);
+        const response = await axios.post(`${backend_url}/Program/program`, programToCreate, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -21,7 +21,7 @@ export const createProgramS = async (programToCreate) => {
 
 export const programRegistrationS = async (requestParams) => {
     try {
-        const response = await axios.post(`${backend_url}/UserProgram/register-student`, requestParams);
+        const response = await axios.post(`${backend_url}/UserProgram/register-student`, requestParams, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -73,7 +73,7 @@ export const getProgramsByGradeS = async (grade) => {
 
 export const getStudentProgramsS = async (permanentcode) => {
     try {
-        const response = await axios.get(`${backend_url}/Program/${permanentcode}`);
+        const response = await axios.get(`${backend_url}/Program/${permanentcode}`, {withCredentials: true});
         return {
             success: true, 
             programs: response.data
@@ -94,7 +94,7 @@ export const getStudentProgramsS = async (permanentcode) => {
 //Update
 export const registerToAProgramS = async (requestParams) => {
     try {
-        const response = await axios.put(`${backend_url}/UserProgram/programs-admitted`, requestParams);
+        const response = await axios.put(`${backend_url}/UserProgram/programs-admitted`, requestParams, {withCredentials: true});
         return {
             success: true, 
             isEnrolleed: response.data

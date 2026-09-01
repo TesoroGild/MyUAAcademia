@@ -10,7 +10,7 @@ const backend_url = import.meta.env.VITE_API_URL;
 //Create
 export const createCourseS = async (course) => {
     try {
-        const response = await axios.post(`${backend_url}/Course/courses`, course);
+        const response = await axios.post(`${backend_url}/Course/courses`, course, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -27,7 +27,7 @@ export const createCourseS = async (course) => {
 //Register several students for a course
 export const enrollStudentsInCoursesS = async (requestParams) => {
     try {
-        const response = await axios.post(`${backend_url}/UserCourse/students-courses`, requestParams);
+        const response = await axios.post(`${backend_url}/UserCourse/students-courses`, requestParams, {withCredentials: true});
         return {
             success: true, 
             response: response.data
@@ -47,7 +47,7 @@ export const enrollStudentsInCoursesS = async (requestParams) => {
 //Read
 export const getAvailableCoursesS = async (availablePeriods, permanentCode) => {
     try {
-        const response = await axios.post(`${backend_url}/ClasseCourse/courses/sessions/${permanentCode}`, availablePeriods);
+        const response = await axios.post(`${backend_url}/ClasseCourse/courses/sessions/${permanentCode}`, availablePeriods, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -79,7 +79,7 @@ export const getCoursesS = async () => {
 
 export const getProgramCoursesS = async (programsTitles) => {
     try {
-        const response = await axios.post(`${backend_url}/Course/courses/program`, programsTitles);
+        const response = await axios.post(`${backend_url}/Course/courses/program`, programsTitles, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -95,7 +95,7 @@ export const getProgramCoursesS = async (programsTitles) => {
 
 export const getStudentCoursesS = async (permanentCode) => {
     try {
-        const response = await axios.get(`${backend_url}/UserCourse/student-courses/${permanentCode}`);
+        const response = await axios.get(`${backend_url}/UserCourse/student-courses/${permanentCode}`, {withCredentials: true});
         return {
             success: true, 
             courses: response.data
@@ -114,7 +114,7 @@ export const getStudentCoursesS = async (permanentCode) => {
 
 export const getStudentSessionCoursesS = async (requestParams) => {
     try {
-        const response = await axios.post(`${backend_url}/ClasseCourse/student-session-courses`, requestParams);
+        const response = await axios.post(`${backend_url}/ClasseCourse/student-session-courses`, requestParams, {withCredentials: true});
         return {
             success: true, 
             courses: response.data
@@ -133,7 +133,7 @@ export const getStudentSessionCoursesS = async (requestParams) => {
 
 export const getSessionCoursePriceS = async (requestParams) => {
     try {
-        const response = await axios.post(`${backend_url}/Course/student-session-courses`, requestParams);
+        const response = await axios.post(`${backend_url}/Course/student-session-courses`, requestParams, {withCredentials: true});
         return {
             success: true, 
             courses: response.data
@@ -166,7 +166,7 @@ export const getSessionCoursePriceS = async (requestParams) => {
 //Create
 export const createClassroomS = async (course) => {
     try {
-        const response = await axios.post(`${backend_url}/Classe/classes`, course);
+        const response = await axios.post(`${backend_url}/Classe/classes`, course, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -210,7 +210,7 @@ export const getClassroomsS = async () => {
 //Create
 export const createClasseCourseS = async (classeCourseToCreate) => {
     try {
-        const response = await axios.post(`${backend_url}/ClasseCourse/classe-course`, classeCourseToCreate);
+        const response = await axios.post(`${backend_url}/ClasseCourse/classe-course`, classeCourseToCreate, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -277,7 +277,7 @@ export const getClassesCoursesByProgramS = async (title) => {
 
 export const getProgramSessionCoursesS = async (sessionProgram) => {
     try {
-        const response = await axios.post(`${backend_url}/ClasseCourse/classes-courses-by-program-session`, sessionProgram);
+        const response = await axios.post(`${backend_url}/ClasseCourse/classes-courses-by-program-session`, sessionProgram, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {

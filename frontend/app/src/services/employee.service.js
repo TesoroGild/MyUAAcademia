@@ -6,7 +6,7 @@ const backend_url = import.meta.env.VITE_API_URL;
 export const createEmployee = async (employeeTocreate) => {
   console.log("TODO : EMPLOYEE SERVICE : CREATE");
   try {
-    const response = await axios.post(`${backend_url}/Employee/employee`, employeeTocreate);
+    const response = await axios.post(`${backend_url}/Employee/employee`, employeeTocreate, {withCredentials: true});
     return { success: true, employeeAdded: response.data };
   } catch (error) {
     console.error('Erreur :', error);
@@ -96,7 +96,7 @@ export const getContractsS  = async () => {
 //Update
 export const activeEmployeeAccountS = async (activateAccount) => {
     try {
-        const response = await axios.put(`${backend_url}/Employee/activate`, activateAccount);
+        const response = await axios.put(`${backend_url}/Employee/activate`, activateAccount, {withCredentials: true});
         return response.data;
     } catch (error) {
       if (error.response) {
@@ -112,7 +112,7 @@ export const activeEmployeeAccountS = async (activateAccount) => {
 
 export const validateEmployeeS = async (validateFile) => {
   try {
-      const response = await axios.put(`${backend_url}/Employee/validate`, validateFile);
+      const response = await axios.put(`${backend_url}/Employee/validate`, validateFile, {withCredentials: true});
       return response.data;
   } catch (error) {
     if (error.response) {

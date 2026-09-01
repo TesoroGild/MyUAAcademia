@@ -42,7 +42,7 @@ export const createStudentS = async (studentToRegister) => {
 //Read
 export const getStudentS = async (permanentCode) => {
     try {
-        const response = await axios.get(`${backend_url}/User/students/${permanentCode}`);
+        const response = await axios.get(`${backend_url}/User/students/${permanentCode}`, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -58,7 +58,7 @@ export const getStudentS = async (permanentCode) => {
 
 export const getStudentsS = async () => {
     try {
-        const response = await axios.get(`${backend_url}/User/students`);
+        const response = await axios.get(`${backend_url}/User/students`, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -74,7 +74,7 @@ export const getStudentsS = async () => {
 
 export const getStudentsInProgramS = async (classeCourse) => {
     try {
-        const response = await axios.get(`${backend_url}/User/program/${classeCourse}`);
+        const response = await axios.get(`${backend_url}/User/program/${classeCourse}`, {withCredentials: true});
         return { 
             success: true, 
             students: response.data 
@@ -96,7 +96,7 @@ export const getStudentsInProgramS = async (classeCourse) => {
 
 export const getProgramStudentsS = async (progTitle) => {
     try {
-        const response = await axios.get(`${backend_url}/UserProgram/students-in-the-program/${progTitle}`);
+        const response = await axios.get(`${backend_url}/UserProgram/students-in-the-program/${progTitle}`, {withCredentials: true});
         return { 
             success: true, 
             students: response.data 
@@ -118,7 +118,7 @@ export const getProgramStudentsS = async (progTitle) => {
 
 export const getStudentsInfosS = async () => {
   try {
-      const response = await axios.get(`${backend_url}/User/studentsV2`);
+      const response = await axios.get(`${backend_url}/User/studentsV2`, {withCredentials: true});
       return response.data;
   } catch (error) {
       if (error.response) {
@@ -134,7 +134,7 @@ export const getStudentsInfosS = async () => {
 
 export const getStudentsNotInProgramS = async () => {
     try {
-        const response = await axios.get(`${backend_url}/UserProgram/students-not-in-a-program`);
+        const response = await axios.get(`${backend_url}/UserProgram/students-not-in-a-program`, {withCredentials: true});
         return { success: true, studentsNotEnrolled: response.data }
     } catch (error) {
     if (error.response) {
@@ -151,7 +151,7 @@ export const getStudentsNotInProgramS = async () => {
 //Update
 export const activeStudentAccountS = async (activationRequest) => {
     try {
-        const response = await axios.put(`${backend_url}/User/students/activate`, activationRequest);
+        const response = await axios.put(`${backend_url}/User/students/activate`, activationRequest, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -167,7 +167,7 @@ export const activeStudentAccountS = async (activationRequest) => {
 
 export const validateUserS = async (validationRequest) => {
     try {
-        const response = await axios.put(`${backend_url}/User/validate`, validationRequest);
+        const response = await axios.put(`${backend_url}/User/validate`, validationRequest, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
