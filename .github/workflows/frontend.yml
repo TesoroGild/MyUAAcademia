@@ -47,6 +47,11 @@ jobs:
         run: npm run test:run
 
       # 6. Installer playwright pour les tests e2e
+      - name: Fix Ubuntu Mirror
+        run: |
+          sudo sed -i 's/azure\.//g' /etc/apt/sources.list* /etc/apt/sources.list.d/* || true
+          sudo apt-get update
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
