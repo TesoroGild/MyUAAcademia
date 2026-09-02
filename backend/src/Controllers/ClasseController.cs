@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
@@ -24,6 +25,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("classes")]
         [ProducesResponseType(200, Type = typeof(Classes))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult CreateCourse([FromBody] ClasseDto classeTocreate)
         {
             if (classeTocreate == null) return BadRequest(ModelState);
@@ -81,6 +83,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("classes-the-biggest")]
         [ProducesResponseType(200, Type = typeof(ClasseDto))]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetTheBiggestRoom()
         {
             var theBiggestClasse = _classeInterface.GetTheBiggestRoom();
@@ -93,6 +96,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("classes-the-smallest")]
         [ProducesResponseType(200, Type = typeof(ClasseDto))]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetTheSmallestRoom()
         {
             var theSmallestClasse = _classeInterface.GetTheSmallestRoom();
@@ -105,6 +109,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpPost("classes-with-places")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Classes>))]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetRoomsWithXPlaces([FromBody] int nbPlaces)
         {
             if (nbPlaces < 0)
@@ -121,6 +126,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpPost("classes-with-more-places")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Classes>))]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetRoomsBiggerThanXPlaces([FromBody] int nbPlaces)
         {
             if (nbPlaces < 0)
@@ -137,6 +143,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpPost("classes-with-less-places")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Classes>))]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetRoomsSmallerThanXPlaces([FromBody] int nbPlaces)
         {
             if (nbPlaces < 0)
@@ -156,6 +163,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(Classes))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult UpdateClasse([FromBody] ClasseDto classeToUpdate, string newClasseName)
         {
             if (classeToUpdate == null) return BadRequest(ModelState);

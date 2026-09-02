@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
@@ -35,6 +36,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("bills")]
         [ProducesResponseType(200, Type = typeof(Bills))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult CreateBill([FromBody] BillDto billToCreate)
         {
             if (billToCreate == null) return BadRequest(ModelState);
@@ -79,6 +81,7 @@ namespace MyUAAcademiaB.Controllers
         /*READ*/
         [HttpGet("bills")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BillDto>))]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetBills()
         {
             var bills = _mapper.Map<List<BillDto>>(_billInterface.GetBills());
@@ -90,6 +93,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("expiredBills")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BillDto>))]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetExpiredBills()
         {
             var expiredBills = _mapper.Map<List<BillDto>>(_billInterface.GetExpiredBills());
@@ -101,6 +105,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("billsPaidLate")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BillDto>))]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetBillsPaidLate()
         {
             var billsPaidLate = _mapper.Map<List<BillDto>>(_billInterface.GetBillsPaidLate());
@@ -112,6 +117,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpPost("expiredBillsBefore")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BillDto>))]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetExpiredBillsBefore([FromBody] string date)
         {
             if (string.IsNullOrEmpty(date))
@@ -129,6 +135,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpPost("expiredBillsAfter")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BillDto>))]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetExpiredBillsAfter([FromBody] string date)
         {
             if (string.IsNullOrEmpty(date))
@@ -147,6 +154,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpGet("bills/{permanentCode}")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<BillDto>))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult GetStudentBills(string permanentCode)
         {
             if (permanentCode == null || permanentCode.Trim() == "") return NotFound();
@@ -169,6 +177,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(Bills))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director, student")]
         public IActionResult UpdateBill([FromBody] BillDto billToUpdate)
         {
             if (billToUpdate == null || billToUpdate.PermanentCode == null) return BadRequest(ModelState);
@@ -204,6 +213,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
+        [Authorize(Roles = "admin, director, student")]
         public async Task<IActionResult> PayTheBillAsync([FromBody] BillToUpdateDto billToUpdate)
         {
             if (billToUpdate == null || billToUpdate.PermanentCode == null) return BadRequest(ModelState);

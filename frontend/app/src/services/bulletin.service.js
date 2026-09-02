@@ -2,14 +2,9 @@ import axios from 'axios';
 
 const backend_url = import.meta.env.VITE_API_URL;
 
-//CREATE
-// export const create = async (billToCreate) => {
-    
-// }
-
 export const addNotesS = async (studentsNotesGrades) => {
     try {
-        await axios.put(`${backend_url}/Bulletin/bulletins`, studentsNotesGrades);
+        await axios.put(`${backend_url}/Bulletin/bulletins`, studentsNotesGrades, {withCredentials: true});
         return { 
             success: true
         }
@@ -29,7 +24,7 @@ export const addNotesS = async (studentsNotesGrades) => {
 //READ
 export const getStudentBulletinS = async (permanentCode) => {
     try {
-        const response = await axios.get(`${backend_url}/Bulletin/bulletin/${permanentCode}`);
+        const response = await axios.get(`${backend_url}/Bulletin/bulletin/${permanentCode}`, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -57,9 +52,3 @@ export const getCourseGradeS = async (studentCourse) => {
     };
   }
 }
-
-
-//UPDATE
-// export const update = async (billToModify) => {
-    
-// }

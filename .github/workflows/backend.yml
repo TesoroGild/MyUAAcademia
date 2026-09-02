@@ -125,7 +125,7 @@ jobs:
 
       - name: Upload zip to S3
         run: |
-          aws s3 cp deploy.zip s3://${{ secrets.AWS_MYUA_BUCKET }}/deploy-${{ github.sha }}.zip
+          aws s3 cp deploy.zip s3://${{ secrets.AWS_ARTIFACT_BUCKET_NAME }}/deploy-${{ github.sha }}.zip
 
       - name: Deploy to Elastic Beanstalk
         run: |
@@ -134,7 +134,7 @@ jobs:
           aws elasticbeanstalk create-application-version \
             --application-name ${{ secrets.AWS_EB_APP_NAME }} \
             --version-label $VERSION_LABEL \
-            --source-bundle S3Bucket=${{ secrets.AWS_MYUA_BUCKET }},S3Key=deploy-${{ github.sha }}.zip
+            --source-bundle S3Bucket=${{ secrets.AWS_ARTIFACT_BUCKET_NAME }},S3Key=deploy-${{ github.sha }}.zip
 
           aws elasticbeanstalk update-environment \
             --environment-name ${{ secrets.AWS_EB_ENV_NAME }} \
