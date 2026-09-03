@@ -76,6 +76,14 @@ const CourseCreate = ({ user }) => {
   const watchJour    = watch("jours");
   const watchHoraire = watch("horaire");
   
+  const getClassesCourses = useCallback(async () => { 
+    try { 
+      setClassCourses(await getClassesCoursesS(programTitle)); 
+    } catch (e) { 
+      console.error(e); 
+    } 
+  }, [programTitle]);
+  
   useEffect(() => { 
     const getPrograms       = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
     const getClassrooms     = async () => { try { setClassrooms(await getClassroomsS()); } catch (e) { console.error(e); } };
@@ -85,13 +93,6 @@ const CourseCreate = ({ user }) => {
     getClassesCourses(); 
   }, [getClassesCourses]);
   
-  const getClassesCourses = useCallback(async () => { 
-    try { 
-      setClassCourses(await getClassesCoursesS(programTitle)); 
-    } catch (e) { 
-      console.error(e); 
-    } 
-  }, [programTitle]);
 
   const showAlert = (type, message) => {
     setAlert({ type, message });
