@@ -42,7 +42,7 @@ namespace tests.Integration.Controllers
             {
                 Title = "Nouveau Programme",
                 ProgramName = "NP",
-                Descriptions = "Lorem ipsum",
+                Descriptions = "Lorem ipsum dolor sit amet,",
                 Grade = "Doc",
                 Department = "Art",
                 Faculty = "Visuel",
