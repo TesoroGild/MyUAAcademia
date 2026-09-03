@@ -120,8 +120,14 @@ resource "aws_elastic_beanstalk_environment" "this" {
   #aws:elasticbeanstalk:application:environment
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "DB_CONNECTION_STRING"
+    name      = "DATABASE_URL"
     value     = "Host=${var.rds_endpoint};Database=${var.rds_db_name};Username=${var.rds_username};Password=${var.rds_password}"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "ASPNETCORE_URLS"
+    value     = "http://+:8080"
   }
 
   tags = var.tags
