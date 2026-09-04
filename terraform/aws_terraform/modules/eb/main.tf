@@ -22,6 +22,11 @@ resource "aws_iam_role_policy_attachment" "eb_ec2_ecr" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
+resource "aws_iam_role_policy_attachment" "eb_ec2_ssm" {
+  role       = aws_iam_role.eb_ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_instance_profile" "eb_ec2_profile" {
   name = "${var.app_name}-eb-ec2-profile"
   role = aws_iam_role.eb_ec2_role.name
@@ -130,6 +135,12 @@ resource "aws_elastic_beanstalk_environment" "this" {
     value     = "http://+:8080"
   }
 
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "AWS_SECRETS_ENABLED"
+    value     = "true"
+  }
+
   tags = var.tags
 }
 
@@ -142,7 +153,7 @@ resource "aws_iam_policy" "eb_secrets_read" {
       Effect   = "Allow"
       Action   = "secretsmanager:GetSecretValue"
       Resource = [
-        "arn:aws:secretsmanager:eu-west-3:*:secret:myua-secrets"
+        "arn:aws:secretsmanager:us-east-1:*:secret:myua-secrets-*"
       ]
     }]
   })
