@@ -40,7 +40,7 @@ namespace tests.Integration.Controllers
                 Availability = "ASAP",
                 BaseSalary = "90000",
                 Department = "Informatique",
-                Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec metus sapien,",
+                Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 Faculty = "Sciences",
                 JobTitle = "Chargé du programme",
                 MaximumWage = 110000,
