@@ -1,0 +1,119 @@
+name: Integration & E2E Testing
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  # ----------------------------------------------------
+  # JOB 1 : BACKEND & STAGING INTEGRATION TESTS FOR PLAYWRIGHT (TEMPORARY)
+  # ----------------------------------------------------
+  e2e-testing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env: 
+      ASPNETCORE_ENVIRONMENT: Testing
+      FRONTEND_URL: http://localhost:5173
+      Key: ${{ secrets.KEY }}
+      Issuer: ${{ secrets.ISSUER }}
+      Audience: ${{ secrets.AUDIENCE }}
+      ResetKey: ${{ secrets.RESETKEY }}
+      ResetIssuer: ${{ secrets.RESETISSUER }}
+      ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=myuaacademia_test;Username=postgres;Password=postgres"
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: myuaacademia_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.1
+
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5.0.0
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: './frontend/app/package-lock.json'
+
+      # 1. Integrationt tests (.NET + BDD)
+      - name: Run Backend Integration Tests
+        run: dotnet test --configuration Release --logger "console;verbosity=detailed"
+        working-directory: ./backend/
+
+      # 2. Preparing for the Pop-Up Staging (Playwright)
+      - name: Build Backend for Local Run
+        run: dotnet build --configuration Release
+        working-directory: ./backend/
+
+      - name: Install Frontend dependencies
+        run: npm ci
+        working-directory: ./frontend/app/
+
+      - name: Fix Ubuntu Mirror
+        run: |
+          sudo sed -i 's/azure\.//g' /etc/apt/sources.list* /etc/apt/sources.list.d/* || true
+          sudo apt-get update
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: ./frontend/app/
+
+      # 3. Start as background task (&)
+      - name: Start Backend Service
+        run: dotnet run --project ./src/ --configuration Release &
+        working-directory: ./backend/
+
+      - name: Start Frontend Service
+        run: npm run dev &
+        working-directory: ./frontend/app/
+
+      # 4. Wait for a response from the servers
+      - name: Wait for local ports
+        run: npx wait-on http://localhost:5173 http://localhost:5018 --timeout 60000
+
+      # 5. End To End Test
+      - name: Run Playwright E2E tests
+        run: npm run test:e2e
+        working-directory: ./frontend/app/
+        env:
+          CI: true
+
+      # Auto save of repports and bugs (Playwright)
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Playwright E2E Report
+          path: '**/playwright-report/'
+          retention-days: 5
+
+  # ----------------------------------------------------
+  # JOB 2 : CALLING DEPLOYMENT WORKFLOW
+  # ----------------------------------------------------
+  call-deployment-worker:
+    needs: e2e-testing
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    # On pointe vers le fichier numéro 1
+    uses: ./.github/workflows/deploy-actions.yml
+    
+    # On transmet de manière sécurisée nos variables d'environnement secrètes
+    secrets: inherit
