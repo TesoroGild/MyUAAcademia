@@ -1,0 +1,104 @@
+name: Shared Deployment Worker
+
+on:
+  workflow_call:
+    secrets:
+      RENDER_DEPLOY_HOOK_URL: { required: true }
+      AWS_ACCESS_KEY_ID: { required: true }
+      AWS_SECRET_ACCESS_KEY: { required: true }
+      AWS_ECR_NAME: { required: true }
+      AWS_ARTIFACT_BUCKET_NAME: { required: true }
+      AWS_EB_APP_NAME: { required: true }
+      AWS_EB_ENV_NAME: { required: true }
+      VERCEL_USER_ID: { required: true }
+      VERCEL_PROJECT_ID: { required: true }
+      VERCEL_TOKEN: { required: true }
+      AWS_STATIC_BUCKET_NAME: { required: true }
+      CLOUDFRONT_DISTRIBUTION_ID: { required: true }
+      AWS_API_URL: { required: true }
+
+jobs:
+  execute-deployments:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5.0.0
+        with:
+          node-version: 22
+
+      # --- DÉPLOIEMENT DU BACKEND ---
+      - name: Trigger Render deploy
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.AWS_ECR_NAME }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./backend/src
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Create Dockerrun.aws.json
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          echo '{
+            "AWSEBDockerrunVersion": "1",
+            "Image": {
+              "Name": "'$ECR_REGISTRY'/${{ secrets.AWS_ECR_NAME }}:${{ github.sha }}",
+              "Update": "true"
+            },
+            "Ports": [{ "ContainerPort": 8080 }]
+          }' > Dockerrun.aws.json
+
+      - name: Zip Dockerrun
+        run: zip deploy.zip Dockerrun.aws.json
+
+      - name: Upload zip to S3
+        run: aws s3 cp deploy.zip s3://${{ secrets.AWS_ARTIFACT_BUCKET_NAME }}/deploy-${{ github.sha }}.zip
+
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          VERSION_LABEL="${{ github.sha }}-$(date +%s)"
+          aws elasticbeanstalk create-application-version --application-name ${{ secrets.AWS_EB_APP_NAME }} --version-label $VERSION_LABEL --source-bundle S3Bucket=${{ secrets.AWS_ARTIFACT_BUCKET_NAME }},S3Key=deploy-${{ github.sha }}.zip
+          aws elasticbeanstalk update-environment --environment-name ${{ secrets.AWS_EB_ENV_NAME }} --version-label $VERSION_LABEL
+
+      # --- DÉPLOIEMENT DU FRONTEND ---
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v42
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_USER_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./
+
+      - name: Install Frontend dependencies for AWS S3
+        run: npm ci
+        working-directory: ./frontend/app/
+
+      - name: Build Frontend for AWS
+        run: npm run build
+        working-directory: ./frontend/app/
+        env:
+          VITE_API_URL: ${{ secrets.AWS_API_URL }}
+
+      - name: Upload Front files to S3
+        run: |
+          aws s3 sync ./frontend/app/dist/ s3://${{ secrets.AWS_STATIC_BUCKET_NAME }} --delete
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
