@@ -81,8 +81,7 @@ jobs:
         run: dotnet run --project ./src/ --configuration Release --no-launch-profile &
         working-directory: ./backend/
         env :
-          ASPNETCORE_ENVIRONMENT: Development
-          ASPNETCORE_URLS: "http://127.0.0.1:5018"
+          ASPNETCORE_ENVIRONMENT: Testing
 
       - name: Start Frontend Service
         run: npm run dev &
