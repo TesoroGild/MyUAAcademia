@@ -63,6 +63,10 @@ builder.WebHost.ConfigureKestrel(options =>
             listenOptions.UseHttps(httpFile, httpPass);
         });
     }
+    else if (builder.Environment.IsEnvironment("Testing"))
+    {
+        options.ListenLocalhost(port);
+    }
     else
     {
         options.Listen(System.Net.IPAddress.Any, port);
