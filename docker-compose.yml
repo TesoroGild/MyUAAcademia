@@ -44,30 +44,5 @@ services:
       retries: 5
       start_period: 30s
 
-  frontend:
-    restart: always
-    build: 
-      context: .
-      dockerfile: frontend/app/Dockerfile.local
-      args:
-        - VITE_API_URL
-        - VITE_YOUR_SERVICE_ID
-        - VITE_YOUR_TEMPLATE_ID
-        - VITE_YOUR_PUBLIC_KEY
-    container_name: react_frontend
-    ports:
-      - "3000:80"
-    depends_on:
-      db:
-        condition: service_healthy
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:80 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-
 volumes:
   postgres_data:

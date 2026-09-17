@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Amazon;
+using Amazon.SecretsManager;
+using Amazon.SecretsManager.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -6,13 +9,38 @@ using Microsoft.OpenApi;
 using MyUAAcademiaB.Data;
 using MyUAAcademiaB.Helper;
 using MyUAAcademiaB.Interfaces;
+using MyUAAcademiaB.Middlewares;
 using MyUAAcademiaB.Repository;
 using MyUAAcademiaB.Services;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Récupération des secrets depuis AWS Secrets Manager en production
+if (!builder.Environment.IsDevelopment() &&
+    builder.Configuration["AWS_SECRETS_ENABLED"] == "true")
+{
+    var secretName = "myua-secrets";
+    var region = "us-east-1";
+
+    var client = new AmazonSecretsManagerClient(RegionEndpoint.GetBySystemName(region));
+
+    var request = new GetSecretValueRequest { SecretId = secretName };
+    var response = await client.GetSecretValueAsync(request);
+
+    var secrets = JsonSerializer.Deserialize<Dictionary<string, string>>(response.SecretString)!;
+
+    foreach (var secret in secrets)
+    {
+        Environment.SetEnvironmentVariable(secret.Key, secret.Value);
+    }
+
+    builder.Configuration.AddEnvironmentVariables();
+}
 
 // 0. RÉCUPÉRATION ET VALIDATION DES CONFIGURATIONS
 var authKey = builder.Configuration.GetRequiredSection("Key").Value!;
@@ -35,6 +63,10 @@ builder.WebHost.ConfigureKestrel(options =>
             listenOptions.UseHttps(httpFile, httpPass);
         });
     }
+    else if (builder.Environment.IsEnvironment("Testing"))
+    {
+        options.ListenLocalhost(port);
+    }
     else
     {
         options.Listen(System.Net.IPAddress.Any, port);
@@ -45,10 +77,14 @@ builder.WebHost.ConfigureKestrel(options =>
 builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-// 3. AutoMapper
+// 3. Register custom exception handler for dependency injection
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+// 4. AutoMapper
 builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfiles));
 
-// 4. Repositories
+// 5. Repositories
 builder.Services.AddScoped<IBillInterface, BillRepository>();
 builder.Services.AddScoped<IBulletinInterface, BulletinRepository>();
 builder.Services.AddScoped<IEmployeeInterface, EmployeeRepository>();
@@ -61,7 +97,7 @@ builder.Services.AddScoped<IUserCourseInterface, UserCourseRepository>();
 builder.Services.AddScoped<IUserProgramInterface, UserProgramRepository>();
 builder.Services.AddScoped<IContractInterface, ContractRepository>();
 
-// 5. Services
+// 6. Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBillService, BillService>();
 builder.Services.AddScoped<IBulletinService, BulletinService>();
@@ -73,7 +109,7 @@ builder.Services.AddScoped<IUserProgramService, UserProgramService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<JwtService>();
 
-// 6. Auth JWT
+// 7. Auth JWT
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
@@ -114,7 +150,7 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddAuthorization();
 
 
-// 7. Swagger
+// 8. Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -125,7 +161,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// 8. CORS (un seul bloc, une seule politique)
+// 9. CORS (un seul bloc, une seule politique)
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -139,7 +175,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// 9. Base de données
+// 10. Base de données
 builder.Services.AddDbContext<DataContext>(options =>
 {
     var npgsqlConn = "";
@@ -156,7 +192,7 @@ builder.Services.AddDbContext<DataContext>(options =>
         //var userInfo = uri.UserInfo.Split(':');
         //npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]}";
 
-        // Render config
+        // Render & AWS config
         var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL")
             ?? throw new InvalidOperationException("DATABASE_URL is missing for prod.");
 
@@ -178,7 +214,7 @@ builder.Services.AddDbContext<DataContext>(options =>
     }).UseSnakeCaseNamingConvention();
 });
 
-// 10. Logging
+// 11. Logging
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
@@ -186,14 +222,23 @@ builder.Logging.AddDebug();
 var app = builder.Build(); // séparation config / pipeline
 // ══════════════════════════════════════════
 
-// 11. Swagger UI
+// Force .NET to use the forwarded headers (X-Forwarded-For, X-Forwarded-Proto) when behind a reverse proxy
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
+// 12. Error handling
+app.UseExceptionHandler();
+
+// 13. Swagger UI
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "MYUAA API v1");
 });
 
-// 12. Uploads (statique, avant les controllers)
+// 14. Uploads (statique, avant les controllers)
 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
 if (!Directory.Exists(uploadsPath))
 {
@@ -206,23 +251,34 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/Uploads"
 });
 
-// 13. CORS (avant auth — pour gérer le preflight OPTIONS)
+// 15. Middleware to log request duration (in ms) for each request
+app.Use(async (context, next) =>
+{
+    var chronometre = System.Diagnostics.Stopwatch.StartNew();
+
+    await next(context);
+
+    chronometre.Stop();
+    Console.WriteLine($"[C#] {context.Request.Method} {context.Request.Path} took {chronometre.ElapsedMilliseconds}ms");
+});
+
+// 16. CORS (avant auth — pour gérer le preflight OPTIONS)
 app.UseCors();
 
-// 14. Auth (dans le bon ordre : d'abord identifier, ensuite autoriser)
+// 17. Auth (dans le bon ordre : d'abord identifier, ensuite autoriser)
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 15. Controllers
+// 18. Controllers
 app.MapControllers();
 
-// 16. HTTPS redirection (en dev uniquement, car en prod c'est géré par le reverse proxy)
+// 19. HTTPS redirection (en dev uniquement, car en prod c'est géré par le reverse proxy)
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
 
-// 17. Envoie des migrations vers postgreSQL
+// 20. Envoie des migrations vers postgreSQL
 if (!app.Environment.IsEnvironment("Testing"))
 {
     using (var scope = app.Services.CreateScope())
@@ -232,9 +288,9 @@ if (!app.Environment.IsEnvironment("Testing"))
     }
 }
 
-// 18. Redirection vers Swagger
+// 21. Redirection vers Swagger
 app.MapGet("/", () => Results.Redirect("/swagger"));
 app.Run();
 
-// 19. Partial class pour les tests d'intégration (WebApplicationFactory)
+// 22. Partial class pour les tests d'intégration (WebApplicationFactory)
 public partial class Program { }

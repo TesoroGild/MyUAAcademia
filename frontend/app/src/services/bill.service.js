@@ -2,13 +2,9 @@ import axios from 'axios';
 
 const backend_url = import.meta.env.VITE_API_URL;
 
-// export const create = async (billToCreate) => {
-    
-// }
-
 export const getStudentBillsS = async (permanentCode) => {
     try {
-        const response = await axios.get(`${backend_url}/Bill/bills/${permanentCode}`);
+        const response = await axios.get(`${backend_url}/Bill/bills/${permanentCode}`, {withCredentials: true});
         return response.data;
     } catch (error) {
         if (error.response) {
@@ -24,7 +20,7 @@ export const getStudentBillsS = async (permanentCode) => {
 
 export const payBill = async (billToPay) => {
     try {
-        const response = await axios.put(`${backend_url}/Bill/pay`, billToPay);
+        const response = await axios.put(`${backend_url}/Bill/pay`, billToPay, {withCredentials: true});
         return { 
             success: response.data
         }
@@ -39,7 +35,3 @@ export const payBill = async (billToPay) => {
     return { success: false, message: "Impossible de contacter le serveur" };
   }
 }
-
-// export const update = async (billToModify) => {
-    
-// }

@@ -36,6 +36,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("employee")]
         [ProducesResponseType(200, Type = typeof(string))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult CreateEmployee([FromBody] EmployeeTCDto employeeTocreate)
         {
             if (employeeTocreate == null) return BadRequest(ModelState);
@@ -138,7 +139,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("exist")]
         [ProducesResponseType(200, Type = typeof(VerifiedUserDto))]
         [ProducesResponseType(400)]
-        //[Authorize(Roles = "admin, director, professor")]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult GetEmployee([FromBody] ExistCredentialsDto credentials)
         {
             if (!_employeeInterface.EmployeeExistsV1(credentials.Code, credentials.Email))
@@ -167,6 +168,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult ActivateEmployeeAccount([FromBody] ActivationRequest activationRequest)
         {
             if (activationRequest == null) return BadRequest(ModelState);
@@ -192,6 +194,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult ValidateEmployeeAccount([FromBody] ValidationRequest validationRequest)
         {
             if (validationRequest == null) return BadRequest(ModelState);
@@ -217,6 +220,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(Employees))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult UpdateEmployee([FromBody] EmployeeTU eltsToUpdate)
         {
             if (eltsToUpdate == null) return BadRequest(ModelState);

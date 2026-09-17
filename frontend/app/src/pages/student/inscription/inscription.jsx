@@ -37,6 +37,14 @@ const Inscription = ({ user }) => {
   const [alert, setAlert]                               = useState(null);
   const [isLoading, setIsLoading]                       = useState(false);
 
+  const getStudents = useCallback(async () => {
+    try {
+      const result = await getStudentsS();
+      setStudents(result);
+      setFilteredStudents(result);
+    } catch { showAlert("warning", "Impossible de contacter le serveur."); }
+  }, [])
+
   useEffect(() => { 
     const getPrograms = async () => { try { setPrograms(await getProgramsS()); } catch (e) { console.error(e); } };
     
@@ -45,14 +53,6 @@ const Inscription = ({ user }) => {
   }, [getStudents]);
 
   const showAlert = (type, message) => { setAlert({ type, message }); setTimeout(() => setAlert(null), 5000); };
-
-  const getStudents = useCallback(async () => {
-    try {
-      const result = await getStudentsS();
-      setStudents(result);
-      setFilteredStudents(result);
-    } catch { showAlert("warning", "Impossible de contacter le serveur."); }
-  }, [])
 
   const handleStudentSearch = (e) => {
     const term = e.target.value;

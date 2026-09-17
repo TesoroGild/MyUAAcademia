@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
@@ -24,6 +25,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("courses")]
         [ProducesResponseType(200, Type = typeof(Courses))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director")]
         public IActionResult CreateCourse([FromBody] CourseDto courseTocreate)
         {
             if (courseTocreate == null) return BadRequest(ModelState);

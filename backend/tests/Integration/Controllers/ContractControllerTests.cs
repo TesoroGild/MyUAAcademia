@@ -9,28 +9,19 @@ using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 using System.Net;
 using System.Net.Http.Json;
+using tests.Helpers;
 
 namespace tests.Integration.Controllers
 {
-    public class ContractControllerTests : IClassFixture<WebApplicationFactory<Program>>
+    public class ContractControllerTests : IClassFixture<CustomWebApplicationFactory>
     {
         private readonly HttpClient _client;
         private readonly Mock<IContractInterface> _contractInterfaceMock = new();
 
-        public ContractControllerTests(WebApplicationFactory<Program> factory)
+        public ContractControllerTests(CustomWebApplicationFactory factory)
         {
             _client = factory.WithWebHostBuilder(builder =>
             {
-                builder.UseEnvironment("Testing");
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    // Injecter les valeurs manquantes pour le contexte de test
-                    config.AddInMemoryCollection(new Dictionary<string, string>
-                    {
-                        ["LOCAL_FRONTEND_URL"] = "http://localhost:5173"
-                    });
-                });
-
                 builder.ConfigureServices(services =>
                 {
                     services.AddScoped<IContractInterface>(_ => _contractInterfaceMock.Object);
@@ -49,7 +40,7 @@ namespace tests.Integration.Controllers
                 Availability = "ASAP",
                 BaseSalary = "90000",
                 Department = "Informatique",
-                Description = "Lorem ipsum dolor sit amet",
+                Description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
                 Faculty = "Sciences",
                 JobTitle = "Chargé du programme",
                 MaximumWage = 110000,
@@ -65,6 +56,8 @@ namespace tests.Integration.Controllers
                 .Setup(x => x.CreateContract(It.IsAny<Contracts>()))
                 .Returns(new Contracts());
 
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
+
             // Act
             var response = await _client.PostAsJsonAsync("/api/Contract", contractDto);
 
@@ -75,6 +68,9 @@ namespace tests.Integration.Controllers
         [Fact]
         public async Task CreateContract_Returns400_WhenContractIsNull()
         {
+            // Arrange
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
+
             // Act
             var response = await _client.PostAsJsonAsync<ContractTCDto>("/api/Contract", null);
 
@@ -106,6 +102,8 @@ namespace tests.Integration.Controllers
             _contractInterfaceMock
                 .Setup(x => x.CreateContract(It.IsAny<Contracts>()))
                 .Returns((Contracts)null);
+
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
 
             // Act
             var response = await _client.PostAsJsonAsync("/api/Contract", contractDto);
@@ -145,6 +143,8 @@ namespace tests.Integration.Controllers
                 WorkShift = "Temps partiel"
             };
 
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
+
             // Act
             await _client.PostAsJsonAsync("/api/Contract", contractDto);
 
@@ -168,6 +168,8 @@ namespace tests.Integration.Controllers
                 .Setup(x => x.GetContracts())
                 .Returns(contracts);
 
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
+
             // Act
             var response = await _client.GetAsync("/api/Contract");
             var result = await response.Content.ReadFromJsonAsync<List<Contracts>>();
@@ -184,6 +186,8 @@ namespace tests.Integration.Controllers
             _contractInterfaceMock
                 .Setup(x => x.GetContracts())
                 .Returns(new List<Contracts>());
+
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
 
             // Act
             var response = await _client.GetAsync("/api/Contract");

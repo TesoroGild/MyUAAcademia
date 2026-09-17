@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MyUAAcademiaB.Dto;
 using MyUAAcademiaB.Interfaces;
@@ -32,6 +33,7 @@ namespace MyUAAcademiaB.Controllers
         [HttpPost("classe-course")]
         [ProducesResponseType(200, Type = typeof(ClassesCourses))]
         [ProducesResponseType(400)]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult ScheduleACourse(ClasseCourseDto classeCourseToCreate)
         {
             if (classeCourseToCreate == null) return BadRequest(ModelState);
@@ -95,6 +97,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpPost("student-session-courses")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ClasseCourseDto>))]
+        [Authorize(Roles = "admin, director, professor, student")]
         public IActionResult GetStudentSessionCourse(UserSessionInfos userSessionInfos)
         {
             if (userSessionInfos == null) return BadRequest(ModelState);
@@ -131,6 +134,7 @@ namespace MyUAAcademiaB.Controllers
 
         [HttpGet("professor-courses/{profCode}")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<ClasseCoursesProgramDto>))]
+        [Authorize(Roles = "admin, director, professor")]
         public async Task<IActionResult> GetProfessorCoursesAsync(string profCode)
         {
             var professorCourses = await _classeCourseInterface.GetProfessorCourses(profCode);
@@ -146,6 +150,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<ClassesCourses>))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director, professor")]
         public IActionResult UpdateACourse([FromBody] ClasseCourseDto classesCourses)
         {
             if (classesCourses == null) return BadRequest(ModelState);
@@ -166,6 +171,7 @@ namespace MyUAAcademiaB.Controllers
         [ProducesResponseType(200, Type = typeof(bool))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
+        [Authorize(Roles = "admin, director")]
         public async Task<IActionResult> AssignProfToClasseCourse([FromBody] ProfCCoursesIdDto profCourseIds)
         {
             if (profCourseIds == null) return BadRequest(ModelState);

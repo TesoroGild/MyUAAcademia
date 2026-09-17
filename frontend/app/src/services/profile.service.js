@@ -2,17 +2,9 @@ import axios from 'axios';
 
 const backend_url = import.meta.env.VITE_API_URL;
 
-// export const create = async (profileToCreate) => {
-    
-// }
-
-// export const read = async (permanentCode) => {
-
-// }
-
 export const update = async (profileToModify) => {
   try {
-    const response = await axios.put(`${backend_url}/User/students`, profileToModify);
+    const response = await axios.put(`${backend_url}/User/students`, profileToModify, {withCredentials: true});
     return response.data;
   } catch (error) {
     if (error.response) {
@@ -28,7 +20,7 @@ export const update = async (profileToModify) => {
 
 export const updateUser = async (profileToModify) => {
   try {
-    const response = await axios.put(`${backend_url}/Employee/users`, profileToModify);
+    const response = await axios.put(`${backend_url}/Employee/users`, profileToModify, {withCredentials: true});
     return response.data;
   } catch (error) {
     if (error.response) {

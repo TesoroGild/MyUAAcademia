@@ -211,6 +211,12 @@ namespace MyUAAcademiaB.Controllers
         {
             if (resetPasswordCredentials == null) return BadRequest("Format invalide.");
 
+            // TODO
+            if (resetPasswordCredentials.UserCode.Equals("DEMO", StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(new { message = "Ce compte est un compte de démonstration. Vous n'êtes pas autorisé à modifier le mot de passe." });
+            }
+
             string token = Request.Cookies["RESET_TOKEN"] ?? Request.Cookies["SESSION_ID"];
 
             if (string.IsNullOrEmpty(token))

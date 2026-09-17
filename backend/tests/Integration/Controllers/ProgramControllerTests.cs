@@ -9,29 +9,21 @@ using MyUAAcademiaB.Interfaces;
 using MyUAAcademiaB.Models;
 using System.Net;
 using System.Net.Http.Json;
+using tests.Helpers;
 
 
 namespace tests.Integration.Controllers
 {
-    public class ProgramControllerTests : IClassFixture<WebApplicationFactory<Program>>
+    public class ProgramControllerTests : IClassFixture<CustomWebApplicationFactory>
     {
         private readonly HttpClient _client;
         private readonly Mock<IProgramInterface> _programInterfaceMock = new();
         private readonly Mock<IUserProgramInterface> _userProgramInterfaceMock = new();
 
-        public ProgramControllerTests(WebApplicationFactory<Program> factory)
+        public ProgramControllerTests(CustomWebApplicationFactory factory)
         {
             _client = factory.WithWebHostBuilder(builder =>
             {
-                builder.UseEnvironment("Testing");
-                builder.ConfigureAppConfiguration((context, config) =>
-                {
-                    config.AddInMemoryCollection(new Dictionary<string, string>
-                    {
-                        ["LOCAL_FRONTEND_URL"] = "http://localhost:5173"
-                    });
-                });
-
                 builder.ConfigureServices(services =>
                 {
                     services.AddScoped<IProgramInterface>(_ => _programInterfaceMock.Object);
@@ -50,7 +42,7 @@ namespace tests.Integration.Controllers
             {
                 Title = "Nouveau Programme",
                 ProgramName = "NP",
-                Descriptions = "Lorem ipsum",
+                Descriptions = "Lorem ipsum dolor sit amet,",
                 Grade = "Doc",
                 Department = "Art",
                 Faculty = "Visuel",
@@ -67,6 +59,8 @@ namespace tests.Integration.Controllers
                 .Setup(x => x.CreateProgram(It.IsAny<Programs>()))
                 .Returns(new Programs());
 
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
+
             // Act
             var response = await _client.PostAsJsonAsync("/api/Program/program", programDto);
 
@@ -77,6 +71,7 @@ namespace tests.Integration.Controllers
         [Fact]
         public async Task CreateProgram_Returns400_WhenBodyIsNull()
         {
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
             var response = await _client.PostAsJsonAsync<ProgramDto>("/api/Program/program", null);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
@@ -90,6 +85,8 @@ namespace tests.Integration.Controllers
             _programInterfaceMock
                 .Setup(x => x.ProgramExist(programDto.Title))
                 .Returns(false);
+
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
 
             // Act
             var response = await _client.PostAsJsonAsync("/api/Program/program", programDto);
@@ -117,7 +114,8 @@ namespace tests.Integration.Controllers
 
             _programInterfaceMock
                 .Setup(x => x.ProgramExist(programDto.Title))
-                .Returns(true); // ← programme déjà en BD
+                .Returns(true);
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
 
             // Act
             var response = await _client.PostAsJsonAsync("/api/Program/program", programDto);
@@ -149,7 +147,9 @@ namespace tests.Integration.Controllers
 
             _programInterfaceMock
                 .Setup(x => x.CreateProgram(It.IsAny<Programs>()))
-                .Returns((Programs)null); // ← échec BD
+                .Returns((Programs)null);
+
+            _client.DefaultRequestHeaders.Add("Test-Role", "admin");
 
             // Act
             var response = await _client.PostAsJsonAsync("/api/Program/program", programDto);
@@ -256,6 +256,8 @@ namespace tests.Integration.Controllers
             _programInterfaceMock
                 .Setup(x => x.GetPrograms(It.IsAny<List<string>>()))
                 .Returns(programs);
+
+            _client.DefaultRequestHeaders.Add("Test-Role", "student");
 
             // Act
             var response = await _client.GetAsync($"/api/Program/{permanentCode}");
