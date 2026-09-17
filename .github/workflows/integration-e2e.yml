@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      FRONTEND_URL: http://127.0.0.1:5173
+      FRONTEND_URL: http://localhost:5173
       Key: ${{ secrets.KEY }}
       Issuer: ${{ secrets.ISSUER }}
       Audience: ${{ secrets.AUDIENCE }}
@@ -78,7 +78,7 @@ jobs:
 
       # 3. Start as background task (&)
       - name: Start Backend Service
-        run: dotnet run --project ./src/ --configuration Release &
+        run: dotnet run --project ./src/ --configuration Release --no-launch-profile &
         working-directory: ./backend/
         env :
           ASPNETCORE_ENVIRONMENT: Testing
@@ -89,7 +89,7 @@ jobs:
 
       # 4. Wait for a response from the servers
       - name: Wait for local ports
-        run: npx wait-on http-get://127.0.0.1:5173 http-get://127.0.0.1:8080 --timeout 60000
+        run: npx wait-on http-get://localhost:5173 http-get://localhost:8080 --timeout 60000
 
       # logs
       - name: Output Backend Logs on Failure
