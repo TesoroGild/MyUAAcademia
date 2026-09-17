@@ -78,7 +78,7 @@ jobs:
 
       # 3. Start as background task (&)
       - name: Start Backend Service
-        run: dotnet run --project ./src/ --configuration Release &
+        run: dotnet run --project ./src/ --configuration Release --no-launch-profile &
         working-directory: ./backend/
         env :
           ASPNETCORE_ENVIRONMENT: Testing
@@ -89,7 +89,16 @@ jobs:
 
       # 4. Wait for a response from the servers
       - name: Wait for local ports
-        run: npx wait-on http-get://127.0.0.1:5173 http-get://127.0.0.1:5018 --timeout 60000
+        run: npx wait-on http-get://127.0.0.1:5173 http-get://127.0.0.1:8080 --timeout 60000
+
+      # logs
+      - name: Output Backend Logs on Failure
+        if: failure()
+        run: |
+          echo "=== AFFICHAGE DES LOGS DE L'API NET ==="
+          ps aux | grep dotnet
+          # Looking for the process in background to see if they run.
+
 
       # 5. End To End Test
       - name: Run Playwright E2E tests
