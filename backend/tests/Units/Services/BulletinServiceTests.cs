@@ -1,11 +1,11 @@
-using FluentAssertions;
-using Moq;
 using MyUAAcademiaB.Models;
 using MyUAAcademiaB.Services;
-using AutoMapper;
 using MyUAAcademiaB.Interfaces;
+using AutoMapper;
+using Moq;
+using FluentAssertions;
 
-namespace tests.Unit.Services
+namespace units.Services
 {
     public class BulletinServiceTests
     {
