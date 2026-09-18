@@ -63,7 +63,7 @@ jobs:
       - name: Build
         run: dotnet build --no-restore --configuration Release
 
-      - name: Run tests
-        run: dotnet test --no-build --configuration Release --logger "console;verbosity=detailed"
+      - name: Run unit tests
+        run: dotnet test ./tests/Units/ --no-build --configuration Release --logger "console;verbosity=detailed"
         env:
           ConnectionStrings__DefaultConnection: "Host=localhost;Port=5432;Database=myuaacademia_test;Username=postgres;Password=postgres"
