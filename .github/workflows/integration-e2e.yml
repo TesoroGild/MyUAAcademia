@@ -55,7 +55,7 @@ jobs:
 
       # 1. Integrationt tests (.NET + BDD)
       - name: Run Backend Integration Tests
-        run: dotnet test --configuration Release --logger "console;verbosity=detailed"
+        run: dotnet test ./tests/Integrations/ --configuration Release --logger "console;verbosity=detailed"
         working-directory: ./backend/
 
       # 2. Preparing for the Pop-Up Staging (Playwright)
@@ -78,7 +78,7 @@ jobs:
 
       # 3. Start as background task (&)
       - name: Start Backend Service
-        run: dotnet run --project ./src/ --configuration Release --no-launch-profile &
+        run: dotnet run --project ./src/ --configuration Release --no-build --no-launch-profile &
         working-directory: ./backend/
         env :
           ASPNETCORE_ENVIRONMENT: Testing

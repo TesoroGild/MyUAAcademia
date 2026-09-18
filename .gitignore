@@ -5,6 +5,7 @@ db/
 frontend/.vscode
 backend/.vs
 backend/.sonarqube
+*.csproj.lscache
 
 .vscode
 .vs
