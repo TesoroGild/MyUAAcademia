@@ -12,7 +12,7 @@ using System.Net.Http.Json;
 using tests.Helpers;
 
 
-namespace tests.Integration.Controllers
+namespace integration.Controllers
 {
     public class ProgramControllerTests : IClassFixture<CustomWebApplicationFactory>
     {

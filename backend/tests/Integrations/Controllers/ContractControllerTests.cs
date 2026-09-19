@@ -11,7 +11,7 @@ using System.Net;
 using System.Net.Http.Json;
 using tests.Helpers;
 
-namespace tests.Integration.Controllers
+namespace integrations.Controllers
 {
     public class ContractControllerTests : IClassFixture<CustomWebApplicationFactory>
     {
