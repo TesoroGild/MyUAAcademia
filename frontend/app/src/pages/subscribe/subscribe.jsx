@@ -16,6 +16,7 @@ const PERIODS = [
 const MAX_COURSES = 5;
 
 const getActiveSessions = () => PERIODS.filter((p) => p.start <= today && today <= p.end);
+const ACTIVE_SESSIONS = getActiveSessions();
 
 // ── Toast inline ──────────────────────────────────────────────────────────────
 const InlineAlert = ({ type, message, onClose }) => {
@@ -77,8 +78,6 @@ const ProgramDropdown = ({ programs, selected, onSelect }) => {
 
 // ── Page principale ───────────────────────────────────────────────────────────
 const Subscribe = ({ user }) => {
-  const activeSessions = getActiveSessions();
-
   const [coursesAvailable, setCoursesAvailable]     = useState([]);
   const [filteredCourses, setFilteredCourses]       = useState([]);
   const [userCourses, setUserCourses]               = useState([]);
@@ -92,7 +91,7 @@ const Subscribe = ({ user }) => {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const sc = activeSessions[0]?.session;
+      const sc = ACTIVE_SESSIONS[0]?.session;
       if (sc) {
         const res = await getStudentSessionCoursesS({
           permanentCode: user.permanentCode,
@@ -112,9 +111,9 @@ const Subscribe = ({ user }) => {
       }
 
       const availablePeriods = {
-        winter: activeSessions.some((p) => p.session === "Hiver"),
-        summer: activeSessions.some((p) => p.session === "Été"),
-        autumn: activeSessions.some((p) => p.session === "Automne"),
+        winter: ACTIVE_SESSIONS.some((p) => p.session === "Hiver"),
+        summer: ACTIVE_SESSIONS.some((p) => p.session === "Été"),
+        autumn: ACTIVE_SESSIONS.some((p) => p.session === "Automne"),
       };
 
       const response = await getAvailableCoursesS(availablePeriods, user.permanentCode);
@@ -124,7 +123,7 @@ const Subscribe = ({ user }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [activeSessions, user])
+  }, [user])
   
   useEffect(() => {
     loadData();
@@ -242,7 +241,7 @@ const Subscribe = ({ user }) => {
         <div className="h-16 bg-white border-b border-slate-200 flex items-center px-8 sticky top-0 z-10">
           <div>
             <p className="text-sm font-semibold text-slate-900">Inscription aux cours</p>
-            <p className="text-xs text-slate-400">Session {activeSessions[0]?.session ?? "—"} {year}</p>
+            <p className="text-xs text-slate-400">Session {ACTIVE_SESSIONS[0]?.session ?? "—"} {year}</p>
           </div>
         </div>
 
@@ -279,72 +278,72 @@ const Subscribe = ({ user }) => {
           </div>
 
           {/* ── Hors période ── */}
-          {activeSessions.length === 0 && (
+          {ACTIVE_SESSIONS.length === 0 && (
             <InlineAlert type="warning" message="Les inscriptions aux cours ne sont pas ouvertes en ce moment." />
           )}
 
           {/* ── Mes cours actuels ── */}
           <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-  <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-    <p className="text-sm font-semibold text-slate-900">Mes cours inscrits</p>
-    <span className="text-xs font-medium text-slate-500">{activeUserCourses.length} / {MAX_COURSES}</span>
-  </div>
-  {activeUserCourses.length === 0 ? (
-    <p className="px-5 py-8 text-center text-sm text-slate-400">Aucun cours actif.</p>
-  ) : (
-    <table className="w-full text-sm">
-      <tbody className="divide-y divide-slate-100">
-        {activeUserCourses.map((c) => (
-          <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
-            <td className="py-3 px-5 font-mono text-xs font-bold text-blue-700 w-24">{c.courseSigle}</td>
-            <td className="py-3 px-5 text-slate-600">{c.classeName}</td>
-            <td className="py-3 px-5 text-slate-400 text-xs">{c.jours} · {c.startTime}–{c.endTime}</td>
-            <td className="py-3 px-5 text-right">
-              <button 
-                onClick={() => dropCourse(c)}
-                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                title="Abandonner ce cours"
-              >
-                <HiTrash className="w-4 h-4" />
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
-</div>
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <p className="text-sm font-semibold text-slate-900">Mes cours inscrits</p>
+              <span className="text-xs font-medium text-slate-500">{activeUserCourses.length} / {MAX_COURSES}</span>
+            </div>
+            {activeUserCourses.length === 0 ? (
+              <p className="px-5 py-8 text-center text-sm text-slate-400">Aucun cours actif.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <tbody className="divide-y divide-slate-100">
+                  {activeUserCourses.map((c) => (
+                    <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="py-3 px-5 font-mono text-xs font-bold text-blue-700 w-24">{c.courseSigle}</td>
+                      <td className="py-3 px-5 text-slate-600">{c.classeName}</td>
+                      <td className="py-3 px-5 text-slate-400 text-xs">{c.jours} · {c.startTime}–{c.endTime}</td>
+                      <td className="py-3 px-5 text-right">
+                        <button 
+                          onClick={() => dropCourse(c)}
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                          title="Abandonner ce cours"
+                        >
+                          <HiTrash className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
 
-{/* ── 2. SECTION ABANDON (À AFFICHER SEULEMENT SI CARTTODROP > 0) ── */}
-{cartToDrop.length > 0 && (
-  <div className="bg-red-50 border border-red-100 rounded-xl overflow-hidden ring-1 ring-red-200">
-    <div className="px-5 py-3 border-b border-red-100 flex items-center gap-2">
-      <HiExclamation className="text-red-500 w-4 h-4" />
-      <p className="text-sm font-bold text-red-800">Cours à abandonner</p>
-    </div>
-    <table className="w-full text-sm">
-      <tbody>
-        {cartToDrop.map((c) => (
-          <tr key={c.ccourseId} className="bg-red-50/30">
-            <td className="py-3 px-5 font-mono text-xs font-bold text-red-700 w-24 line-through opacity-60">{c.sigle}</td>
-            <td className="py-3 px-5 text-red-800/70 text-xs italic">La désinscription sera effective après confirmation.</td>
-            <td className="py-3 px-5 text-right">
-              <button 
-                onClick={() => removeFromDropCart(c.ccourseId)}
-                className="text-xs font-semibold text-red-800 underline hover:no-underline"
-              >
-                Annuler l&apos;abandon
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-)}
+          {/* ── 2. SECTION ABANDON (À AFFICHER SEULEMENT SI CARTTODROP > 0) ── */}
+          {cartToDrop.length > 0 && (
+            <div className="bg-red-50 border border-red-100 rounded-xl overflow-hidden ring-1 ring-red-200">
+              <div className="px-5 py-3 border-b border-red-100 flex items-center gap-2">
+                <HiExclamation className="text-red-500 w-4 h-4" />
+                <p className="text-sm font-bold text-red-800">Cours à abandonner</p>
+              </div>
+              <table className="w-full text-sm">
+                <tbody>
+                  {cartToDrop.map((c) => (
+                    <tr key={c.ccourseId} className="bg-red-50/30">
+                      <td className="py-3 px-5 font-mono text-xs font-bold text-red-700 w-24 line-through opacity-60">{c.sigle}</td>
+                      <td className="py-3 px-5 text-red-800/70 text-xs italic">La désinscription sera effective après confirmation.</td>
+                      <td className="py-3 px-5 text-right">
+                        <button 
+                          onClick={() => removeFromDropCart(c.ccourseId)}
+                          className="text-xs font-semibold text-red-800 underline hover:no-underline"
+                        >
+                          Annuler l&apos;abandon
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
           {/* ── Section inscription ── */}
-          {canEnroll && activeSessions.length > 0 && (
+          {canEnroll && ACTIVE_SESSIONS.length > 0 && (
             <>
               {/* Filtre programme — dropdown si plusieurs programmes */}
               {programs.length > 1 && (
@@ -404,45 +403,45 @@ const Subscribe = ({ user }) => {
 
               {/* ── Panier ── */}
               <div className="bg-white border-2 border-blue-100 rounded-xl overflow-hidden shadow-sm">
-  <div className="px-5 py-4 border-b border-slate-100 bg-blue-50/30">
-    <p className="text-sm font-semibold text-slate-900">Résumé des modifications</p>
-  </div>
-  
-  {/* Liste des nouveaux cours à ajouter */}
-  {cart.length > 0 ? (
-     <div className="divide-y divide-slate-50">
-        {cart.map((c) => (
-          <div key={c.ccourseId} className="px-5 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">AJOUT</span>
-              <span className="font-mono text-xs font-bold">{c.sigle}</span>
-              <span className="text-xs text-slate-500">{c.fullName}</span>
-            </div>
-            <button onClick={() => removeFromCart(c.ccourseId)} className="text-slate-300 hover:text-red-500">
-              <HiX className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
-     </div>
-  ) : cartToDrop.length === 0 && (
-    <p className="px-5 py-6 text-center text-sm text-slate-400 italic">Aucune modification en attente.</p>
-  )}
+                <div className="px-5 py-4 border-b border-slate-100 bg-blue-50/30">
+                  <p className="text-sm font-semibold text-slate-900">Résumé des modifications</p>
+                </div>
+    
+                {/* Liste des nouveaux cours à ajouter */}
+                {cart.length > 0 ? (
+                  <div className="divide-y divide-slate-50">
+                      {cart.map((c) => (
+                        <div key={c.ccourseId} className="px-5 py-3 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="bg-green-100 text-green-700 text-[10px] font-bold px-1.5 py-0.5 rounded">AJOUT</span>
+                            <span className="font-mono text-xs font-bold">{c.sigle}</span>
+                            <span className="text-xs text-slate-500">{c.fullName}</span>
+                          </div>
+                          <button onClick={() => removeFromCart(c.ccourseId)} className="text-slate-300 hover:text-red-500">
+                            <HiX className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                ) : cartToDrop.length === 0 && (
+                  <p className="px-5 py-6 text-center text-sm text-slate-400 italic">Aucune modification en attente.</p>
+                )}
 
-  <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-    <div className="text-xs text-slate-500">
-      {cart.length > 0 && <span>+{cart.length} inscription(s) </span>}
-      {cartToDrop.length > 0 && <span className="text-red-600 ml-2">-{cartToDrop.length} abandon(s)</span>}
-    </div>
-    <button
-      onClick={registerCourses}
-      disabled={cart.length === 0 && cartToDrop.length === 0}
-      className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm font-bold px-6 py-2.5 rounded-lg transition-all shadow-md"
-    >
-      <HiCheck className="w-4 h-4" />
-      {getSubmitButtonLabel()}
-    </button>
-  </div>
-</div>
+                <div className="px-5 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                  <div className="text-xs text-slate-500">
+                    {cart.length > 0 && <span>+{cart.length} inscription(s) </span>}
+                    {cartToDrop.length > 0 && <span className="text-red-600 ml-2">-{cartToDrop.length} abandon(s)</span>}
+                  </div>
+                  <button
+                    onClick={registerCourses}
+                    disabled={cart.length === 0 && cartToDrop.length === 0}
+                    className="flex items-center gap-2 bg-blue-800 hover:bg-blue-900 disabled:bg-slate-200 disabled:text-slate-400 text-white text-sm font-bold px-6 py-2.5 rounded-lg transition-all shadow-md"
+                  >
+                    <HiCheck className="w-4 h-4" />
+                    {getSubmitButtonLabel()}
+                  </button>
+                </div>
+              </div>
             </>
           )}
 

@@ -32,4 +32,3 @@
 - [ ] No forgotten console.log
 - [ ] No secrets/credentials in the code
 - [ ] The PR is a reasonable size (< 400 lines)
-- [ ] Configuration made for prod
