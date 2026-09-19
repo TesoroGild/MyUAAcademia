@@ -1,6 +1,6 @@
 import Sidebar from "../sidebar/sidebar";
 import userPicture from "../../assets/img/User_Icon.png";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { HiCheck, HiExclamation, HiX, HiPlus, HiTrash, HiChevronDown, HiAcademicCap } from "react-icons/hi";
 import { getAvailableCoursesS, getStudentSessionCoursesS, enrollStudentsInCoursesS } from "../../services/course.service";
 import { getStudentProgramsS } from "../../services/program.service";
