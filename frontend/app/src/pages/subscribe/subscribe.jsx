@@ -1,6 +1,6 @@
 import Sidebar from "../sidebar/sidebar";
 import userPicture from "../../assets/img/User_Icon.png";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { HiCheck, HiExclamation, HiX, HiPlus, HiTrash, HiChevronDown, HiAcademicCap } from "react-icons/hi";
 import { getAvailableCoursesS, getStudentSessionCoursesS, enrollStudentsInCoursesS } from "../../services/course.service";
 import { getStudentProgramsS } from "../../services/program.service";
@@ -77,7 +77,7 @@ const ProgramDropdown = ({ programs, selected, onSelect }) => {
 
 // ── Page principale ───────────────────────────────────────────────────────────
 const Subscribe = ({ user }) => {
-  const activeSessions = getActiveSessions();
+  const activeSessions = useMemo(() => getActiveSessions(), []);
 
   const [coursesAvailable, setCoursesAvailable]     = useState([]);
   const [filteredCourses, setFilteredCourses]       = useState([]);
@@ -88,46 +88,47 @@ const Subscribe = ({ user }) => {
   const [alerts, setAlerts]                         = useState([]);      // { id, type, message }
   const [isLoading, setIsLoading]                   = useState(false);
   const [cartToDrop, setCartToDrop]                 = useState([]);
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const sc = activeSessions[0]?.session;
+      if (sc) {
+        const res = await getStudentSessionCoursesS({
+          permanentCode: user.permanentCode,
+          yearCourse: year + "",
+          sessionCourse: sc,
+        });
+        if (res.success) setUserCourses(res.courses);
+      }
+
+      // Programmes inscrits (pour le dropdown)
+      const progRes = await getStudentProgramsS(user.permanentCode);
+      if (progRes.success) {
+        const enrolled = progRes.programs.filter((p) => p.isEnrolled);
+        setPrograms(enrolled);
+        // Sélectionne le premier programme par défaut si plusieurs
+        if (enrolled.length > 1) setSelectedProgram(enrolled[0]);
+      }
+
+      const availablePeriods = {
+        winter: activeSessions.some((p) => p.session === "Hiver"),
+        summer: activeSessions.some((p) => p.session === "Été"),
+        autumn: activeSessions.some((p) => p.session === "Automne"),
+      };
+
+      const response = await getAvailableCoursesS(availablePeriods, user.permanentCode);
+      setCoursesAvailable(response);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [user])
   
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      try {
-        const sc = activeSessions[0]?.session;
-        if (sc) {
-          const res = await getStudentSessionCoursesS({
-            permanentCode: user.permanentCode,
-            yearCourse: year + "",
-            sessionCourse: sc,
-          });
-          if (res.success) setUserCourses(res.courses);
-        }
-
-        // Programmes inscrits (pour le dropdown)
-        const progRes = await getStudentProgramsS(user.permanentCode);
-        if (progRes.success) {
-          const enrolled = progRes.programs.filter((p) => p.isEnrolled);
-          setPrograms(enrolled);
-          // Sélectionne le premier programme par défaut si plusieurs
-          if (enrolled.length > 1) setSelectedProgram(enrolled[0]);
-        }
-
-        const availablePeriods = {
-          winter: activeSessions.some((p) => p.session === "Hiver"),
-          summer: activeSessions.some((p) => p.session === "Été"),
-          autumn: activeSessions.some((p) => p.session === "Automne"),
-        };
-
-        const response = await getAvailableCoursesS(availablePeriods, user.permanentCode);
-        setCoursesAvailable(response);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setIsLoading(false);
-      }
-    }
     loadData();
-  }, [user.permanentCode]);
+  }, [loadData]);
 
   useEffect(() => {
     const filterByProgram = (program) => {
