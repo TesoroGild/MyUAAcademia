@@ -88,47 +88,46 @@ const Subscribe = ({ user }) => {
   const [alerts, setAlerts]                         = useState([]);      // { id, type, message }
   const [isLoading, setIsLoading]                   = useState(false);
   const [cartToDrop, setCartToDrop]                 = useState([]);
-
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const sc = activeSessions[0]?.session;
-      if (sc) {
-        const res = await getStudentSessionCoursesS({
-          permanentCode: user.permanentCode,
-          yearCourse: year + "",
-          sessionCourse: sc,
-        });
-        if (res.success) setUserCourses(res.courses);
-      }
-
-      // Programmes inscrits (pour le dropdown)
-      const progRes = await getStudentProgramsS(user.permanentCode);
-      if (progRes.success) {
-        const enrolled = progRes.programs.filter((p) => p.isEnrolled);
-        setPrograms(enrolled);
-        // Sélectionne le premier programme par défaut si plusieurs
-        if (enrolled.length > 1) setSelectedProgram(enrolled[0]);
-      }
-
-      const availablePeriods = {
-        winter: activeSessions.some((p) => p.session === "Hiver"),
-        summer: activeSessions.some((p) => p.session === "Été"),
-        autumn: activeSessions.some((p) => p.session === "Automne"),
-      };
-
-      const response = await getAvailableCoursesS(availablePeriods, user.permanentCode);
-      setCoursesAvailable(response);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [activeSessions, user])
   
   useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const sc = activeSessions[0]?.session;
+        if (sc) {
+          const res = await getStudentSessionCoursesS({
+            permanentCode: user.permanentCode,
+            yearCourse: year + "",
+            sessionCourse: sc,
+          });
+          if (res.success) setUserCourses(res.courses);
+        }
+
+        // Programmes inscrits (pour le dropdown)
+        const progRes = await getStudentProgramsS(user.permanentCode);
+        if (progRes.success) {
+          const enrolled = progRes.programs.filter((p) => p.isEnrolled);
+          setPrograms(enrolled);
+          // Sélectionne le premier programme par défaut si plusieurs
+          if (enrolled.length > 1) setSelectedProgram(enrolled[0]);
+        }
+
+        const availablePeriods = {
+          winter: activeSessions.some((p) => p.session === "Hiver"),
+          summer: activeSessions.some((p) => p.session === "Été"),
+          autumn: activeSessions.some((p) => p.session === "Automne"),
+        };
+
+        const response = await getAvailableCoursesS(availablePeriods, user.permanentCode);
+        setCoursesAvailable(response);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
     loadData();
-  }, [loadData]);
+  }, [user.permanentCode]);
 
   useEffect(() => {
     const filterByProgram = (program) => {
